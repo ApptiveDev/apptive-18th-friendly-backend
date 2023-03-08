@@ -1,13 +1,13 @@
-package apptive.team1.exchangeLanguage;
+package apptive.team1.friendly;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ExchangeLanguageApplication {
+public class FriendlyApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ExchangeLanguageApplication.class, args);
+		SpringApplication.run(FriendlyApplication.class, args);
 	}
 
 }
