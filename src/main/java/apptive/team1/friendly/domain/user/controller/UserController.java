@@ -1,8 +1,8 @@
 package apptive.team1.friendly.domain.user.controller;
 
-import apptive.team1.friendly.domain.user.data.dto.RequestSignUp;
-import apptive.team1.friendly.domain.user.data.dto.ResponseSignUp;
-import apptive.team1.friendly.domain.user.data.dto.ResponseUserInfo;
+import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
+import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
+import apptive.team1.friendly.domain.user.data.dto.UserInfoResponse;
 import apptive.team1.friendly.domain.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +25,10 @@ public class UserController {
      * 회원가입 api
      */
     @PostMapping("/signup")
-    public ResponseEntity<ResponseSignUp> signup(@Valid @RequestBody RequestSignUp requestSignUp) {
-        ResponseSignUp responseSignUp = userService.signUp(requestSignUp);
+    public ResponseEntity<SignupResponse> signup(@Valid @RequestBody SignupRequest signupRequest) {
+        SignupResponse signupResponse = userService.signUp(signupRequest);
 
-        return new ResponseEntity<>(responseSignUp, HttpStatus.OK);
+        return new ResponseEntity<>(signupResponse, HttpStatus.OK);
     }
 
     /**
@@ -36,7 +36,7 @@ public class UserController {
      */
     @GetMapping("/myinfo")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<ResponseUserInfo> getMyUserInfo() {
+    public ResponseEntity<UserInfoResponse> getMyUserInfo() {
         return new ResponseEntity<>(userService.getUserWithAuthorities(), HttpStatus.OK);
     }
 
@@ -45,7 +45,7 @@ public class UserController {
      */
     @GetMapping("/info/{username}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<ResponseUserInfo> getUserInfo(@PathVariable String username) {
+    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String username) {
         return new ResponseEntity<>(userService.getUserWithAuthorities(username), HttpStatus.OK);
     }
 }

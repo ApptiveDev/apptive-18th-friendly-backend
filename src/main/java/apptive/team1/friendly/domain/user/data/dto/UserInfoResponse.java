@@ -1,14 +1,12 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
-import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,7 +15,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseUserInfo {
+public class UserInfoResponse {
     @Column(nullable = false, unique = true)
     private String username;    // 로그인 id
 
@@ -41,10 +39,10 @@ public class ResponseUserInfo {
 
     private Set<String> accountAuthorities = new HashSet<>(); // 권한
 
-    public static ResponseUserInfo of(Account account) {
+    public static UserInfoResponse of(Account account) {
         if (account == null) return null;
 
-        return ResponseUserInfo.builder()
+        return UserInfoResponse.builder()
                 .username(account.getUsername())
                 .email(account.getEmail())
                 .firstName(account.getFirstName())

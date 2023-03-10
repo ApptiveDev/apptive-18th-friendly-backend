@@ -1,8 +1,8 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.domain.user.data.dto.RequestSignUp;
-import apptive.team1.friendly.domain.user.data.dto.ResponseSignUp;
-import apptive.team1.friendly.domain.user.data.dto.ResponseUserInfo;
+import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
+import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
+import apptive.team1.friendly.domain.user.data.dto.UserInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
@@ -12,9 +12,6 @@ import apptive.team1.friendly.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Collections;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -33,8 +30,8 @@ public class UserService {
      * 회원가입
      */
     @Transactional
-    public ResponseSignUp signUp(RequestSignUp requestSignUp) {
-        if (accountRepository.findOneWithAccountAuthoritiesByUsername(requestSignUp.getUsername()).orElseGet(() -> null) != null) {
+    public SignupResponse signUp(SignupRequest signupRequest) {
+        if (accountRepository.findOneWithAccountAuthoritiesByUsername(signupRequest.getUsername()).orElseGet(() -> null) != null) {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
 
@@ -43,17 +40,17 @@ public class UserService {
                 .build();
 
         Account user = Account.builder()
-                .username(requestSignUp.getUsername())
-                .email(requestSignUp.getEmail())
-                .password(passwordEncoder.encode(requestSignUp.getPassword()))
-                .firstName(requestSignUp.getFirstName())
-                .lastName(requestSignUp.getLastName())
-                .nation(requestSignUp.getNation())
-                .language(requestSignUp.getLanguage())
-                .interest(requestSignUp.getInterest())
-                .favorite(requestSignUp.getFavorite())
-                .introduction(requestSignUp.getIntroduction())
-                .gender(requestSignUp.getGender())
+                .username(signupRequest.getUsername())
+                .email(signupRequest.getEmail())
+                .password(passwordEncoder.encode(signupRequest.getPassword()))
+                .firstName(signupRequest.getFirstName())
+                .lastName(signupRequest.getLastName())
+                .nation(signupRequest.getNation())
+                .language(signupRequest.getLanguage())
+                .interest(signupRequest.getInterest())
+                .favorite(signupRequest.getFavorite())
+                .introduction(signupRequest.getIntroduction())
+                .gender(signupRequest.getGender())
                 .activated(true)
                 .build();
 
@@ -66,7 +63,7 @@ public class UserService {
         user.getAccountAuthorities().add(accountAuthority);
 
         accountAuthorityRepository.save(accountAuthority);
-        return ResponseSignUp.of(accountRepository.save(user));
+        return SignupResponse.of(accountRepository.save(user));
     }
 
 
@@ -74,12 +71,12 @@ public class UserService {
      * username으로 UserInfo Dto 반환
      */
     @Transactional(readOnly = true)
-    public ResponseUserInfo getUserWithAuthorities(String username) {
-        return ResponseUserInfo.of(accountRepository.findOneWithAccountAuthoritiesByUsername(username).orElseGet(() -> null));
+    public UserInfoResponse getUserWithAuthorities(String username) {
+        return UserInfoResponse.of(accountRepository.findOneWithAccountAuthoritiesByUsername(username).orElseGet(() -> null));
     }
 
     @Transactional(readOnly = true)
-    public ResponseUserInfo getUserWithAuthorities() {
-        return ResponseUserInfo.of(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByUsername).orElseGet(() -> null));
+    public UserInfoResponse getUserWithAuthorities() {
+        return UserInfoResponse.of(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByUsername).orElseGet(() -> null));
     }
 }
