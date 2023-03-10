@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,15 +13,15 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseSignUp {
+public class SignupResponse {
 
     private String username;
     private Set<String> authoritySet;
 
-    public static ResponseSignUp of(Account account) {
+    public static SignupResponse of(Account account) {
         if (account == null) return null;
 
-        return ResponseSignUp.builder()
+        return SignupResponse.builder()
                 .username(account.getUsername())
                 .authoritySet(account.getAccountAuthorities().stream()
                         .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())

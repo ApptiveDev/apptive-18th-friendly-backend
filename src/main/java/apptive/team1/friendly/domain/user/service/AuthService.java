@@ -1,6 +1,6 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.domain.user.data.dto.ResponseLogin;
+import apptive.team1.friendly.domain.user.data.dto.LoginResponse;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.jwt.JwtTokenProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +22,7 @@ public class AuthService {
         this.accountRepository = accountRepository;
     }
 
-    public ResponseLogin authenticate(String username, String password) {
+    public LoginResponse authenticate(String username, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, password);
 
@@ -32,7 +32,7 @@ public class AuthService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        return ResponseLogin.builder()
+        return LoginResponse.builder()
                 .accessToken(jwt)
                 .build();
     }
