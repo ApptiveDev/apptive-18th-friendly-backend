@@ -53,15 +53,22 @@ public class JwtTokenProvider {
     }
 
     /**
-     * token -> Authentication
+     * token -> claims
      */
-    public Authentication getAuthentication(String token) {
-        // token -> claims
-        Claims claims = Jwts.parserBuilder()
+    public Claims getClaimsFromToken(String token) {
+        return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    /**
+     * token -> Authentication
+     */
+    public Authentication getAuthentication(String token) {
+        // token -> claims
+        Claims claims = getClaimsFromToken(token);
 
         // claims -> authorities
         Collection<? extends GrantedAuthority> authorities
