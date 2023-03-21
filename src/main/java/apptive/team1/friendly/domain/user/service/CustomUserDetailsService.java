@@ -24,27 +24,27 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     /**
-     * username을 통해서 userDetails.User 객체를 반환한다.
+     * email을 통해서 userDetails.User 객체를 반환한다.
      */
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findOneWithAccountAuthoritiesByUsername(username)    // DB에서 user와 authorities를 가져온다.
-                .map(account -> createUser(username, account))                    // 활성화상태라면 userdetails.User 객체를 반환한다.
-                .orElseThrow(()-> new UsernameNotFoundException(username + " -> 데이터베이스에서 찾을 수 없습니다."));
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return accountRepository.findOneWithAccountAuthoritiesByEmail(email)    // DB에서 user와 authorities를 가져온다.
+                .map(account -> createUser(email, account))                    // 활성화상태라면 userdetails.User 객체를 반환한다.
+                .orElseThrow(()-> new UsernameNotFoundException(email + " -> 데이터베이스에서 찾을 수 없습니다."));
     }
 
     /**
      * user가 활성화상태라면 권한정보와 password를 통해서 userDetails.User 객체를 return
      */
-    private User createUser(String username, Account account) {
+    private User createUser(String email, Account account) {
         if (!account.isActivated()) {
-            throw new RuntimeException(username + " -> 활성화되어 있지 않습니다.");
+            throw new RuntimeException(email + " -> 활성화되어 있지 않습니다.");
         }
         List<GrantedAuthority> grantedAuthorities = account.getAccountAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
                 .collect(Collectors.toList());
 
-        return new User(account.getUsername(), account.getPassword(), grantedAuthorities);
+        return new User(account.getEmail(), account.getPassword(), grantedAuthorities);
     }
 }

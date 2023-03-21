@@ -43,9 +43,9 @@ public class UserController {
     /**
      * ADMIN 전용 회원 조회 api
      */
-    @GetMapping("/info/{username}")
+    @GetMapping("/info/{email}")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String username) {
-        return new ResponseEntity<>(userService.getUserWithAuthorities(username), HttpStatus.OK);
+    public ResponseEntity<UserInfoResponse> getUserInfo(@PathVariable String email) {
+        return new ResponseEntity<>(userService.getUserWithAuthoritiesByEmail(email), HttpStatus.OK);
     }
 }

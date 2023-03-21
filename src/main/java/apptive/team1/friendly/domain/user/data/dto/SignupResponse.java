@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -15,17 +17,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class SignupResponse {
 
-    private String username;
-    private Set<String> authoritySet;
+    private String email;
 
     public static SignupResponse of(Account account) {
         if (account == null) return null;
 
         return SignupResponse.builder()
-                .username(account.getUsername())
-                .authoritySet(account.getAccountAuthorities().stream()
-                        .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())
-                        .collect(Collectors.toSet()))
+                .email(account.getEmail())
                 .build();
     }
 }

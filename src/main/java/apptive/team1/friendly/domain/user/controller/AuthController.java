@@ -29,7 +29,7 @@ public class AuthController {
     @PostMapping("/authenticate")
     public ResponseEntity<LoginResponse> authorize(@Valid @RequestBody LoginRequest loginRequest) {
 
-        LoginResponse accessToken = authService.authenticate(loginRequest.getUsername(), loginRequest.getPassword());
+        LoginResponse accessToken = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);
