@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    @EntityGraph(attributePaths = "accountAuthorities")
-    Optional<Account> findOneWithAccountAuthoritiesByUsername(String username);
 
+    @EntityGraph(attributePaths = "accountAuthorities")
+    Optional<Account> findOneWithAccountAuthoritiesByEmail(String email);
 }
