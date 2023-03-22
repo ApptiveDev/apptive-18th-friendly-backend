@@ -1,29 +1,17 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import org.apache.logging.log4j.message.LoggerNameAwareMessage;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@Builder
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class SignupRequest {
-
-    @NotNull
-    @Size(min = 3, max = 50)
-    private String email;  // 이메일
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull
-    @Size(min = 3, max = 50)
-    private String password;    // 비밀번호
+@Getter
+@Setter
+public class GoogleSignUpRequest {
 
     private String firstName;   // 이름
 

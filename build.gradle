@@ -33,6 +33,14 @@ dependencies {
 	/** flyway */
 //	implementation 'org.flywaydb:flyway-core:9.15.0'
 
+	/** OAuth 2 */
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.7.8'
+
+	/** google */
+	implementation ('com.google.api-client:google-api-client:2.2.0')
+	implementation ('com.google.http-client:google-http-client-jackson2:1.43.0')
+	implementation ('org.springframework.security.oauth:spring-security-oauth2:2.5.2.RELEASE')
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
