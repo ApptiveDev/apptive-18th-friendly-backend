@@ -1,7 +1,7 @@
 package apptive.team1.friendly.domain.user.controller;
 
-import apptive.team1.friendly.domain.user.data.dto.RequestLogin;
-import apptive.team1.friendly.domain.user.data.dto.ResponseLogin;
+import apptive.team1.friendly.domain.user.data.dto.LoginRequest;
+import apptive.team1.friendly.domain.user.data.dto.LoginResponse;
 import apptive.team1.friendly.domain.user.service.AuthService;
 import apptive.team1.friendly.jwt.JwtFilter;
 import org.springframework.http.HttpHeaders;
@@ -27,9 +27,9 @@ public class AuthController {
      * 로그인 api
      */
     @PostMapping("/authenticate")
-    public ResponseEntity<ResponseLogin> authorize(@Valid @RequestBody RequestLogin requestLogin) {
+    public ResponseEntity<LoginResponse> authorize(@Valid @RequestBody LoginRequest loginRequest) {
 
-        ResponseLogin accessToken = authService.authenticate(requestLogin.getUsername(), requestLogin.getPassword());
+        LoginResponse accessToken = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);

@@ -18,30 +18,18 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;    // 로그인 id
-
     @Column(nullable = false)
+    private String email;  // 이메일 (username 겸함)
+
     private String password;    // 비밀번호
-
-    @Column(nullable = false)
-    private String email;  // 이메일
 
     private String firstName;   // 이름
 
     private String lastName;    // 성
 
-    private Long nation;    // 국가
-
-    private Long language;  // 언어
-
-    private Long interest;  // 하고 싶은 활동
-
-    private Long favorite;  // 좋아하는 것
+    private Long gender; // 성별
 
     private String introduction;    // 자기소개
-
-    private Long gender; // 성별
 
     @OneToMany(mappedBy = "account")
     @Builder.Default

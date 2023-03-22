@@ -50,12 +50,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/hello").permitAll()  // hello 인증이 없어도 접근 가능
-                .antMatchers("/api/user/authenticate").permitAll()  // 로그인 인증이 없어도 접근 가능
-                .antMatchers("/api/user/signup").permitAll() // 회원가입 인증이 없어도 접근 가능
+                .antMatchers("/api/user/authenticate", "/api/user/signup").permitAll()  // 로그인 인증이 없어도 접근 가능
+                .antMatchers().permitAll() // 회원가입 인증이 없어도 접근 가능
+                .antMatchers("/api/google/login", "/api/google/signup").permitAll()
+                .antMatchers("/google/login" ,"/google/login/redirect").permitAll()
                 .anyRequest().authenticated()
                 // jwt filter config
                 .and()
                 .apply(new JwtSecurityConfig(jwtTokenProvider));
+
+
 
     }
 }

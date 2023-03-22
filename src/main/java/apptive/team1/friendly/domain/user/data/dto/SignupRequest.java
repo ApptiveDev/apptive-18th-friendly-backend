@@ -8,16 +8,13 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestSignUp {
-
-    @NotNull
-    @Size(min = 3, max = 50)
-    private String username;    // 로그인 id
+public class SignupRequest {
 
     @NotNull
     @Size(min = 3, max = 50)
@@ -28,22 +25,19 @@ public class RequestSignUp {
     @Size(min = 3, max = 50)
     private String password;    // 비밀번호
 
-    @NotNull
     private String firstName;   // 이름
 
-    @NotNull
     private String lastName;    // 성
 
-    private Long nation;    // 국가
+    private String nation;    // 국가
 
-    private Long language;  // 언어
-
-    private Long interest;  // 하고 싶은 활동
-
-    private Long favorite;  // 좋아하는 것
+    private Long gender; // 성별
 
     private String introduction;    // 자기소개
 
-    @NotNull
-    private Long gender; // 성별
+    private List<String> languages;  // 언어
+
+    private List<Long> languageLevels; // 언어 수준
+
+    private List<String> interests;  // 하고 싶은 활동
 }

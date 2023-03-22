@@ -1,16 +1,17 @@
-package apptive.team1.friendly.domain.user.data.entity;
+package apptive.team1.friendly.domain.user.data.entity.profile;
 
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Builder
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class AccountAuthority {
+@NoArgsConstructor
+public class AccountInterest {
     @Id
     @GeneratedValue
     private Long id;
@@ -20,6 +21,6 @@ public class AccountAuthority {
     private Account account;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "authority_id")
-    private Authority authority;
+    @JoinColumn(name = "interest_id")
+    private Interest interest;
 }
