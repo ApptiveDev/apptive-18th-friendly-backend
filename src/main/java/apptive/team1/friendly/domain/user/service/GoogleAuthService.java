@@ -118,6 +118,7 @@ public class GoogleAuthService {
         user.getAccountAuthorities().add(accountAuthority);
 
         accountAuthorityRepository.save(accountAuthority);
+        authorityRepository.save(authority);
         accountRepository.save(user);
     }
 
