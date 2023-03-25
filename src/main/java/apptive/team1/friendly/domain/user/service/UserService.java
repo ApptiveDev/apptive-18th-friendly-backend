@@ -133,10 +133,12 @@ public class UserService {
     @Transactional
     public SignupResponse googleSignUp(GoogleSignUpRequest signupRequest, String token) {
 
-        Authority authority = authorityRepository.getReferenceById("ROLE_USER");
-
         String email = jwtTokenProvider.getClaimsFromToken(token).getSubject();
-        Account user = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("회원을 찾을 수가 없습니다."));
+        Account user = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("구글 로그인 이후 추가 정보 회원가입이 가능합니다."));
+
+        if (user.getFirstName() != null) {
+            throw new RuntimeException("이미 추가 정보 회원가입되어 있는 회원입니다.");
+        }
 
         user.setFirstName(signupRequest.getFirstName());
         user.setLastName(signupRequest.getLastName());
@@ -186,15 +188,6 @@ public class UserService {
 
         accountNationRepository.save(accountNation);
 
-        AccountAuthority accountAuthority = AccountAuthority.builder()
-                .account(user)
-                .authority(authority)
-                .build();
-
-        authority.getAccountAuthorities().add(accountAuthority);
-        user.getAccountAuthorities().add(accountAuthority);
-
-        accountAuthorityRepository.save(accountAuthority);
         return SignupResponse.of(accountRepository.save(user));
     }
 
