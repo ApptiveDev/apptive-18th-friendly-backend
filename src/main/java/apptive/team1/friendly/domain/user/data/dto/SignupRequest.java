@@ -31,13 +31,13 @@ public class SignupRequest {
 
     private String nation;    // 국가
 
-    private Long gender; // 성별
+    private String gender; // 성별
 
     private String introduction;    // 자기소개
 
     private List<String> languages;  // 언어
 
-    private List<Long> languageLevels; // 언어 수준
+    private List<String> languageLevels; // 언어 수준
 
     private List<String> interests;  // 하고 싶은 활동
 }

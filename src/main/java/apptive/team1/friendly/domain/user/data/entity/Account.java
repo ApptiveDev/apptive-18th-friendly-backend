@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.user.data.entity;
 
+import apptive.team1.friendly.domain.user.data.entity.profile.Gender;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,7 +28,9 @@ public class Account {
 
     private String lastName;    // 성
 
-    private Long gender; // 성별
+    @ManyToOne
+    @JoinColumn(name = "gender_id")
+    private Gender gender;
 
     private String introduction;    // 자기소개
 

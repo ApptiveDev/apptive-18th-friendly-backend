@@ -1,7 +1,6 @@
 package apptive.team1.friendly.domain.user.data.entity.profile;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.Authority;
 import lombok.*;
 
 import javax.persistence.*;
@@ -25,5 +24,7 @@ public class AccountLanguage {
     @JoinColumn(name = "language_id")
     private Language language;
 
-    private Long level;
+    @ManyToOne
+    @JoinColumn(name = "language_level_id")
+    private LanguageLevel level;
 }
