@@ -1,24 +1,29 @@
 package apptive.team1.friendly.domain.user.service;
 
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.common.s3.FileInfo;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
 import apptive.team1.friendly.domain.user.data.dto.UserInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.profile.EntityToDtoConverter;
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
 import apptive.team1.friendly.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class UserService {
@@ -34,11 +39,13 @@ public class UserService {
     private final AccountInterestRepository accountInterestRepository;
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
+    private final ProfileImgRepository profileImgRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final AwsS3Uploader awsS3Uploader;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public UserService(AccountRepository accountRepository, AuthorityRepository authorityRepository, AccountAuthorityRepository accountAuthorityRepository, InterestRepository interestRepository, LanguageRepository languageRepository, LanguageLevelRepository languageLevelRepository, NationRepository nationRepository, GenderRepository genderRepository, AccountInterestRepository accountInterestRepository, AccountLanguageRepository accountLanguageRepository, AccountNationRepository accountNationRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public UserService(AccountRepository accountRepository, AuthorityRepository authorityRepository, AccountAuthorityRepository accountAuthorityRepository, InterestRepository interestRepository, LanguageRepository languageRepository, LanguageLevelRepository languageLevelRepository, NationRepository nationRepository, GenderRepository genderRepository, AccountInterestRepository accountInterestRepository, AccountLanguageRepository accountLanguageRepository, AccountNationRepository accountNationRepository, ProfileImgRepository profileImgRepository, AwsS3Uploader awsS3Uploader, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.accountRepository = accountRepository;
         this.authorityRepository = authorityRepository;
         this.accountAuthorityRepository = accountAuthorityRepository;
@@ -50,6 +57,8 @@ public class UserService {
         this.accountInterestRepository = accountInterestRepository;
         this.accountLanguageRepository = accountLanguageRepository;
         this.accountNationRepository = accountNationRepository;
+        this.profileImgRepository = profileImgRepository;
+        this.awsS3Uploader = awsS3Uploader;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
     }
@@ -59,7 +68,7 @@ public class UserService {
      */
     @Transactional
     public SignupResponse signUp(SignupRequest signupRequest) {
-        if (accountRepository.findOneWithAccountAuthoritiesByEmail(signupRequest.getEmail()).orElseGet(() -> null) != null) {
+        if (accountRepository.findOneWithAccountAuthoritiesByEmail(signupRequest.getEmail()).orElse(null) != null) {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
 
@@ -70,7 +79,7 @@ public class UserService {
         addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
-        addNation(account, signupRequest.getNation());
+        addNation(account, signupRequest.getNation(), signupRequest.getCity());
         addAuthority(account, authority);
 
         return SignupResponse.of(accountRepository.save(account));
@@ -96,7 +105,7 @@ public class UserService {
         addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
-        addNation(account, signupRequest.getNation());
+        addNation(account, signupRequest.getNation(), signupRequest.getCity());
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -107,6 +116,7 @@ public class UserService {
                 .password(passwordEncoder.encode(signupRequest.getPassword()))
                 .firstName(signupRequest.getFirstName())
                 .lastName(signupRequest.getLastName())
+                .birthday(signupRequest.getBirthday())
                 .introduction(signupRequest.getIntroduction())
                 .activated(true)
                 .build();
@@ -130,7 +140,7 @@ public class UserService {
     }
 
     private void addLanguages(Account user, List<String> languages, List<String> languageLevels) {
-        IntStream.range(0, languages.size()).forEach(i -> {
+        for (int i = 0; i < languages.size(); i++) {
             String languageName = languages.get(i);
             Language language = languageRepository.findOneByName(languageName)
                     .orElseGet(() -> {
@@ -153,10 +163,10 @@ public class UserService {
                     .build();
 
             accountLanguageRepository.save(accountLanguage);
-        });
+        }
     }
 
-    private void addNation(Account user, String nationName) {
+    private void addNation(Account user, String nationName, String cityName) {
         Nation nation = nationRepository.findOneByName(nationName)
                 .orElseGet(() -> {
                     Nation newNation = Nation.builder().name(nationName).build();
@@ -166,6 +176,7 @@ public class UserService {
         AccountNation accountNation = AccountNation.builder()
                 .account(user)
                 .nation(nation)
+                .city(cityName)
                 .build();
 
         accountNationRepository.save(accountNation);
@@ -195,6 +206,7 @@ public class UserService {
     }
 
     private void extraSignup(Account account, GoogleSignUpRequest signupRequest) {
+        account.setBirthday(signupRequest.getBirthday());
         account.setFirstName(signupRequest.getFirstName());
         account.setLastName(signupRequest.getLastName());
         account.setIntroduction(signupRequest.getIntroduction());
@@ -210,9 +222,11 @@ public class UserService {
         AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElseGet(() -> null);
 
         return UserInfoResponse.builder()
+                .id(account.getId())
                 .email(account.getEmail())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
+                .birthday(account.getBirthday())
                 .gender(account.getGender().getName())
                 .introduction(account.getIntroduction())
                 .interests(accountInterests.stream()
@@ -242,5 +256,31 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserInfoResponse getUserWithAuthoritiesByEmail(String email) {
         return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseGet(() -> null));
+    }
+
+    /**
+     * 회원 이미지 업로드
+     */
+    public ProfileImgDto accountProfileImgUpload(MultipartFile multipartFile) throws IOException {
+        // 회원 찾기
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseGet(() -> null);
+        if (account == null) throw new RuntimeException("회원을 찾을 수가 없습니다.");
+
+        // 기존 이미지 제거
+        Optional<ProfileImg> accountProfile = profileImgRepository.findOneByAccount(account);
+        if (accountProfile.isPresent()) {
+            awsS3Uploader.delete(accountProfile.get().getUploadFileName());
+            profileImgRepository.delete(accountProfile.get());
+        }
+
+        // aws 파일 업로드
+        FileInfo fileInfo = awsS3Uploader.upload(multipartFile, account.getEmail());
+        ProfileImg profileImg = ProfileImg.of(account, fileInfo);
+
+        // db에 이미지 정보 저장
+        profileImgRepository.save(profileImg);
+
+        // profileImg를 profileImgDto로 변환 후 반환
+        return EntityToDtoConverter.profileImgToProfileImgDto(profileImg);
     }
 }

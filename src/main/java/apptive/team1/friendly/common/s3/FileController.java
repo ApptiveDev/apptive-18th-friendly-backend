@@ -19,7 +19,7 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public String upload(@RequestParam("file")MultipartFile multipartFile) throws IOException {
+    public FileInfo upload(@RequestParam("file")MultipartFile multipartFile) throws IOException {
         return awsS3Uploader.upload(multipartFile, "file");
     }
 }

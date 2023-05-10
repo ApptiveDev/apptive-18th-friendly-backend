@@ -26,7 +26,7 @@ public class AwsS3Uploader {
     /**
      * MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
      */
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException {
+    public FileInfo upload(MultipartFile multipartFile, String dirName) throws IOException {
         File uploadFile = convert(multipartFile)        // 파일 생성
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile에서 File 전환 실패"));
 
@@ -49,11 +49,18 @@ public class AwsS3Uploader {
     /**
      * S3에 dirName(폴더이름)/고유번호+파일이름으로 업로드
      */
-    private String upload(File uploadFile, String dirName) {
+    private FileInfo upload(File uploadFile, String dirName) {
         String fileName = dirName + "/" + UUID.randomUUID() + uploadFile.getName(); // 폴더/고유파일이름
-        String uploadImageUrl = putS3(uploadFile, fileName);    // s3로 업로드
+        String uploadUrl = putS3(uploadFile, fileName);    // s3로 업로드
         removeNewFile(uploadFile);
-        return uploadImageUrl;  // 업로드된 파일 S3 URL 주소
+
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setOriginalFileName(uploadFile.getName());
+        fileInfo.setUploadFileName(fileName);
+        fileInfo.setUploadFilePath(dirName);
+        fileInfo.setUploadFileUrl(uploadUrl);
+
+        return fileInfo;
     }
 
     /**
