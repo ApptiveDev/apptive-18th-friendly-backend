@@ -18,11 +18,15 @@ import java.util.Set;
 @AllArgsConstructor
 public class UserInfoResponse {
 
+    private Long id;
+
     private String email;  // 이메일
 
     private String firstName;   // 이름
 
     private String lastName;    // 성
+
+    private String birthday;    // 생일
 
     private String gender; // 성별
 

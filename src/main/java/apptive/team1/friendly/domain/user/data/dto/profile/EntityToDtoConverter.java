@@ -28,6 +28,17 @@ public class EntityToDtoConverter {
         NationDto nationDto = new NationDto();
         nationDto.setId(nation.getId());
         nationDto.setName(nation.getName());
+        nationDto.setCity(accountNation.getCity());
         return nationDto;
+    }
+
+    public static ProfileImgDto profileImgToProfileImgDto(ProfileImg profileImg) {
+        ProfileImgDto profileImgDto = new ProfileImgDto();
+        profileImgDto.setEmail(profileImg.getAccount().getEmail());
+        profileImgDto.setUploadFileName(profileImg.getUploadFileName());
+        profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
+        profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
+        profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
+        return profileImgDto;
     }
 }

@@ -4,7 +4,7 @@ import apptive.team1.friendly.config.GoogleOauth;
 import apptive.team1.friendly.domain.user.data.dto.*;
 import apptive.team1.friendly.domain.user.service.GoogleAuthService;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -13,7 +13,11 @@ public class GoogleSignUpRequest {
 
     private String lastName;    // 성
 
+    private String birthday;    // 생일
+
     private String nation;    // 국가
+
+    private String city;    // 도시
 
     private String gender; // 성별
 

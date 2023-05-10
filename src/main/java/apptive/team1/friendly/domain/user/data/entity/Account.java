@@ -28,6 +28,8 @@ public class Account {
 
     private String lastName;    // 성
 
+    private String birthday;    // 생일
+
     @ManyToOne
     @JoinColumn(name = "gender_id")
     private Gender gender;
@@ -39,4 +41,5 @@ public class Account {
     private Set<AccountAuthority> accountAuthorities = new HashSet<>(); // 권한
 
     private boolean activated;  // 활성화 여부
+
 }

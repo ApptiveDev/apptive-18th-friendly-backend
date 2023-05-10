@@ -1,4 +1,4 @@
-package apptive.team1.friendly.jwt;
+package apptive.team1.friendly.common.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;

@@ -1,6 +1,6 @@
-package apptive.team1.friendly.jwt.config;
+package apptive.team1.friendly.common.jwt.config;
 
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

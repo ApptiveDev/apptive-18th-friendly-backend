@@ -25,6 +25,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-test'
 
+	/** aws s3 */
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
 	/** mariadb */
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.1.2'
 
@@ -34,7 +37,7 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
 	/** flyway */
-//	implementation 'org.flywaydb:flyway-core:9.15.0'
+	implementation 'org.flywaydb:flyway-mysql'
 
 	/** OAuth 2 */
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.7.8'

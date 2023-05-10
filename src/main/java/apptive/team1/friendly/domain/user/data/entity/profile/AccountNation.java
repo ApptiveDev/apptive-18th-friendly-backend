@@ -1,7 +1,6 @@
 package apptive.team1.friendly.domain.user.data.entity.profile;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.Authority;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,4 +23,6 @@ public class AccountNation {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "nation_id")
     private Nation nation;
+
+    private String city;
 }
