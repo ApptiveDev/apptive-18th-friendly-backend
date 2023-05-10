@@ -2,7 +2,7 @@ package apptive.team1.friendly.domain.user.service;
 
 import apptive.team1.friendly.domain.user.data.dto.LoginResponse;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;

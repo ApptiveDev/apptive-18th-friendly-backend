@@ -3,7 +3,7 @@ package apptive.team1.friendly.domain.user.controller;
 import apptive.team1.friendly.domain.user.data.dto.LoginRequest;
 import apptive.team1.friendly.domain.user.data.dto.LoginResponse;
 import apptive.team1.friendly.domain.user.service.AuthService;
-import apptive.team1.friendly.jwt.JwtFilter;
+import apptive.team1.friendly.common.jwt.JwtFilter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

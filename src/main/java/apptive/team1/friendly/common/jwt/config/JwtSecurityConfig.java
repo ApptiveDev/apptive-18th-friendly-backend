@@ -1,7 +1,7 @@
-package apptive.team1.friendly.jwt.config;
+package apptive.team1.friendly.common.jwt.config;
 
-import apptive.team1.friendly.jwt.JwtFilter;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtFilter;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;

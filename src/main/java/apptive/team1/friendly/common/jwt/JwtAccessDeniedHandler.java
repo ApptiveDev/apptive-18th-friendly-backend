@@ -1,4 +1,4 @@
-package apptive.team1.friendly.jwt;
+package apptive.team1.friendly.common.jwt;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
