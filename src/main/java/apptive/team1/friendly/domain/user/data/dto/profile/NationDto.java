@@ -8,4 +8,5 @@ import lombok.Setter;
 public class NationDto {
     private Long id;
     private String name;
+    private String city;
 }

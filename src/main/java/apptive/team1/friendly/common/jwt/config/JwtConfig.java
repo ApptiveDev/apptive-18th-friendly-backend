@@ -1,6 +1,6 @@
-package apptive.team1.friendly.jwt.config;
+package apptive.team1.friendly.common.jwt.config;
 
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +15,11 @@ public class JwtConfig {
 
     /**
      * Access Token Provider
+     * refresh token을 구현하기전까지는 accessToken의 유효기간을 365일로 함
      */
     @Bean(name = "tokenProvider")
     public JwtTokenProvider tokenProvider() {
-        return new JwtTokenProvider(accessTokenSecret, accessTokenValidityInSeconds);
+        return new JwtTokenProvider(accessTokenSecret, accessTokenValidityInSeconds * 6 * 24 * 365);
     }
 
 }

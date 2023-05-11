@@ -8,5 +8,5 @@ import lombok.Setter;
 public class LanguageDto {
     private Long id;
     private String name;
-    private Long level;
+    private String level;
 }

@@ -1,9 +1,9 @@
 package apptive.team1.friendly.config;
 
-import apptive.team1.friendly.jwt.JwtAccessDeniedHandler;
-import apptive.team1.friendly.jwt.JwtAuthenticationEntryPoint;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
-import apptive.team1.friendly.jwt.config.JwtSecurityConfig;
+import apptive.team1.friendly.common.jwt.JwtAccessDeniedHandler;
+import apptive.team1.friendly.common.jwt.JwtAuthenticationEntryPoint;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.config.JwtSecurityConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

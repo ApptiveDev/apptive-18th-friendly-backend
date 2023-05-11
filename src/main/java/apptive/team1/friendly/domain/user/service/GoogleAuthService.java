@@ -8,7 +8,7 @@ import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.repository.AccountAuthorityRepository;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.data.repository.AuthorityRepository;
-import apptive.team1.friendly.jwt.JwtTokenProvider;
+import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
@@ -58,42 +58,46 @@ public class GoogleAuthService {
                 .build();
 
         // (Receive idTokenString by HTTPS POST)
-        GoogleIdToken idToken = verifier.verify(idTokenString);
-        if (idToken != null) {
-            Payload payload = idToken.getPayload();
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                Payload payload = idToken.getPayload();
 
-            String userId = payload.getSubject();
-            String email = payload.getEmail();
-            boolean emailVerified = payload.getEmailVerified();
-            String name = (String) payload.get("name");
+                String userId = payload.getSubject();
+                String email = payload.getEmail();
+                boolean emailVerified = payload.getEmailVerified();
+                String name = (String) payload.get("name");
 
-            // Other user attributes as needed
+                // Other user attributes as needed
 //            String pictureUrl = (String) payload.get("picture");
 //            String locale = (String) payload.get("locale");
 //            String familyName = (String) payload.get("family_name");
 //            String givenName = (String) payload.get("given_name");
 
-            Account account = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElse(null);
-            // 처음 사용자일때
-            if (account == null) {
-                tempSignup(email);
-                GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
-                response.setRegistered(false);
-                return response;
+                Account account = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElse(null);
+                // 처음 사용자일때
+                if (account == null) {
+                    tempSignup(email);
+                    GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
+                    response.setRegistered(false);
+                    return response;
+                }
+                // 회원 가입을 완료하지 않은 사용자일때
+                else if (!account.isActivated()){
+                    GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
+                    response.setRegistered(false);
+                    return response;
+                }
+                // 기존 사용자일때
+                else {
+                    GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
+                    response.setRegistered(true);
+                    return response;
+                }
+            } else {
+                throw new RuntimeException("Invalid ID token.");
             }
-            // 회원 가입을 완료하지 않은 사용자일때
-            else if (!account.isActivated()){
-                GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
-                response.setRegistered(false);
-                return response;
-            }
-            // 기존 사용자일때
-            else {
-                GoogleLoginResponse response = googleLoginByGoogleIdToken(idTokenString, email);
-                response.setRegistered(true);
-                return response;
-            }
-        } else {
+        } catch (IOException e) {
             throw new RuntimeException("Invalid ID token.");
         }
     }
@@ -118,6 +122,7 @@ public class GoogleAuthService {
         user.getAccountAuthorities().add(accountAuthority);
 
         accountAuthorityRepository.save(accountAuthority);
+        authorityRepository.save(authority);
         accountRepository.save(user);
     }
 
