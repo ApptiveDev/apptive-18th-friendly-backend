@@ -2,8 +2,8 @@ package apptive.team1.friendly.domain.post.entity;
 
 import lombok.Getter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +11,9 @@ import java.util.List;
 @Getter
 public class Post {
 
+    @Id
+    @Column(name = "post_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -24,16 +27,17 @@ public class Post {
 
     private int maxPeople;
 
-    private List<String> hashTag;
-
-    private AccountPost accountPost;
+//    private List<String> hashTag = new ArrayList<String>();
 
     @Column(length = 1000)
     private String rule;
 
     private String destination;
-    // private img
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<AccountPost> accountPosts = new ArrayList<AccountPost>();
+
+    // private img
 
 //    public void update(Post post) {
 //        title = post.getTitle();
