@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.service;
 
+import apptive.team1.friendly.domain.post.dto.UpdatePostDto;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,11 @@ public class PostService {
         postRepository.save(post);
     }
 
-//    @Transactional
-//    public void update(Long postId, Post post) {
-//        Post findOne = postRepository.findOneById(postId);
-//        findOne.update(post);
-//    }
+    @Transactional
+    public void update(Long postId, UpdatePostDto postDto) {
+        Post findPost = postRepository.findOneById(postId);
+        findPost.change(postDto);
+    }
 
 
     public List<Post> findAll() {

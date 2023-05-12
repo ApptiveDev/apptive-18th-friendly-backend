@@ -15,10 +15,10 @@ public class PostRepository {
 
     public void save(Post post) {
         if(post.getId() == null) {
-            em.persist(post);
+            em.persist(post); //신규
         }
         else {
-            em.merge(post);
+            em.merge(post); // 업데이트
         }
     }
 
