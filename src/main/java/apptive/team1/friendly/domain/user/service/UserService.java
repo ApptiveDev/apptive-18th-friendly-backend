@@ -3,10 +3,10 @@ package apptive.team1.friendly.domain.user.service;
 import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import apptive.team1.friendly.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
-import apptive.team1.friendly.domain.user.data.dto.UserInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.profile.EntityToDtoConverter;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -96,10 +95,6 @@ public class UserService {
         String email = jwtTokenProvider.getClaimsFromToken(token).getSubject();
         Account account = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("구글 로그인 이후 추가 정보 회원가입이 가능합니다."));
 
-        if (account.getFirstName() != null) {
-            throw new RuntimeException("이미 추가 정보 회원가입되어 있는 회원입니다.");
-        }
-
         extraSignup(account, signupRequest);
 
         addGender(account, signupRequest.getGender());
@@ -123,6 +118,7 @@ public class UserService {
     }
 
     private void addInterests(Account account, List<String> interests) {
+        accountInterestRepository.deleteByAccount(account);
         interests.stream().forEach(interestName -> {
             Interest interest = interestRepository.findOneByName(interestName)
                     .orElseGet(() -> {
@@ -139,7 +135,9 @@ public class UserService {
         });
     }
 
-    private void addLanguages(Account user, List<String> languages, List<String> languageLevels) {
+    private void addLanguages(Account account, List<String> languages, List<String> languageLevels) {
+        accountLanguageRepository.deleteByAccount(account);
+
         for (int i = 0; i < languages.size(); i++) {
             String languageName = languages.get(i);
             Language language = languageRepository.findOneByName(languageName)
@@ -157,7 +155,7 @@ public class UserService {
                     });
 
             AccountLanguage accountLanguage = AccountLanguage.builder()
-                    .account(user)
+                    .account(account)
                     .language(language)
                     .level(languageLevel)
                     .build();
@@ -166,7 +164,7 @@ public class UserService {
         }
     }
 
-    private void addNation(Account user, String nationName, String cityName) {
+    private void addNation(Account account, String nationName, String cityName) {
         Nation nation = nationRepository.findOneByName(nationName)
                 .orElseGet(() -> {
                     Nation newNation = Nation.builder().name(nationName).build();
@@ -174,11 +172,12 @@ public class UserService {
                 });
 
         AccountNation accountNation = AccountNation.builder()
-                .account(user)
+                .account(account)
                 .nation(nation)
                 .city(cityName)
                 .build();
 
+        accountNationRepository.deleteByAccount(account);
         accountNationRepository.save(accountNation);
     }
 
@@ -216,46 +215,37 @@ public class UserService {
     /**
      * Account 객체를 UserInfoResponse로 반환
      */
-    public UserInfoResponse accountToUserInfo(Account account) {
+    public AccountInfoResponse accountToUserInfo(Account account) {
         List<AccountInterest> accountInterests = accountInterestRepository.findAllByAccount(account);
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
-        AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElseGet(() -> null);
+        ProfileImg profileImg = profileImgRepository.findOneByAccount(account).orElse(null);
+        AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElse(null);
 
-        return UserInfoResponse.builder()
-                .id(account.getId())
-                .email(account.getEmail())
-                .firstName(account.getFirstName())
-                .lastName(account.getLastName())
-                .birthday(account.getBirthday())
-                .gender(account.getGender().getName())
-                .introduction(account.getIntroduction())
-                .interests(accountInterests.stream()
-                        .map(EntityToDtoConverter::interestToInterestDto)
-                        .collect(Collectors.toList()))
-                .languages(accountLanguages.stream()
-                        .map(EntityToDtoConverter::languageToLanguageDto)
-                        .collect(Collectors.toList()))
-                .nation(EntityToDtoConverter.nationToNationDto(accountNation))
-                .accountAuthorities(account.getAccountAuthorities().stream()
-                        .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())
-                        .collect(Collectors.toSet()))
-                .build();
+        return EntityToDtoConverter.accountToInfoDto(account, accountInterests, accountLanguages, profileImg, accountNation);
     }
 
     /**
-     * 최근 로그인 사용자 정보 조회
+     * 로그인 사용자 정보 조회
      */
     @Transactional(readOnly = true)
-    public UserInfoResponse getUserWithAuthorities() {
+    public AccountInfoResponse getUserWithAuthorities() {
         return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseGet(() -> null));
+    }
+
+    /**
+     * id로 AccountInfoResponse 반환
+     */
+    @Transactional(readOnly = true)
+    public AccountInfoResponse  getUserWithAuthoritiesById(Long id) {
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElse(null));
     }
 
     /**
      * email로 UserInfoResponse 반환
      */
     @Transactional(readOnly = true)
-    public UserInfoResponse getUserWithAuthoritiesByEmail(String email) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseGet(() -> null));
+    public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElse(null));
     }
 
     /**
