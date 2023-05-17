@@ -225,7 +225,7 @@ public class UserService {
     }
 
     /**
-     * 최근 로그인 사용자 정보 조회
+     * 로그인 사용자 정보 조회
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
@@ -233,11 +233,19 @@ public class UserService {
     }
 
     /**
+     * id로 AccountInfoResponse 반환
+     */
+    @Transactional(readOnly = true)
+    public AccountInfoResponse  getUserWithAuthoritiesById(Long id) {
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElse(null));
+    }
+
+    /**
      * email로 UserInfoResponse 반환
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseGet(() -> null));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElse(null));
     }
 
     /**

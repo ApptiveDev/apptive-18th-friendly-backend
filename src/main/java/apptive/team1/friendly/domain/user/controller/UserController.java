@@ -39,14 +39,22 @@ public class UserController {
      */
     @GetMapping("/myinfo")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<AccountInfoResponse> getMyUserInfo() {
+    public ResponseEntity<AccountInfoResponse> getMyAccountInfo() {
         return new ResponseEntity<>(userService.getUserWithAuthorities(), HttpStatus.OK);
+    }
+
+    /**
+     * id 기반 회원 조회 api
+     */
+    @GetMapping("/info/id/{id}")
+    public ResponseEntity<AccountInfoResponse> getAccountInfoById(@PathVariable Long id) {
+        return new ResponseEntity<>(userService.getUserWithAuthoritiesById(id), HttpStatus.OK);
     }
 
     /**
      * ADMIN 전용 회원 조회 api
      */
-    @GetMapping("/info/{email}")
+    @GetMapping("/info/email/{email}")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<AccountInfoResponse> getUserInfo(@PathVariable String email) {
         return new ResponseEntity<>(userService.getUserWithAuthoritiesByEmail(email), HttpStatus.OK);
