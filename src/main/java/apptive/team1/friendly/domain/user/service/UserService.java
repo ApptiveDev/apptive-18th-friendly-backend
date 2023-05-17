@@ -218,9 +218,10 @@ public class UserService {
     public AccountInfoResponse accountToUserInfo(Account account) {
         List<AccountInterest> accountInterests = accountInterestRepository.findAllByAccount(account);
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
-        AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElseGet(() -> null);
+        ProfileImg profileImg = profileImgRepository.findOneByAccount(account).orElse(null);
+        AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElse(null);
 
-        return EntityToDtoConverter.accountToInfoDto(account, accountInterests, accountLanguages, accountNation);
+        return EntityToDtoConverter.accountToInfoDto(account, accountInterests, accountLanguages, profileImg, accountNation);
     }
 
     /**

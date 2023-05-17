@@ -50,6 +50,7 @@ public class EntityToDtoConverter {
     public static AccountInfoResponse accountToInfoDto(Account account,
                                                        List<AccountInterest> accountInterests,
                                                        List<AccountLanguage> accountLanguages,
+                                                       ProfileImg profileImg,
                                                        AccountNation accountNation) {
 
         return AccountInfoResponse.builder()
@@ -66,6 +67,7 @@ public class EntityToDtoConverter {
                 .languages(accountLanguages.stream()
                         .map(EntityToDtoConverter::languageToLanguageDto)
                         .collect(Collectors.toList()))
+                .profileImgDto(EntityToDtoConverter.profileImgToProfileImgDto(profileImg))
                 .nation(EntityToDtoConverter.nationToNationDto(accountNation))
                 .accountAuthorities(account.getAccountAuthorities().stream()
                         .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())
