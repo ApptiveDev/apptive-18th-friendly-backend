@@ -1,21 +1,27 @@
 package apptive.team1.friendly.domain.post.dto;
 
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.Column;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Getter
+@Getter @Setter
 public class PostListDto {
     // 게시판 리스트에 보이는 필드
     private String title;
 
-    @Column(length = 500)
-    private String description;
-
     private int maxPeople;
 
-    private Date promiseTime;
+    private LocalDateTime promiseTime;
 
     private String location;
+
+    private List<HashTag> hashTag = new ArrayList<HashTag>();
+
+    private String image;
+
 }

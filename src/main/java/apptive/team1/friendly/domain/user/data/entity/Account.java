@@ -1,10 +1,13 @@
 package apptive.team1.friendly.domain.user.data.entity;
 
+import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.user.data.entity.profile.Gender;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,5 +44,8 @@ public class Account {
     private Set<AccountAuthority> accountAuthorities = new HashSet<>(); // 권한
 
     private boolean activated;  // 활성화 여부
+
+    @OneToMany(mappedBy = "user")
+    private List<AccountPost> accountPosts =  new ArrayList<AccountPost>(); // 임의 추가
 
 }

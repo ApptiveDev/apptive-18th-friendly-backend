@@ -54,6 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers().permitAll() // 회원가입 인증이 없어도 접근 가능
                 .antMatchers("/api/google/login", "/api/google/signup").permitAll()
                 .antMatchers("/google/login" ,"/google/login/redirect").permitAll()
+                .antMatchers("/posts").permitAll()
+                .antMatchers(("/posts/1")).permitAll()
                 .anyRequest().authenticated()
                 // jwt filter config
                 .and()

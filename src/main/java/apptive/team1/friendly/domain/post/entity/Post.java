@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.throwException;
@@ -20,6 +19,7 @@ public class Post {
 
     public Post(AccountPost accountPost, String title, String description, int maxPeople, LocalDateTime promiseTime, String location, List<String> rules, List<HashTag> hashTag) {
         accountPosts.add(accountPost);
+        this.author = accountPost;
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -44,10 +44,14 @@ public class Post {
 
     private LocalDateTime promiseTime;
 
-    private String location; // 장소 string 으로 받는지?
-    // 방 만들 때 뭐뭐 입력받는지?
-    
+    private String location;
+
+    private String image;
+
     // 게시글에 들어가야 보이는 필드
+    @OneToOne
+    private AccountPost author;
+
     @ElementCollection
     @Enumerated(EnumType.STRING)
     private List<HashTag> hashTag = new ArrayList<HashTag>();
