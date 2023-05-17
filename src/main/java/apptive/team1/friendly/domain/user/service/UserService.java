@@ -95,10 +95,6 @@ public class UserService {
         String email = jwtTokenProvider.getClaimsFromToken(token).getSubject();
         Account account = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("구글 로그인 이후 추가 정보 회원가입이 가능합니다."));
 
-        if (account.getFirstName() != null) {
-            throw new RuntimeException("이미 추가 정보 회원가입되어 있는 회원입니다.");
-        }
-
         extraSignup(account, signupRequest);
 
         addGender(account, signupRequest.getGender());
@@ -122,6 +118,7 @@ public class UserService {
     }
 
     private void addInterests(Account account, List<String> interests) {
+        accountInterestRepository.deleteByAccount(account);
         interests.stream().forEach(interestName -> {
             Interest interest = interestRepository.findOneByName(interestName)
                     .orElseGet(() -> {
@@ -138,7 +135,9 @@ public class UserService {
         });
     }
 
-    private void addLanguages(Account user, List<String> languages, List<String> languageLevels) {
+    private void addLanguages(Account account, List<String> languages, List<String> languageLevels) {
+        accountLanguageRepository.deleteByAccount(account);
+
         for (int i = 0; i < languages.size(); i++) {
             String languageName = languages.get(i);
             Language language = languageRepository.findOneByName(languageName)
@@ -156,7 +155,7 @@ public class UserService {
                     });
 
             AccountLanguage accountLanguage = AccountLanguage.builder()
-                    .account(user)
+                    .account(account)
                     .language(language)
                     .level(languageLevel)
                     .build();
@@ -165,7 +164,7 @@ public class UserService {
         }
     }
 
-    private void addNation(Account user, String nationName, String cityName) {
+    private void addNation(Account account, String nationName, String cityName) {
         Nation nation = nationRepository.findOneByName(nationName)
                 .orElseGet(() -> {
                     Nation newNation = Nation.builder().name(nationName).build();
@@ -173,11 +172,12 @@ public class UserService {
                 });
 
         AccountNation accountNation = AccountNation.builder()
-                .account(user)
+                .account(account)
                 .nation(nation)
                 .city(cityName)
                 .build();
 
+        accountNationRepository.deleteByAccount(account);
         accountNationRepository.save(accountNation);
     }
 
