@@ -38,6 +38,8 @@ public class EntityToDtoConverter {
     }
 
     public static ProfileImgDto profileImgToProfileImgDto(ProfileImg profileImg) {
+        if (profileImg == null) return null;
+
         ProfileImgDto profileImgDto = new ProfileImgDto();
         profileImgDto.setEmail(profileImg.getAccount().getEmail());
         profileImgDto.setUploadFileName(profileImg.getUploadFileName());
