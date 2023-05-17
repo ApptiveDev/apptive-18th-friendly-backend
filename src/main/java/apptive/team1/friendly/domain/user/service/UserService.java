@@ -3,10 +3,10 @@ package apptive.team1.friendly.domain.user.service;
 import apptive.team1.friendly.common.jwt.JwtTokenProvider;
 import apptive.team1.friendly.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
-import apptive.team1.friendly.domain.user.data.dto.UserInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.profile.EntityToDtoConverter;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -216,37 +215,19 @@ public class UserService {
     /**
      * Account 객체를 UserInfoResponse로 반환
      */
-    public UserInfoResponse accountToUserInfo(Account account) {
+    public AccountInfoResponse accountToUserInfo(Account account) {
         List<AccountInterest> accountInterests = accountInterestRepository.findAllByAccount(account);
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
         AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElseGet(() -> null);
 
-        return UserInfoResponse.builder()
-                .id(account.getId())
-                .email(account.getEmail())
-                .firstName(account.getFirstName())
-                .lastName(account.getLastName())
-                .birthday(account.getBirthday())
-                .gender(account.getGender().getName())
-                .introduction(account.getIntroduction())
-                .interests(accountInterests.stream()
-                        .map(EntityToDtoConverter::interestToInterestDto)
-                        .collect(Collectors.toList()))
-                .languages(accountLanguages.stream()
-                        .map(EntityToDtoConverter::languageToLanguageDto)
-                        .collect(Collectors.toList()))
-                .nation(EntityToDtoConverter.nationToNationDto(accountNation))
-                .accountAuthorities(account.getAccountAuthorities().stream()
-                        .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())
-                        .collect(Collectors.toSet()))
-                .build();
+        return EntityToDtoConverter.accountToInfoDto(account, accountInterests, accountLanguages, accountNation);
     }
 
     /**
      * 최근 로그인 사용자 정보 조회
      */
     @Transactional(readOnly = true)
-    public UserInfoResponse getUserWithAuthorities() {
+    public AccountInfoResponse getUserWithAuthorities() {
         return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseGet(() -> null));
     }
 
@@ -254,7 +235,7 @@ public class UserService {
      * email로 UserInfoResponse 반환
      */
     @Transactional(readOnly = true)
-    public UserInfoResponse getUserWithAuthoritiesByEmail(String email) {
+    public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
         return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseGet(() -> null));
     }
 
