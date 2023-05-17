@@ -3,6 +3,7 @@ package apptive.team1.friendly.domain.user.data.dto;
 import apptive.team1.friendly.domain.user.data.dto.profile.InterestDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,9 +17,9 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserInfoResponse {
+public class AccountInfoResponse {
 
-    private Long id;
+    private Long id;    // 회원 id
 
     private String email;  // 이메일
 
@@ -37,6 +38,8 @@ public class UserInfoResponse {
     private List<InterestDto> interests;  // 하고 싶은 활동
 
     private NationDto nation;    // 국가
+
+    private ProfileImgDto profileImgDto;    // 프로필 이미지
 
     private Set<String> accountAuthorities = new HashSet<>(); // 권한
 }
