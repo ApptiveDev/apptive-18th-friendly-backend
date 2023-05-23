@@ -1,8 +1,8 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.common.jwt.JwtTokenProvider;
-import apptive.team1.friendly.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
