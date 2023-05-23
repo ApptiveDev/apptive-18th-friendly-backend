@@ -14,7 +14,7 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
-import apptive.team1.friendly.utils.SecurityUtil;
+import apptive.team1.friendly.global.utils.SecurityUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
