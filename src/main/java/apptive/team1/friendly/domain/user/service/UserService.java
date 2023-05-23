@@ -15,6 +15,7 @@ import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
 import apptive.team1.friendly.global.utils.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final AccountRepository accountRepository;
