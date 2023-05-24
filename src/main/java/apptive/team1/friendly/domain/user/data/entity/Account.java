@@ -11,7 +11,6 @@ import java.util.Set;
 @Builder
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 public class Account {
     @Id
@@ -42,4 +41,8 @@ public class Account {
 
     private boolean activated;  // 활성화 여부
 
+    public Account() {
+        email = "";
+        accountAuthorities = new HashSet<>();
+    }
 }

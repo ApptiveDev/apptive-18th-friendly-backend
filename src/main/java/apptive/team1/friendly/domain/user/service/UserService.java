@@ -86,15 +86,17 @@ public class UserService {
     }
 
     private Account createAccount(SignupRequest signupRequest) {
-        return Account.builder()
-                .email(signupRequest.getEmail())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .firstName(signupRequest.getFirstName())
-                .lastName(signupRequest.getLastName())
-                .birthday(signupRequest.getBirthday())
-                .introduction(signupRequest.getIntroduction())
-                .activated(true)
-                .build();
+        Account account = accountRepository.findOneByEmail(signupRequest.getEmail()).orElseGet(() -> accountRepository.save(new Account()));
+
+        account.setEmail(signupRequest.getEmail());
+        account.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        account.setFirstName(signupRequest.getFirstName());
+        account.setLastName(signupRequest.getLastName());
+        account.setBirthday(signupRequest.getBirthday());
+        account.setIntroduction(signupRequest.getIntroduction());
+        account.setActivated(true);
+
+        return account;
     }
 
     private void addInterests(Account account, List<String> interests) {
