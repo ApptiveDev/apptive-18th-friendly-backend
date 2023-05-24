@@ -15,11 +15,11 @@ public class AccountAuthority {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "authority_id")
     private Authority authority;
 }

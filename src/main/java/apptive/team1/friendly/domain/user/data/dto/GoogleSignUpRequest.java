@@ -28,4 +28,20 @@ public class GoogleSignUpRequest {
     private List<String> languageLevels; // 언어 수준
 
     private List<String> interests;  // 하고 싶은 활동
+
+    @Override
+    public String toString() {
+        return "GoogleSignUpRequest{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthday='" + birthday + '\'' +
+                ", nation='" + nation + '\'' +
+                ", city='" + city + '\'' +
+                ", gender='" + gender + '\'' +
+                ", introduction='" + introduction + '\'' +
+                ", languages=" + languages +
+                ", languageLevels=" + languageLevels +
+                ", interests=" + interests +
+                '}';
+    }
 }
