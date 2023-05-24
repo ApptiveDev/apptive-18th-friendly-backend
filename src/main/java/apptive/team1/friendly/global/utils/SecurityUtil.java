@@ -36,4 +36,15 @@ public class SecurityUtil {
 
         return Optional.ofNullable(username);
     }
+
+    public static Authentication getAuthenticationByEmail(String email) {
+        // Create a UserDetails object representing the authenticated user
+        UserDetails userDetails = User.builder()
+                .username(email)
+                .password("unused")
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))) // Set appropriate authorities
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
 }
