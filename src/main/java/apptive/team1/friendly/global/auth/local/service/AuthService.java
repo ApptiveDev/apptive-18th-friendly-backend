@@ -22,9 +22,15 @@ public class AuthService {
         this.accountRepository = accountRepository;
     }
 
-    public LoginResponse authenticate(String username, String password) {
+    /**
+     * 자체 로그인
+     * @param email
+     * @param password
+     * @return
+     */
+    public LoginResponse authenticate(String email, String password) {
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(username, password);
+                new UsernamePasswordAuthenticationToken(email, password);
 
         // 이 과정에서 CustomUserDetailsService 에서 우리가 재정의한 loadUserByUsername 메서드 호출
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);

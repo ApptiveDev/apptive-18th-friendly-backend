@@ -49,11 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // api 경로 설정
                 .and()
                 .authorizeRequests()
-                .antMatchers("/api/hello").permitAll()  // hello 인증이 없어도 접근 가능
-                .antMatchers("/api/user/authenticate", "/api/user/signup").permitAll()  // 로그인 인증이 없어도 접근 가능
-                .antMatchers().permitAll() // 회원가입 인증이 없어도 접근 가능
+                .antMatchers("/api/hello").permitAll()  // test api hello 인증이 없어도 접근 가능
+                .antMatchers("/api/user/auth", "/api/user/signup").permitAll()  // 로그인 인증이 없어도 접근 가능
                 .antMatchers("/api/google/login", "/api/google/signup").permitAll()
-                .antMatchers("/google/login" ,"/google/login/redirect").permitAll()
+                .antMatchers("/auth/social/GOOGLE", "/auth/social/KAKAO").permitAll()
+                .antMatchers("/auth/social/GOOGLE/callback", "/auth/social/KAKAO/callback").permitAll()
                 .anyRequest().authenticated()
                 // jwt filter config
                 .and()

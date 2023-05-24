@@ -26,7 +26,7 @@ public class AuthController {
     /**
      * 로그인 api
      */
-    @PostMapping("/authenticate")
+    @PostMapping("/auth")
     public ResponseEntity<LoginResponse> authorize(@Valid @RequestBody LoginRequest loginRequest) {
 
         LoginResponse accessToken = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
