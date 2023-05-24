@@ -45,7 +45,4 @@ public class Account {
 
     private boolean activated;  // 활성화 여부
 
-    @OneToMany(mappedBy = "user")
-    private List<AccountPost> accountPosts =  new ArrayList<AccountPost>(); // 임의 추가
-
 }

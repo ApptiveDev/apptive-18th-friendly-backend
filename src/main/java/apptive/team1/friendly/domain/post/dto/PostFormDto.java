@@ -1,8 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.HashTag;
-import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
-import apptive.team1.friendly.domain.user.data.entity.Account;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,11 +13,12 @@ import java.util.List;
 
 @Getter @Setter
 @NoArgsConstructor
-public class PostDto {
+public class PostFormDto {
 
-    public PostDto(Long id, AccountInfoResponse accountInfo, String title, List<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, List<String> rules) {
-        this.accountInfo = accountInfo;
-        this.postId = id;
+    /**
+     * 새로 글 쓰는 경우 생성자. postId가 없음
+     */
+    public PostFormDto(String title, List<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, List<String> rules) {
         this.title = title;
         this.hashTag = hashTag;
         this.maxPeople = maxPeople;
@@ -28,9 +27,22 @@ public class PostDto {
         this.location = location;
         this.rules = rules;
     }
-    private Long postId;
 
-    private AccountInfoResponse accountInfo;
+//    /**
+//     * update할 때 생성자. postId를 body로 받음
+//     */
+//    public PostFormDto(Long postId, String title, List<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, List<String> rules) {
+//        this.postId = postId;
+//        this.title = title;
+//        this.hashTag = hashTag;
+//        this.maxPeople = maxPeople;
+//        this.description = description;
+//        this.promiseTime = promiseTime;
+//        this.location = location;
+//        this.rules = rules;
+//    }
+
+//    private Long postId; // update 할 때만 사용
 
     private String title;
 

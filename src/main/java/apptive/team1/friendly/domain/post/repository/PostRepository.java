@@ -29,6 +29,17 @@ public class PostRepository {
     }
 
     /**
+     * 게시물 삭제
+     * 삭제되는 게시물 수 리턴
+     */
+    public int delete(Account author, Long postId) {
+
+        return em.createQuery("delete from Post p where p.id =: postId")
+                .setParameter("postId", postId)
+                .executeUpdate();
+    }
+
+    /**
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
@@ -41,21 +52,6 @@ public class PostRepository {
     public List<Post> findAll() {
         return em.createQuery("select p from Post p", Post.class)
                 .getResultList();
-    }
-
-    /**
-     * 임의의 user가 쓴 게시믈 조회
-     */
-    public List<Post> findByUser(Long userId) {
-        Account user = em.find(Account.class, userId);
-        List<AccountPost> accountPosts = user.getAccountPosts();
-
-        List<Post> posts = new ArrayList<Post>();
-        for(AccountPost accountPost: accountPosts) {
-            Post post = accountPost.getPost();
-            posts.add(post);
-        }
-        return posts;
     }
 
 

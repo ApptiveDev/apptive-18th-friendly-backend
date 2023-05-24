@@ -2,10 +2,16 @@ package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.UpdatePostDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,13 +19,14 @@ import java.util.List;
 import static java.lang.invoke.MethodHandles.throwException;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 public class Post {
 
-    public Post(AccountPost accountPost, String title, String description, int maxPeople, LocalDateTime promiseTime, String location, List<String> rules, List<HashTag> hashTag) {
-        accountPosts.add(accountPost);
-        this.author = accountPost;
+    public Post(String title, String description, int maxPeople, LocalDateTime promiseTime, String location, List<String> rules, List<HashTag> hashTag) {
+//        accountPosts.add(accountPost);
+//        accountPost.setPost(this);
+//        this.author = accountPost;
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -42,6 +49,7 @@ public class Post {
 
     private int maxPeople;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private LocalDateTime promiseTime;
 
     private String location;
@@ -49,8 +57,6 @@ public class Post {
     private String image;
 
     // 게시글에 들어가야 보이는 필드
-    @OneToOne
-    private AccountPost author;
 
     @ElementCollection
     @Enumerated(EnumType.STRING)
@@ -59,46 +65,5 @@ public class Post {
     @ElementCollection
     private List<String> rules = new ArrayList<String>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
-    private final List<AccountPost> accountPosts = new ArrayList<AccountPost>();
 
-
-    /**
-     * 인원 추가
-     */
-    public void addUser(AccountPost accountPost) {
-        if(accountPosts.size() < maxPeople) {
-            accountPosts.add(accountPost);
-        }
-        else {
-//            throwException(Full);
-        }
-    }
-
-    /**
-     * 인원 삭제
-     */
-    public void quitUser(AccountPost accountPost) {
-        if(accountPosts.contains(accountPost)) {
-            accountPosts.remove(accountPost);
-        }
-        else {
-//            throwException(invalidQuit);
-        }
-    }
-
-    /**
-     * 현재 방의 인원수
-     */
-    public int getPeopleCount() {
-        return accountPosts.size();
-    }
-
-    /**
-     * 게시물 업데이트
-     * @param dto
-     */
-    public void change(UpdatePostDto dto) {
-        
-    }
 }

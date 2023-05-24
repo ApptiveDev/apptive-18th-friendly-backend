@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-import java.util.Date;
+import java.util.Optional;
 
 import static javax.persistence.FetchType.LAZY;
 
@@ -20,11 +20,11 @@ public class AccountPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 데이터 베이스에 위임 MySQL Auto_Increment
     private Long id;
 
-    @ManyToOne(fetch = LAZY) // 실제로 Post 객체가 필요 할 때 fetch. AccountPost 조회할 때 같이 fetch 하지 않음
+    @ManyToOne(cascade = CascadeType.ALL, fetch = LAZY) // 실제로 Post 객체가 필요 할 때 fetch. AccountPost 조회할 때 같이 fetch 하지 않음
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(fetch = LAZY)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = LAZY) // AccountPost객체가 제거될 때 user도 같이 제거되면 안되므로 저장할 때만 반영
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 
@@ -35,5 +35,5 @@ public class AccountPost {
         return this.id == accountPost.id;
     }
 
-    // private img
+
 }
