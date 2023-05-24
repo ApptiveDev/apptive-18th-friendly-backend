@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-public interface ProfileImgRepository extends JpaRepository<ProfileImg, Long> {
+public interface AccountProfileImgRepository extends JpaRepository<ProfileImg, Long> {
     Optional<ProfileImg> findOneByAccount(Account account);
 
     @Transactional
