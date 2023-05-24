@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GoogleLoginResponse {
+public class SocialAuthResponse {
 
     private String accessToken;
     private boolean isRegistered;
