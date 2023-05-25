@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
+import apptive.team1.friendly.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -58,4 +59,7 @@ public class PostFormDto {
     private String location;
 
     private List<String> rules = new ArrayList<String>();
+
+    // 이미지 필드
+    private FileInfo fileInfo;
 }

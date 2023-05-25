@@ -63,7 +63,7 @@ public class PostService {
      * userId로 user가 쓴 게시물 리스트 찾기
      */
     public List<Post> findPostsByUserId(Long userId) {
-        return accountPostRepository.findByUser(userId);
+        return postRepository.findByUser(userId);
     }
 
 
@@ -100,7 +100,9 @@ public class PostService {
         newAccountPost.setPost(post);
 
         // post 저장, postId 리턴
-        return accountPostRepository.save(newAccountPost);
+        accountPostRepository.save(newAccountPost);
+
+        return post.getId();
     }
 
     /**
@@ -115,7 +117,6 @@ public class PostService {
 //        author.setEmail("test@test");
 //        author.setFirstName("mw");
 //        author.setLastName("mw2");
-
         //
 
         // 삭제한 post의 id 리턴. test용 9번 아이디 user
@@ -124,37 +125,53 @@ public class PostService {
     }
 
     /**
-     * 게시물 수정
+     * 게시물 수정(업데이트)
      */
     @Transactional
-    public Long updatePost(Long postId, PostFormDto postFormDto) {
+    public Long updatePost(Long postId, PostFormDto updatePostDto) {
         // author 찾기
-//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-        // test용
-//        Account author = new Account();
-//        author.setEmail("test@test");
-//        author.setFirstName("mw");
-//        author.setLastName("mw2");
-        //
+        // postId에 해당하는 AccountPost 찾기
+        AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
 
-        // update한 post의 id 리턴
-//        return accountPostRepository.update(postId, author.getId(), postFormDto);
-        return accountPostRepository.update(9L, 8L, postFormDto);
+        // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
+        if(author.getId() != findAccountPost.getUser().getId())
+            throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
+
+        // AccountPost와 연관된 post 찾음
+        Post findPost = findAccountPost.getPost();
+
+        // 찾은 게시물에 값 옮기기
+        findPost.setTitle(updatePostDto.getTitle());
+        findPost.setHashTag(updatePostDto.getHashTag());
+        findPost.setLocation(updatePostDto.getLocation());
+        findPost.setRules(updatePostDto.getRules());
+        findPost.setMaxPeople(updatePostDto.getMaxPeople());
+        findPost.setDescription(updatePostDto.getDescription());
+        findPost.setPromiseTime(updatePostDto.getPromiseTime());
+
+        accountPostRepository.save(findAccountPost);
+        return findPost.getId();
     }
 
+
+    /**
+     * DTO 설정 메소드
+     */
     public PostDto setPostDto(Long postId) {
         Post findPost = findByPostId(postId);
 
         // post id로 user 찾는 기능 추가
-//        Account postOwner = userService.findByPostId(postId);
+        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
+        Account postOwner = accountPost.getUser();
 
-//        AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
+        AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
 
         PostDto postDto = new PostDto();
 
         // accountInfo를 설정
-//        postDto.setAccountInfo(accountInfo);
+        postDto.setAccountInfo(accountInfo);
 
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());

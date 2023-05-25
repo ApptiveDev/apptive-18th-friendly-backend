@@ -1,22 +1,15 @@
 package apptive.team1.friendly.domain.post.entity;
 
-import apptive.team1.friendly.domain.post.dto.UpdatePostDto;
-import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.common.s3.FileInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.invoke.MethodHandles.throwException;
 
 @Entity
 @Getter @Setter
@@ -24,9 +17,6 @@ import static java.lang.invoke.MethodHandles.throwException;
 public class Post {
 
     public Post(String title, String description, int maxPeople, LocalDateTime promiseTime, String location, List<String> rules, List<HashTag> hashTag) {
-//        accountPosts.add(accountPost);
-//        accountPost.setPost(this);
-//        this.author = accountPost;
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -54,7 +44,6 @@ public class Post {
 
     private String location;
 
-    private String image;
 
     // 게시글에 들어가야 보이는 필드
 
@@ -65,5 +54,6 @@ public class Post {
     @ElementCollection
     private List<String> rules = new ArrayList<String>();
 
-
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL) // Post 저장시 연관되어 있는 Comment들도 함께 저장
+    private List<Comment> comments = new ArrayList<Comment>();
 }

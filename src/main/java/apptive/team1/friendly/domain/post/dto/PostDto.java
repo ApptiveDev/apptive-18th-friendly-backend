@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
+import apptive.team1.friendly.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -46,4 +47,5 @@ public class PostDto {
     private String location;
 
     private List<String> rules = new ArrayList<String>();
+
 }

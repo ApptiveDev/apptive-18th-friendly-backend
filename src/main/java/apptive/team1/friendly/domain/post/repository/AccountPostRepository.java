@@ -15,36 +15,25 @@ import java.util.List;
 public class AccountPostRepository {
     private final EntityManager em;
 
+    public AccountPost findOneByPostId(Long postId) {
+        // postId에 해당하는 AccountPost를 찾음
+        return em.createQuery("select ap from AccountPost ap where ap.post.id = :postId", AccountPost.class)
+                .setParameter("postId", postId)
+                .getSingleResult();
+    }
+
     /**
-     * accountPost 저장
+     * 게시물 추가 및 수정
      */
-    public Long save(AccountPost accountPost) {
+    public void save(AccountPost accountPost) {
         if(accountPost.getId() == null) {
             em.persist(accountPost); //신규
-            return accountPost.getId();
         }
         else {
-            throw new RuntimeException("이미 존재하는 글입니다.");
+            em.merge(accountPost); // 수정
         }
     }
 
-
-    /**
-     * 임의의 user가 쓴 게시믈 userId로 조회
-     */
-    public List<Post> findByUser(Long userId) {
-        List<AccountPost> accountPosts = em.createQuery("select ap from AccountPost ap where ap.user.id =: userId", AccountPost.class)
-                .setParameter("userId", userId)
-                .getResultList();
-
-        List<Post> posts = new ArrayList<>();
-
-        for(AccountPost accountPost : accountPosts) {
-            posts.add(accountPost.getPost());
-        }
-
-        return posts;
-    }
 
     /**
      * 게시물 삭제
@@ -65,31 +54,31 @@ public class AccountPostRepository {
         return postId;
     }
 
-    /**
-     * 게시물 업데이트
-     */
-    public Long update(Long postId, Long userId, PostFormDto updatePostDto) {
-        // postId에 해당하는 AccountPost 찾음
-        AccountPost findAccountPost = em.createQuery("select ap from AccountPost ap where ap.post.id = :postId", AccountPost.class)
-                .setParameter("postId", postId)
-                .getSingleResult();
-
-        // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
-        if(userId != findAccountPost.getUser().getId())
-            throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
-
-        // AccountPost에서 post 찾기
-        Post findPost = findAccountPost.getPost();
-
-        // 찾은 게시물에 값 옮기기
-        findPost.setTitle(updatePostDto.getTitle());
-        findPost.setHashTag(updatePostDto.getHashTag());
-        findPost.setLocation(updatePostDto.getLocation());
-        findPost.setRules(updatePostDto.getRules());
-        findPost.setMaxPeople(updatePostDto.getMaxPeople());
-        findPost.setDescription(updatePostDto.getDescription());
-        findPost.setPromiseTime(updatePostDto.getPromiseTime());
-
-        return findPost.getId();
-    }
+//    /**
+//     * 게시물 업데이트
+//     */
+//    public Long update(Long postId, Long userId, PostFormDto updatePostDto) {
+//        // postId에 해당하는 AccountPost 찾음
+//        AccountPost findAccountPost = em.createQuery("select ap from AccountPost ap where ap.post.id = :postId", AccountPost.class)
+//                .setParameter("postId", postId)
+//                .getSingleResult();
+//
+//        // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
+//        if(userId != findAccountPost.getUser().getId())
+//            throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
+//
+//        // AccountPost에서 post 찾기
+//        Post findPost = findAccountPost.getPost();
+//
+//        // 찾은 게시물에 값 옮기기
+//        findPost.setTitle(updatePostDto.getTitle());
+//        findPost.setHashTag(updatePostDto.getHashTag());
+//        findPost.setLocation(updatePostDto.getLocation());
+//        findPost.setRules(updatePostDto.getRules());
+//        findPost.setMaxPeople(updatePostDto.getMaxPeople());
+//        findPost.setDescription(updatePostDto.getDescription());
+//        findPost.setPromiseTime(updatePostDto.getPromiseTime());
+//
+//        return findPost.getId();
+//    }
 }

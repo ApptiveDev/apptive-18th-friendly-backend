@@ -17,27 +17,36 @@ public class PostRepository {
     private final EntityManager em;
 
     /**
-     * 게시물 저장
+     * 임의의 user가 쓴 게시믈 userId로 조회
      */
-    public void save(Post post) {
-        if(post.getId() == null) {
-            em.persist(post); //신규
+    public List<Post> findByUser(Long userId) {
+        // userId에 해당하는 AccountPost 객체 리스트를 찾는다
+        List<AccountPost> accountPosts = em.createQuery("select ap from AccountPost ap where ap.user.id =: userId", AccountPost.class)
+                .setParameter("userId", userId)
+                .getResultList();
+
+        List<Post> posts = new ArrayList<>();
+
+        // AccountPost 리스트를 순회하며 연관된 post를 추가한다
+        for(AccountPost accountPost : accountPosts) {
+            posts.add(accountPost.getPost());
         }
-        else {
-            em.merge(post); // 업데이트
-        }
+
+        return posts;
     }
 
     /**
-     * 게시물 삭제
-     * 삭제되는 게시물 수 리턴
+     * 게시물 저장
+     * AccountPost에서 Cascade.ALL 사용으로 post 자체의 저장, 삭제기능 필요없음
      */
-    public int delete(Account author, Long postId) {
-
-        return em.createQuery("delete from Post p where p.id =: postId")
-                .setParameter("postId", postId)
-                .executeUpdate();
-    }
+//    public void save(Post post) {
+//        if(post.getId() == null) {
+//            em.persist(post); //신규
+//        }
+//        else {
+//            em.merge(post); // 업데이트
+//        }
+//    }
 
     /**
      * 게시물 찾기

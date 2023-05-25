@@ -124,6 +124,7 @@ public class PostServiceTest {
     public void 게시물_업데이트() {
         PostFormDto postFormDto = new PostFormDto();
         postFormDto.setTitle("modify");
+        postFormDto.setDescription("updated!");
 //        postFormDto.setPostId(4L);
 
         postService.updatePost(4L, postFormDto);
