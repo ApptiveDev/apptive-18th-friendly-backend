@@ -1,6 +1,6 @@
 package apptive.team1.friendly.domain.user.data.entity.profile;
 
-import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.*;
 

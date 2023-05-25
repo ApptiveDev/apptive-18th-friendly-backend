@@ -1,8 +1,8 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.common.jwt.JwtTokenProvider;
-import apptive.team1.friendly.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
@@ -14,7 +14,8 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
-import apptive.team1.friendly.utils.SecurityUtil;
+import apptive.team1.friendly.global.utils.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final AccountRepository accountRepository;
@@ -38,39 +41,17 @@ public class UserService {
     private final AccountInterestRepository accountInterestRepository;
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
-    private final ProfileImgRepository profileImgRepository;
+    private final AccountProfileImgRepository accountProfileImgRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AwsS3Uploader awsS3Uploader;
     private final JwtTokenProvider jwtTokenProvider;
-
-    public UserService(AccountRepository accountRepository, AuthorityRepository authorityRepository, AccountAuthorityRepository accountAuthorityRepository, InterestRepository interestRepository, LanguageRepository languageRepository, LanguageLevelRepository languageLevelRepository, NationRepository nationRepository, GenderRepository genderRepository, AccountInterestRepository accountInterestRepository, AccountLanguageRepository accountLanguageRepository, AccountNationRepository accountNationRepository, ProfileImgRepository profileImgRepository, AwsS3Uploader awsS3Uploader, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
-        this.accountRepository = accountRepository;
-        this.authorityRepository = authorityRepository;
-        this.accountAuthorityRepository = accountAuthorityRepository;
-        this.interestRepository = interestRepository;
-        this.languageRepository = languageRepository;
-        this.languageLevelRepository = languageLevelRepository;
-        this.nationRepository = nationRepository;
-        this.genderRepository = genderRepository;
-        this.accountInterestRepository = accountInterestRepository;
-        this.accountLanguageRepository = accountLanguageRepository;
-        this.accountNationRepository = accountNationRepository;
-        this.profileImgRepository = profileImgRepository;
-        this.awsS3Uploader = awsS3Uploader;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
-    }
 
     /**
      * 회원가입
      */
     @Transactional
     public SignupResponse signUp(SignupRequest signupRequest) {
-        if (accountRepository.findOneWithAccountAuthoritiesByEmail(signupRequest.getEmail()).orElse(null) != null) {
-            throw new RuntimeException("이미 가입되어 있는 유저입니다.");
-        }
-
         Authority authority = authorityRepository.getReferenceById("ROLE_USER");
 
         Account account = createAccount(signupRequest);
@@ -85,15 +66,14 @@ public class UserService {
     }
 
     /**
-     * 구글 추가정보 회원가입
+     * 추가정보 회원가입
      * 이미 로그인에서 임시로 회원가입 해둔 회원을 찾아야함
      * 비밀번호 설정이 따로 필요없음
      */
     @Transactional
-    public SignupResponse googleSignUp(GoogleSignUpRequest signupRequest, String token) {
+    public SignupResponse extraSignUp(GoogleSignUpRequest signupRequest) {
 
-        String email = jwtTokenProvider.getClaimsFromToken(token).getSubject();
-        Account account = accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("구글 로그인 이후 추가 정보 회원가입이 가능합니다."));
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         extraSignup(account, signupRequest);
 
@@ -106,15 +86,17 @@ public class UserService {
     }
 
     private Account createAccount(SignupRequest signupRequest) {
-        return Account.builder()
-                .email(signupRequest.getEmail())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .firstName(signupRequest.getFirstName())
-                .lastName(signupRequest.getLastName())
-                .birthday(signupRequest.getBirthday())
-                .introduction(signupRequest.getIntroduction())
-                .activated(true)
-                .build();
+        Account account = accountRepository.findOneByEmail(signupRequest.getEmail()).orElseGet(() -> accountRepository.save(new Account()));
+
+        account.setEmail(signupRequest.getEmail());
+        account.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
+        account.setFirstName(signupRequest.getFirstName());
+        account.setLastName(signupRequest.getLastName());
+        account.setBirthday(signupRequest.getBirthday());
+        account.setIntroduction(signupRequest.getIntroduction());
+        account.setActivated(true);
+
+        return account;
     }
 
     private void addInterests(Account account, List<String> interests) {
@@ -218,7 +200,7 @@ public class UserService {
     public AccountInfoResponse accountToUserInfo(Account account) {
         List<AccountInterest> accountInterests = accountInterestRepository.findAllByAccount(account);
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
-        ProfileImg profileImg = profileImgRepository.findOneByAccount(account).orElse(null);
+        ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
         AccountNation accountNation = accountNationRepository.findOneByAccount(account).orElse(null);
 
         return EntityToDtoConverter.accountToInfoDto(account, accountInterests, accountLanguages, profileImg, accountNation);
@@ -229,7 +211,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
-        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseGet(() -> null));
+        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
     }
 
     /**
@@ -237,7 +219,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse  getUserWithAuthoritiesById(Long id) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElse(null));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
     }
 
     /**
@@ -245,7 +227,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElse(null));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
     }
 
     /**
@@ -253,14 +235,13 @@ public class UserService {
      */
     public ProfileImgDto accountProfileImgUpload(MultipartFile multipartFile) throws IOException {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseGet(() -> null);
-        if (account == null) throw new RuntimeException("회원을 찾을 수가 없습니다.");
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // 기존 이미지 제거
-        Optional<ProfileImg> accountProfile = profileImgRepository.findOneByAccount(account);
+        Optional<ProfileImg> accountProfile = accountProfileImgRepository.findOneByAccount(account);
         if (accountProfile.isPresent()) {
             awsS3Uploader.delete(accountProfile.get().getUploadFileName());
-            profileImgRepository.delete(accountProfile.get());
+            accountProfileImgRepository.delete(accountProfile.get());
         }
 
         // aws 파일 업로드
@@ -268,9 +249,48 @@ public class UserService {
         ProfileImg profileImg = ProfileImg.of(account, fileInfo);
 
         // db에 이미지 정보 저장
-        profileImgRepository.save(profileImg);
+        accountProfileImgRepository.save(profileImg);
 
         // profileImg를 profileImgDto로 변환 후 반환
         return EntityToDtoConverter.profileImgToProfileImgDto(profileImg);
+    }
+
+    /**
+     * 회원 삭제
+     */
+    public void deleteAccount() {
+        // 회원 찾기
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        // 회원 entity와 회원 관련 entity 삭제
+        deleteAccount(account);
+    }
+
+    /**
+     * email로 회원을 찾아서 삭제
+     * @param email
+     */
+    public void deleteAccountByEmail(String email) {
+        // 회원 찾기
+        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+
+        // 회원 entity와 회원 관련 entity 삭제
+        deleteAccount(account);
+    }
+
+    /**
+     * 회원 삭제를 위한 private 메소드
+     * @param account
+     */
+    private void deleteAccount(Account account) {
+        // 관련 entity 삭제
+        accountAuthorityRepository.deleteByAccount(account);
+        accountInterestRepository.deleteByAccount(account);
+        accountLanguageRepository.deleteByAccount(account);
+        accountNationRepository.deleteByAccount(account);
+        accountProfileImgRepository.deleteByAccount(account);
+
+        // 회원 삭제
+        accountRepository.delete(account);
     }
 }
