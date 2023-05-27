@@ -1,6 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
-import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

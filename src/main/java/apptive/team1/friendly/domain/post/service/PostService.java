@@ -11,7 +11,7 @@ import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.utils.SecurityUtil;
+import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,14 +74,7 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto) {
         // author 찾기
-//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
-        // test용
-        Account author = new Account();
-        author.setEmail("test@test");
-        author.setFirstName("mw");
-        author.setLastName("mw2");
-        //
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         Post post = new Post(postFormDto.getTitle(),
                 postFormDto.getDescription(),

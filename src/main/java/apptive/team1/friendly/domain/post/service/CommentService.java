@@ -6,7 +6,7 @@ import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.CommentRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
-import apptive.team1.friendly.utils.SecurityUtil;
+import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

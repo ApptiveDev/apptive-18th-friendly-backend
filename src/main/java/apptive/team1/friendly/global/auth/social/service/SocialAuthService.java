@@ -190,8 +190,8 @@ public class SocialAuthService {
         authority.getAccountAuthorities().add(accountAuthority);
         user.getAccountAuthorities().add(accountAuthority);
 
-        accountAuthorityRepository.save(accountAuthority);
         authorityRepository.save(authority);
         accountRepository.save(user);
+        accountAuthorityRepository.save(accountAuthority);
     }
 }
