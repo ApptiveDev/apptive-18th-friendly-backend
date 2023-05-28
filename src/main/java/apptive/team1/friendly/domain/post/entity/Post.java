@@ -1,6 +1,5 @@
 package apptive.team1.friendly.domain.post.entity;
 
-import apptive.team1.friendly.common.s3.FileInfo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

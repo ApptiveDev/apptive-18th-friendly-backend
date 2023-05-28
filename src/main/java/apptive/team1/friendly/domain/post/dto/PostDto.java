@@ -1,10 +1,8 @@
 package apptive.team1.friendly.domain.post.dto;
 
-import apptive.team1.friendly.common.s3.FileInfo;
+import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
-import apptive.team1.friendly.domain.user.data.entity.Account;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,5 +45,7 @@ public class PostDto {
     private String location;
 
     private List<String> rules = new ArrayList<String>();
+
+    private List<Comment> comments = new ArrayList<>();
 
 }

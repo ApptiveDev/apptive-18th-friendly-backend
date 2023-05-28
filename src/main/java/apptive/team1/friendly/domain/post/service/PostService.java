@@ -11,7 +11,7 @@ import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.utils.SecurityUtil;
+import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,17 +162,16 @@ public class PostService {
     public PostDto setPostDto(Long postId) {
         Post findPost = findByPostId(postId);
 
-        // post id로 user 찾는 기능 추가
+        // postId로 accountPost 찾아서 글 작성자를 찾음
         AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
         Account postOwner = accountPost.getUser();
 
+        // 글 작성자의 정보
         AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
 
         PostDto postDto = new PostDto();
 
-        // accountInfo를 설정
         postDto.setAccountInfo(accountInfo);
-
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());
         postDto.setMaxPeople(findPost.getMaxPeople());
@@ -180,6 +179,7 @@ public class PostService {
         postDto.setRules(findPost.getRules());
         postDto.setHashTag(findPost.getHashTag());
         postDto.setPromiseTime(findPost.getPromiseTime());
+        postDto.setComments(findPost.getComments());
 
         return postDto;
     }
