@@ -20,7 +20,7 @@ public class AccountNation {
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "nation_id")
     private Nation nation;
 

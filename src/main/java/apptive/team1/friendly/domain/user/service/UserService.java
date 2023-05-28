@@ -284,10 +284,10 @@ public class UserService {
      */
     private void deleteAccount(Account account) {
         // 관련 entity 삭제
+        accountNationRepository.deleteByAccount(account);
         accountAuthorityRepository.deleteByAccount(account);
         accountInterestRepository.deleteByAccount(account);
         accountLanguageRepository.deleteByAccount(account);
-        accountNationRepository.deleteByAccount(account);
         accountProfileImgRepository.deleteByAccount(account);
 
         // 회원 삭제

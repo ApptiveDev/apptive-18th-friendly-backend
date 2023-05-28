@@ -74,14 +74,7 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto) {
         // author 찾기
-//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
-        // test용
-        Account author = new Account();
-        author.setEmail("test@test");
-        author.setFirstName("mw");
-        author.setLastName("mw2");
-        //
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         Post post = new Post(postFormDto.getTitle(),
                 postFormDto.getDescription(),
