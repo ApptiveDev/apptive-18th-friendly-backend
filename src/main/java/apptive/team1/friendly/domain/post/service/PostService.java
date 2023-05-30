@@ -9,6 +9,7 @@ import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.entity.profile.Gender;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.utils.SecurityUtil;
@@ -44,8 +45,6 @@ public class PostService {
             postListDto.setMaxPeople(post.getMaxPeople());
             postListDto.setHashTag(post.getHashTag());
             postListDto.setPromiseTime(post.getPromiseTime());
-//            postListDto.setImage(post.getImage());
-            postListDto.setPromiseTime(post.getPromiseTime());
 
             postListDtos.add(postListDto);
         }
@@ -74,7 +73,17 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto) {
         // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        // test용
+        Account author = new Account();
+        author.setEmail("test@test");
+        author.setFirstName("mw");
+        author.setLastName("mw2");
+        Gender gender = new Gender();
+        gender.setName("male");
+        author.setGender(gender);
+        //
 
         Post post = new Post(postFormDto.getTitle(),
                 postFormDto.getDescription(),
@@ -113,7 +122,7 @@ public class PostService {
         //
 
         // 삭제한 post의 id 리턴. test용 9번 아이디 user
-        return accountPostRepository.delete(7L, postId);
+        return accountPostRepository.delete(1L, postId);
 
     }
 
@@ -161,6 +170,8 @@ public class PostService {
 
         AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
 
+
+
         PostDto postDto = new PostDto();
 
         // accountInfo를 설정
@@ -173,6 +184,7 @@ public class PostService {
         postDto.setRules(findPost.getRules());
         postDto.setHashTag(findPost.getHashTag());
         postDto.setPromiseTime(findPost.getPromiseTime());
+        postDto.setComments(findPost.getComments());
 
         return postDto;
     }

@@ -2,8 +2,10 @@ package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ public class PostListDto {
 
     private int maxPeople;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promiseTime;
 
     private String location;

@@ -25,7 +25,7 @@ public class AccountPost {
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(fetch = LAZY) // Cascade안해도 되지 않나? user는 AccountPost를 알지 못 함
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = LAZY)
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 

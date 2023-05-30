@@ -1,20 +1,17 @@
 package apptive.team1.friendly.domain.post.dto;
 
-import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
-import apptive.team1.friendly.domain.user.data.entity.Account;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
 public class PostDto {
 
@@ -48,4 +45,5 @@ public class PostDto {
 
     private List<String> rules = new ArrayList<String>();
 
+    private List<Comment> comments = new ArrayList<>();
 }

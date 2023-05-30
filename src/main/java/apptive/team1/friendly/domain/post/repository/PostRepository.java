@@ -59,7 +59,7 @@ public class PostRepository {
      * 전체 게시물 조회
      */
     public List<Post> findAll() {
-        return em.createQuery("select p from Post p", Post.class)
+        return em.createQuery("select p from Post p join fetch p.hashTag", Post.class)
                 .getResultList();
     }
 
