@@ -4,6 +4,7 @@ import apptive.team1.friendly.domain.post.dto.CommentFormDto;
 import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.CommentRepository;
+import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.utils.SecurityUtil;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final PostService postService;
+    private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final CommentRepository commentRepository;
     public Long addComment(CommentFormDto commentFormDto, Long postId) {
@@ -24,7 +25,7 @@ public class CommentService {
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // 댓글을 작성하는 게시물 확인
-        Post post = postService.findByPostId(postId);
+        Post post = postRepository.findOneByPostId(postId);
 
         // Comment 객체 생성하고 데이터 이동
         Comment newComment = new Comment();
