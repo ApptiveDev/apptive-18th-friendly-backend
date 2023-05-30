@@ -164,19 +164,18 @@ public class PostService {
     public PostDto setPostDto(Long postId) {
         Post findPost = findByPostId(postId);
 
-        // post id로 user 찾는 기능 추가
+        // postId로 accountPost 찾아서 글 작성자를 찾음
         AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
         Account postOwner = accountPost.getUser();
 
+        // 글 작성자의 정보
         AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
 
 
 
         PostDto postDto = new PostDto();
 
-        // accountInfo를 설정
         postDto.setAccountInfo(accountInfo);
-
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());
         postDto.setMaxPeople(findPost.getMaxPeople());

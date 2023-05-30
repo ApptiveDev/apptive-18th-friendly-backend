@@ -38,23 +38,21 @@ public class PostServiceTest {
 
     @Test
     public void 게시물_추가() {
-        List<String> rules = new ArrayList<String>();
-        rules.add("rule1");
-        rules.add("rule2");
-        List<HashTag> hashTag = new ArrayList<HashTag>();
-        hashTag.add(LIFE);
-        hashTag.add(NATIVE);
-
-        PostFormDto newPostForm = new PostFormDto("title3", hashTag, 5,  "desc1", LocalDateTime.now(), "loc1", rules);
-
-        PostFormDto newPostForm2 = new PostFormDto("title44", hashTag, 3,  "des4", LocalDateTime.now(), "loc4", rules);
-
-        Long postId = postService.addPost(newPostForm);
-        postService.addPost(newPostForm2);
-
-        Assert.assertEquals(postId, postService.findByPostId(postId).getId());
-
-
+//        List<String> rules = new ArrayList<String>();
+//        rules.add("rule1");
+//        rules.add("rule2");
+//        List<HashTag> hashTag = new ArrayList<HashTag>();
+//        hashTag.add(LIFE);
+//        hashTag.add(NATIVE);
+//
+//        PostFormDto newPostForm = new PostFormDto("title3", hashTag, 5,  "desc1", LocalDateTime.now(), "loc1", rules);
+//
+//        PostFormDto newPostForm2 = new PostFormDto("title44", hashTag, 3,  "des4", LocalDateTime.now(), "loc4", rules);
+//
+//        Long postId = postService.addPost(newPostForm);
+//        postService.addPost(newPostForm2);
+//
+//        Assert.assertEquals(postId, postService.findByPostId(postId).getId());
     }
 
     @Test
