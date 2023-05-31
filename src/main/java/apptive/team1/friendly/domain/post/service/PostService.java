@@ -32,6 +32,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final AccountPostRepository accountPostRepository;
+
+    // 유저 추가하는 테스트를 위해 임시 사용
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
     private final AccountProfileImgRepository accountProfileImgRepository;

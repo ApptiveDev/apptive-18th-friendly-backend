@@ -16,7 +16,6 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -31,7 +30,7 @@ public class PostDto {
 
     private String lastName;
 
-    private Gender gender; // gender를 클래스로 쓸건지
+//    private Gender gender; // gender를 클래스로 쓸건지
 
     private NationDto nationDto;
 
