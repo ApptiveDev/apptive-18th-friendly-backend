@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static apptive.team1.friendly.domain.post.entity.HashTag.LIFE;
 import static apptive.team1.friendly.domain.post.entity.HashTag.NATIVE;
@@ -90,10 +92,10 @@ public class PostServiceTest {
 
     @Test
     public void 게시물_조회() {
-        List<String> rules = new ArrayList<String>();
+        Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
-        List<HashTag> hashTag = new ArrayList<HashTag>();
+        Set<HashTag> hashTag = new HashSet<>();
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
 

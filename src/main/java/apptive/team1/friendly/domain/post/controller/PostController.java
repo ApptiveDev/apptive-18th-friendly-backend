@@ -19,8 +19,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final AccountRepository accountRepository;
-    private final UserService userService;
 
     /**
      * 게시물 추가

@@ -1,14 +1,20 @@
 package apptive.team1.friendly.domain.post.service;
 
+import apptive.team1.friendly.domain.post.dto.CommentDto;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.entity.profile.*;
+import apptive.team1.friendly.domain.user.data.repository.AccountLanguageRepository;
+import apptive.team1.friendly.domain.user.data.repository.AccountNationRepository;
+import apptive.team1.friendly.domain.user.data.repository.AccountProfileImgRepository;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.utils.SecurityUtil;
@@ -16,8 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +32,10 @@ public class PostService {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final AccountPostRepository accountPostRepository;
-    private final UserService userService;
+    AccountLanguageRepository accountLanguageRepository;
+    AccountNationRepository accountNationRepository;
+    AccountProfileImgRepository accountProfileImgRepository;
+
 
     // 조회(READ)
     /**
@@ -43,8 +51,6 @@ public class PostService {
             postListDto.setTitle(post.getTitle());
             postListDto.setMaxPeople(post.getMaxPeople());
             postListDto.setHashTag(post.getHashTag());
-            postListDto.setPromiseTime(post.getPromiseTime());
-//            postListDto.setImage(post.getImage());
             postListDto.setPromiseTime(post.getPromiseTime());
 
             postListDtos.add(postListDto);
@@ -74,7 +80,14 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto) {
         // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        // test용
+        Account author = new Account();
+        author.setEmail("test@test");
+        author.setFirstName("mw");
+        author.setLastName("mw2");
+        //
 
         Post post = new Post(postFormDto.getTitle(),
                 postFormDto.getDescription(),
@@ -159,12 +172,19 @@ public class PostService {
         AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
         Account postOwner = accountPost.getUser();
 
-        // 글 작성자의 정보
-        AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
+        // 글 작성자 정보 찾기
+        Optional<AccountNation> nation = accountNationRepository.findOneByAccount(postOwner);
+        List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(postOwner);
+        Optional<ProfileImg> profileImg = accountProfileImgRepository.findOneByAccount(postOwner);
 
         PostDto postDto = new PostDto();
 
-        postDto.setAccountInfo(accountInfo);
+        // user 정보
+        postDto.setAccountNation(nation.get());
+        postDto.setProfileImg(profileImg.get());
+        postDto.setAccountLanguages(accountLanguages);
+
+        // 게시글 정보
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());
         postDto.setMaxPeople(findPost.getMaxPeople());
@@ -172,7 +192,17 @@ public class PostService {
         postDto.setRules(findPost.getRules());
         postDto.setHashTag(findPost.getHashTag());
         postDto.setPromiseTime(findPost.getPromiseTime());
-        postDto.setComments(findPost.getComments());
+
+        Set<Comment> comments = findPost.getComments();
+        Set<CommentDto> commentDtos = new HashSet<>();
+        for(Comment c : comments) {
+            CommentDto commentDto = new CommentDto();
+            commentDto.setUsername(c.getAccount().getFirstName() + c.getAccount().getLastName());
+            commentDto.setText(c.getText());
+            commentDto.setCreateTime(c.getCreateTime());
+            commentDtos.add(commentDto);
+        }
+        postDto.setComments(commentDtos);
 
         return postDto;
     }
