@@ -7,6 +7,8 @@ import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
+import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import org.junit.Assert;
@@ -129,5 +131,30 @@ public class PostServiceTest {
 
         postService.updatePost(4L, postFormDto);
 
+    }
+
+    @Test
+    public void 테스트용_회원추가() {
+        Account account = new Account();
+        AccountNation accountNation = new AccountNation();
+        accountNation.setAccount(account);
+        Nation nation = new Nation();
+        nation.setName("korea");
+        accountNation.setNation(nation);
+
+        ProfileImg profileImg = new ProfileImg();
+        profileImg.setUploadFileUrl("test");
+        profileImg.setAccount(account);
+
+        AccountLanguage accountLanguage1 = new AccountLanguage();
+        AccountLanguage accountLanguage2 = new AccountLanguage();
+        Language language1 = new Language();
+        Language language2 = new Language();
+        language1.setName("korean");
+        language2.setName("english");
+        accountLanguage1.setLanguage(language1);
+        accountLanguage2.setLanguage(language2);
+        accountLanguage1.setAccount(account);
+        accountLanguage2.setAccount(account);
     }
 }

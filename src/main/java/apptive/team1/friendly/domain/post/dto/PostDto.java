@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.Comment;
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.profile.AccountLanguage;
 import apptive.team1.friendly.domain.user.data.entity.profile.AccountNation;
 import apptive.team1.friendly.domain.user.data.entity.profile.Language;
@@ -31,11 +32,11 @@ public class PostDto {
 
     private String lastName;
 
-    private AccountNation accountNation;
+    private String nation;
 
-    private List<AccountLanguage> accountLanguages;
+    private List<String> languages;
 
-    private ProfileImg profileImg;
+    private ProfileImgDto profileImgDto;
 
     private String title;
 
