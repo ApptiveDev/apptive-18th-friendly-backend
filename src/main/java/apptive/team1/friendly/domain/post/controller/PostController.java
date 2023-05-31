@@ -3,7 +3,6 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;

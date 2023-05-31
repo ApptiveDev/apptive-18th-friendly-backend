@@ -7,10 +7,10 @@ import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
+import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
-import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class PostService {
             postListDto.setPostId(post.getId());
             postListDto.setTitle(post.getTitle());
             postListDto.setMaxPeople(post.getMaxPeople());
-            postListDto.setHashTag(post.getHashTag());
+            postListDto.getHashTag().addAll(post.getHashTag());
             postListDto.setPromiseTime(post.getPromiseTime());
 //            postListDto.setImage(post.getImage());
             postListDto.setPromiseTime(post.getPromiseTime());
@@ -104,16 +104,10 @@ public class PostService {
     @Transactional
     public Long deletePost(Long postId) {
         // author 찾기
-//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-        // test용
-//        Account author = new Account();
-//        author.setEmail("test@test");
-//        author.setFirstName("mw");
-//        author.setLastName("mw2");
-        //
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // 삭제한 post의 id 리턴. test용 9번 아이디 user
-        return accountPostRepository.delete(7L, postId);
+        return accountPostRepository.delete(author.getId(), postId);
 
     }
 

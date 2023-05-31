@@ -1,8 +1,6 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
-import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
@@ -14,6 +12,9 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,6 +43,7 @@ public class UserService {
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
     private final AccountProfileImgRepository accountProfileImgRepository;
+    private final AccountPostRepository accountPostRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AwsS3Uploader awsS3Uploader;
