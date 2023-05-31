@@ -1,11 +1,10 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.Comment;
+import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
+import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
-import apptive.team1.friendly.domain.user.data.entity.profile.AccountLanguage;
-import apptive.team1.friendly.domain.user.data.entity.profile.AccountNation;
-import apptive.team1.friendly.domain.user.data.entity.profile.Language;
-import apptive.team1.friendly.domain.user.data.entity.profile.ProfileImg;
+import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
@@ -32,9 +31,11 @@ public class PostDto {
 
     private String lastName;
 
-    private String nation;
+    private Gender gender; // gender를 클래스로 쓸건지
 
-    private List<String> languages;
+    private NationDto nationDto;
+
+    private List<LanguageDto> languageDtoList;
 
     private ProfileImgDto profileImgDto;
 

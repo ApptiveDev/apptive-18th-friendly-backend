@@ -10,6 +10,8 @@ import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
+import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
+import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
@@ -79,42 +81,42 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto) {
         // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // test용
-//        Account author = new Account();
-//        author.setEmail("test@test");
-//        author.setFirstName("mw");
-//        author.setLastName("mw2");
-//
-//        AccountNation accountNation = new AccountNation();
-//        accountNation.setAccount(author);
-//        Nation nation = new Nation();
-//        nation.setName("korea");
-//        accountNation.setNation(nation);
-//        nationRepository.save(nation);
-//        accountNationRepository.save(accountNation);
-//
-//        ProfileImg profileImg = new ProfileImg();
-//        profileImg.setUploadFileUrl("test");
-//        profileImg.setAccount(author);
-//
-//        accountProfileImgRepository.save(profileImg);
-//
-//        AccountLanguage accountLanguage1 = new AccountLanguage();
-//        AccountLanguage accountLanguage2 = new AccountLanguage();
-//        Language language1 = new Language();
-//        Language language2 = new Language();
-//        language1.setName("korean");
-//        language2.setName("english");
-//        languageRepository.save(language1);
-//        languageRepository.save(language2);
-//        accountLanguage1.setLanguage(language1);
-//        accountLanguage2.setLanguage(language2);
-//        accountLanguage1.setAccount(author);
-//        accountLanguage2.setAccount(author);
-//        accountLanguageRepository.save(accountLanguage1);
-//        accountLanguageRepository.save(accountLanguage2);
+        Account author = new Account();
+        author.setEmail("test@test");
+        author.setFirstName("mw");
+        author.setLastName("mw2");
+
+        AccountNation accountNation = new AccountNation();
+        accountNation.setAccount(author);
+        Nation nation = new Nation();
+        nation.setName("korea");
+        accountNation.setNation(nation);
+        nationRepository.save(nation);
+        accountNationRepository.save(accountNation);
+
+        ProfileImg profileImg = new ProfileImg();
+        profileImg.setUploadFileUrl("test");
+        profileImg.setAccount(author);
+
+        accountProfileImgRepository.save(profileImg);
+
+        AccountLanguage accountLanguage1 = new AccountLanguage();
+        AccountLanguage accountLanguage2 = new AccountLanguage();
+        Language language1 = new Language();
+        Language language2 = new Language();
+        language1.setName("korean");
+        language2.setName("english");
+        languageRepository.save(language1);
+        languageRepository.save(language2);
+        accountLanguage1.setLanguage(language1);
+        accountLanguage2.setLanguage(language2);
+        accountLanguage1.setAccount(author);
+        accountLanguage2.setAccount(author);
+        accountLanguageRepository.save(accountLanguage1);
+        accountLanguageRepository.save(accountLanguage2);
         //
 
         Post post = new Post(
@@ -146,16 +148,10 @@ public class PostService {
     @Transactional
     public Long deletePost(Long postId) {
         // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-        // test용
-//        Account author = new Account();
-//        author.setEmail("test@test");
-//        author.setFirstName("mw");
-//        author.setLastName("mw2");
-        //
+//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // 삭제한 post의 id 리턴. test용 9번 아이디 user
-        return accountPostRepository.delete(author.getId(), postId);
+        return accountPostRepository.delete(21L, postId);
 
     }
 
@@ -165,13 +161,13 @@ public class PostService {
     @Transactional
     public Long updatePost(Long postId, PostFormDto updatePostDto) {
         // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         // postId에 해당하는 AccountPost 찾기
         AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
 
         // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
-        if(author.getId() != findAccountPost.getUser().getId())
+        if(21 != findAccountPost.getUser().getId())
             throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
 
         // AccountPost와 연관된 post 찾음
@@ -202,14 +198,22 @@ public class PostService {
         Account postOwner = accountPost.getUser();
 
         // 글 작성자 정보 찾기
-        Optional<AccountNation> nation = accountNationRepository.findOneByAccount(postOwner);
+        Optional<AccountNation> nationOptional = accountNationRepository.findOneByAccount(postOwner);
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(postOwner);
         Optional<ProfileImg> profileImgOptional = accountProfileImgRepository.findOneByAccount(postOwner);
 
+        // nation 설정
+        AccountNation accountNation = nationOptional.get();
+        NationDto nationDto = new NationDto();
+        nationDto.setCity(accountNation.getCity());
+        nationDto.setName(accountNation.getNation().getName());
+
         // language 설정
-        List<String> languages = new ArrayList<>();
+        List<LanguageDto> languages = new ArrayList<>();
         for(AccountLanguage al : accountLanguages) {
-            languages.add(al.getLanguage().getName());
+            LanguageDto languageDto = new LanguageDto();
+            languageDto.setName(al.getLanguage().getName());
+//            languageDto.setLevel(al.getLevel());
         }
 
         // profileDto 설정
@@ -225,9 +229,12 @@ public class PostService {
         // postDto 설정
         PostDto postDto = new PostDto();
         // user 정보
-        postDto.setNation(nation.get().getNation().getName());
+        postDto.setNationDto(nationDto);
         postDto.setProfileImgDto(profileImgDto);
-        postDto.setLanguages(languages);
+        postDto.setLanguageDtoList(languages);
+        postDto.setFirstName(postOwner.getFirstName());
+        postDto.setLastName(postOwner.getLastName());
+//        postDto.setGender(postOwner.getGender().getName());
         // 게시글 정보
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());
