@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.user.service;
 
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
@@ -131,17 +132,12 @@ public class UserService {
                     });
 
             String languageLevelName = languageLevels.get(i);
-            LanguageLevel languageLevel = languageLevelRepository.findOneByName(languageLevelName)
-                    .orElseGet(() -> {
-                        LanguageLevel newLevel = new LanguageLevel();
-                        newLevel.setName(languageLevelName);
-                        return languageLevelRepository.save(newLevel);
-                    });
+            LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
 
             AccountLanguage accountLanguage = AccountLanguage.builder()
                     .account(account)
                     .language(language)
-                    .level(languageLevel)
+                    .languageLevel(languageLevel)
                     .build();
 
             accountLanguageRepository.save(accountLanguage);

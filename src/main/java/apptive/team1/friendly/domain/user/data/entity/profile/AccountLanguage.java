@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.user.data.entity.profile;
 
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.*;
 
@@ -24,7 +25,6 @@ public class AccountLanguage {
     @JoinColumn(name = "language_id")
     private Language language;
 
-    @ManyToOne
-    @JoinColumn(name = "language_level_id")
-    private LanguageLevel level;
+    @Enumerated(EnumType.STRING)
+    private LanguageLevel languageLevel;
 }

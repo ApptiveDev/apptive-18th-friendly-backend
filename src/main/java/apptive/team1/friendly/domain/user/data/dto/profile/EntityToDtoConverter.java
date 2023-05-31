@@ -21,7 +21,7 @@ public class EntityToDtoConverter {
         LanguageDto languageDto = new LanguageDto();
         languageDto.setId(language.getId());
         languageDto.setName(language.getName());
-        languageDto.setLevel(accountLanguage.getLevel().getName());
+        languageDto.setLevel(accountLanguage.getLanguageLevel().getName());
         return languageDto;
     }
 
