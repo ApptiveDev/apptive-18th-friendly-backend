@@ -1,11 +1,10 @@
 package apptive.team1.friendly.domain.post.dto;
 
-import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
