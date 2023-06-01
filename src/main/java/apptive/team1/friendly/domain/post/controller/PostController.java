@@ -5,6 +5,7 @@ import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.service.PostService;
+import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-
+    private final UserService userService;
     /**
      * 게시물 추가
      */
@@ -67,7 +68,8 @@ public class PostController {
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        PostDto postDto = postService.postDetail(postId);
+        PostOwnerInfo postOwnerInfo = userService.getPostOwnerInfo(postId);
+        PostDto postDto = postService.postDetail(postId, postOwnerInfo);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }

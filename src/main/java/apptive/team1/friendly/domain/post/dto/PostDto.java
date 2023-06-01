@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.Comment;
+import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
@@ -25,18 +26,7 @@ public class PostDto {
 
     private Long postId;
 
-    // 방장 정보
-    private String firstName;
-
-    private String lastName;
-
-//    private Gender gender; // gender를 클래스로 쓸건지
-
-    private NationDto nationDto;
-
-    private List<LanguageDto> languageDtoList;
-
-    private ProfileImgDto profileImgDto;
+    private PostOwnerInfo postOwnerInfo;
 
     private String title;
 
