@@ -1,5 +1,4 @@
 package apptive.team1.friendly.domain.post.service;
-
 import apptive.team1.friendly.domain.post.dto.CommentDto;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
@@ -9,15 +8,9 @@ import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
-import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
-import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
-import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
-import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

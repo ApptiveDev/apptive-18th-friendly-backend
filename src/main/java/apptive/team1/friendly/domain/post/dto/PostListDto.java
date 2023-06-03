@@ -1,16 +1,12 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
-import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter @Setter
