@@ -11,6 +11,7 @@ import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class PostService {
             postListDto.setPostId(post.getId());
             postListDto.setTitle(post.getTitle());
             postListDto.setMaxPeople(post.getMaxPeople());
-            postListDto.setHashTag(post.getHashTag());
+            postListDto.getHashTag().addAll(post.getHashTag());
             postListDto.setPromiseTime(post.getPromiseTime());
 
             postListDtos.add(postListDto);

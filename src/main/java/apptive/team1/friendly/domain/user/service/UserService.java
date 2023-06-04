@@ -8,6 +8,12 @@ import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
+import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
+import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
+import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
+import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
 import apptive.team1.friendly.domain.user.data.dto.profile.EntityToDtoConverter;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -15,6 +21,9 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -132,17 +141,12 @@ public class UserService {
                     });
 
             String languageLevelName = languageLevels.get(i);
-            LanguageLevel languageLevel = languageLevelRepository.findOneByName(languageLevelName)
-                    .orElseGet(() -> {
-                        LanguageLevel newLevel = new LanguageLevel();
-                        newLevel.setName(languageLevelName);
-                        return languageLevelRepository.save(newLevel);
-                    });
+            LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
 
             AccountLanguage accountLanguage = AccountLanguage.builder()
                     .account(account)
                     .language(language)
-                    .level(languageLevel)
+                    .languageLevel(languageLevel)
                     .build();
 
             accountLanguageRepository.save(accountLanguage);
