@@ -1,23 +1,23 @@
 package apptive.team1.friendly.domain.post.service;
-
+import apptive.team1.friendly.domain.post.dto.CommentDto;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
+import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
+import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final AccountPostRepository accountPostRepository;
-    private final UserService userService;
+
 
     // 조회(READ)
     /**
@@ -43,8 +43,6 @@ public class PostService {
             postListDto.setTitle(post.getTitle());
             postListDto.setMaxPeople(post.getMaxPeople());
             postListDto.getHashTag().addAll(post.getHashTag());
-            postListDto.setPromiseTime(post.getPromiseTime());
-//            postListDto.setImage(post.getImage());
             postListDto.setPromiseTime(post.getPromiseTime());
 
             postListDtos.add(postListDto);
@@ -76,7 +74,8 @@ public class PostService {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-        Post post = new Post(postFormDto.getTitle(),
+        Post post = new Post(
+                postFormDto.getTitle(),
                 postFormDto.getDescription(),
                 postFormDto.getMaxPeople(),
                 postFormDto.getPromiseTime(),
@@ -146,19 +145,14 @@ public class PostService {
     /**
      * DTO 설정 메소드
      */
-    public PostDto setPostDto(Long postId) {
+    public PostDto postDetail(Long postId, PostOwnerInfo postOwnerInfo) {
         Post findPost = findByPostId(postId);
 
-        // postId로 accountPost 찾아서 글 작성자를 찾음
-        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
-        Account postOwner = accountPost.getUser();
-
-        // 글 작성자의 정보
-        AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
-
+        // postDto 설정
         PostDto postDto = new PostDto();
-
-        postDto.setAccountInfo(accountInfo);
+        // user 정보
+        postDto.setPostOwnerInfo(postOwnerInfo);
+        // 게시글 정보
         postDto.setPostId(findPost.getId());
         postDto.setTitle(findPost.getTitle());
         postDto.setMaxPeople(findPost.getMaxPeople());
@@ -166,7 +160,18 @@ public class PostService {
         postDto.setRules(findPost.getRules());
         postDto.setHashTag(findPost.getHashTag());
         postDto.setPromiseTime(findPost.getPromiseTime());
-        postDto.setComments(findPost.getComments());
+
+        // 댓글 목록 설정
+        Set<Comment> comments = findPost.getComments();
+        Set<CommentDto> commentDtos = new HashSet<>();
+        for(Comment c : comments) {
+            CommentDto commentDto = new CommentDto();
+            commentDto.setUsername(c.getAccount().getFirstName() + c.getAccount().getLastName());
+            commentDto.setText(c.getText());
+            commentDto.setCreateTime(c.getCreateTime());
+            commentDtos.add(commentDto);
+        }
+        postDto.setComments(commentDtos);
 
         return postDto;
     }

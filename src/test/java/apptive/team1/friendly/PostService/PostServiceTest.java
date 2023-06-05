@@ -6,6 +6,8 @@ import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
+import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import org.junit.Assert;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static apptive.team1.friendly.domain.post.entity.HashTag.LIFE;
 import static apptive.team1.friendly.domain.post.entity.HashTag.NATIVE;
@@ -89,10 +93,10 @@ public class PostServiceTest {
 
     @Test
     public void 게시물_조회() {
-        List<String> rules = new ArrayList<String>();
+        Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
-        List<HashTag> hashTag = new ArrayList<HashTag>();
+        Set<HashTag> hashTag = new HashSet<>();
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
 
@@ -126,5 +130,30 @@ public class PostServiceTest {
 
         postService.updatePost(4L, postFormDto);
 
+    }
+
+    @Test
+    public void 테스트용_회원추가() {
+        Account account = new Account();
+        AccountNation accountNation = new AccountNation();
+        accountNation.setAccount(account);
+        Nation nation = new Nation();
+        nation.setName("korea");
+        accountNation.setNation(nation);
+
+        ProfileImg profileImg = new ProfileImg();
+        profileImg.setUploadFileUrl("test");
+        profileImg.setAccount(account);
+
+        AccountLanguage accountLanguage1 = new AccountLanguage();
+        AccountLanguage accountLanguage2 = new AccountLanguage();
+        Language language1 = new Language();
+        Language language2 = new Language();
+        language1.setName("korean");
+        language2.setName("english");
+        accountLanguage1.setLanguage(language1);
+        accountLanguage2.setLanguage(language2);
+        accountLanguage1.setAccount(account);
+        accountLanguage2.setAccount(account);
     }
 }

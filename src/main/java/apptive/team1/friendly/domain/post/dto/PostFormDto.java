@@ -10,7 +10,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -19,7 +21,7 @@ public class PostFormDto {
     /**
      * 새로 글 쓰는 경우 생성자. postId가 없음
      */
-    public PostFormDto(String title, List<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, List<String> rules) {
+    public PostFormDto(String title, Set<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, Set<String> rules) {
         this.title = title;
         this.hashTag = hashTag;
         this.maxPeople = maxPeople;
@@ -47,7 +49,7 @@ public class PostFormDto {
 
     private String title;
 
-    private List<HashTag> hashTag = new ArrayList<HashTag>();
+    private Set<HashTag> hashTag = new HashSet<>();
 
     private int maxPeople;
 
@@ -58,7 +60,7 @@ public class PostFormDto {
 
     private String location;
 
-    private List<String> rules = new ArrayList<String>();
+    private Set<String> rules = new HashSet<>();
 
     // 이미지 필드
     private FileInfo fileInfo;

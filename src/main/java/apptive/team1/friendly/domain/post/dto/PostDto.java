@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
+import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
@@ -9,31 +10,19 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @NoArgsConstructor
 public class PostDto {
 
-    public PostDto(Long id, AccountInfoResponse accountInfo, String title, List<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, List<String> rules) {
-        this.accountInfo = accountInfo;
-        this.postId = id;
-        this.title = title;
-        this.hashTag = hashTag;
-        this.maxPeople = maxPeople;
-        this.description = description;
-        this.promiseTime = promiseTime;
-        this.location = location;
-        this.rules = rules;
-    }
     private Long postId;
 
-    private AccountInfoResponse accountInfo;
+    private PostOwnerInfo postOwnerInfo;
 
     private String title;
 
-    private List<HashTag> hashTag = new ArrayList<HashTag>();
+    private Set<HashTag> hashTag;
 
     private int maxPeople;
 
@@ -44,7 +33,9 @@ public class PostDto {
 
     private String location;
 
-    private List<String> rules = new ArrayList<String>();
+    private Set<String> rules;
+
+    private Set<CommentDto> comments;
 
     private List<Comment> comments = new ArrayList<Comment>();
 }

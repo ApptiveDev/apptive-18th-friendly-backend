@@ -1,5 +1,13 @@
 package apptive.team1.friendly.domain.user.service;
 
+import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.user.data.dto.*;
+import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
+import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
@@ -24,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -290,5 +299,58 @@ public class UserService {
 
         // 회원 삭제
         accountRepository.delete(account);
+    }
+
+    /**
+     * 게시물 주인 정보 조회
+     */
+    public PostOwnerInfo getPostOwnerInfo(Long postId) {
+        PostOwnerInfo postOwnerInfo = new PostOwnerInfo();
+
+        // postId로 accountPost 찾아서 글 작성자를 찾음
+        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
+        Account postOwner = accountPost.getUser();
+
+        // 글 작성자 정보 찾기
+        Optional<AccountNation> nationOptional = accountNationRepository.findOneByAccount(postOwner);
+        List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(postOwner);
+        Optional<ProfileImg> profileImgOptional = accountProfileImgRepository.findOneByAccount(postOwner);
+
+        // language 설정
+        List<LanguageDto> languageDtoList = new ArrayList<>();
+        for(AccountLanguage al : accountLanguages) {
+            LanguageDto languageDto = new LanguageDto();
+            languageDto.setName(al.getLanguage().getName());
+            languageDto.setLevel(al.getLevel().getName());
+            languageDtoList.add(languageDto);
+        }
+
+        // nation 설정
+        if(nationOptional.isPresent()) {
+            AccountNation accountNation = nationOptional.get();
+            NationDto nationDto = new NationDto();
+            nationDto.setCity(accountNation.getCity());
+            nationDto.setName(accountNation.getNation().getName());
+            postOwnerInfo.setNationDto(nationDto);
+        }
+
+        // profileDto 설정
+        if(profileImgOptional.isPresent()) {
+            ProfileImg profileImg = profileImgOptional.get();
+            ProfileImgDto profileImgDto = new ProfileImgDto();
+            profileImgDto.setEmail(profileImg.getAccount().getEmail());
+            profileImgDto.setUploadFileName(profileImg.getUploadFileName());
+            profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
+            profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
+            profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
+            postOwnerInfo.setProfileImgDto(profileImgDto);
+        }
+
+        postOwnerInfo.setFirstName(postOwner.getFirstName());
+        postOwnerInfo.setLastName(postOwner.getLastName());
+//        postOwnerInfo.setGender(postOwner.getGender());
+        postOwnerInfo.setLanguageDtoList(languageDtoList);
+
+        return postOwnerInfo;
     }
 }

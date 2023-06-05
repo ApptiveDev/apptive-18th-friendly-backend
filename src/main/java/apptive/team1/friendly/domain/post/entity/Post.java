@@ -1,21 +1,19 @@
 package apptive.team1.friendly.domain.post.entity;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
 public class Post {
 
-    public Post(String title, String description, int maxPeople, LocalDateTime promiseTime, String location, List<String> rules, List<HashTag> hashTag) {
+    public Post(String title, String description, int maxPeople, LocalDateTime promiseTime, String location, Set<String> rules, Set<HashTag> hashTag) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -38,7 +36,7 @@ public class Post {
 
     private int maxPeople;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promiseTime;
 
     private String location;
@@ -46,13 +44,13 @@ public class Post {
 
     // 게시글에 들어가야 보이는 필드
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
-    private List<HashTag> hashTag = new ArrayList<HashTag>();
+    private Set<HashTag> hashTag;
 
-    @ElementCollection
-    private List<String> rules = new ArrayList<String>();
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Set<String> rules;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL) // Post 저장시 연관되어 있는 Comment들도 함께 저장
-    private List<Comment> comments = new ArrayList<Comment>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Post 저장시 연관되어 있는 Comment들도 함께 저장
+    private Set<Comment> comments;
 }

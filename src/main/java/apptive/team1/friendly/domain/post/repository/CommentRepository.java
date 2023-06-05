@@ -1,14 +1,16 @@
 package apptive.team1.friendly.domain.post.repository;
 
 import apptive.team1.friendly.domain.post.entity.Comment;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 
 @Repository
+@RequiredArgsConstructor
 public class CommentRepository {
 
-    EntityManager em;
+    private final EntityManager em;
 
     /**
      * 댓글 작성, 수정
