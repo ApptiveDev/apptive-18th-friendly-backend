@@ -2,7 +2,6 @@ package apptive.team1.friendly.PostService;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
