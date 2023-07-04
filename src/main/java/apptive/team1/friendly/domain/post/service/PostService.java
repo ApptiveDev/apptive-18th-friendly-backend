@@ -99,7 +99,7 @@ public class PostService {
 
         // AccountPost 생성하고, Account와 연관 관계 설정
         AccountPost newAccountPost = new AccountPost();
-//        newAccountPost.setUser(author);
+        newAccountPost.setUser(author);
 
         // AccountPost를 Post와 연결
         newAccountPost.setPost(post);
