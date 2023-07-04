@@ -43,7 +43,7 @@ public class PostService {
             postListDto.setPostId(post.getId());
             postListDto.setTitle(post.getTitle());
             postListDto.setMaxPeople(post.getMaxPeople());
-            postListDto.setHashTag(post.getHashTag());
+            postListDto.getHashTag().addAll(post.getHashTag());
             postListDto.setPromiseTime(post.getPromiseTime());
 
             // 대표 이미지 설정. 기본 이미지가 존재하기 때문에 예외처리 하지 않음
