@@ -2,9 +2,11 @@ package apptive.team1.friendly.domain.post.repository;
 
 import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.Post;
+import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -37,16 +39,15 @@ public class PostRepository {
 
     /**
      * 게시물 저장
-     * AccountPost에서 Cascade.ALL 사용으로 post 자체의 저장, 삭제기능 필요없음
      */
-//    public void save(Post post) {
-//        if(post.getId() == null) {
-//            em.persist(post); //신규
-//        }
-//        else {
-//            em.merge(post); // 업데이트
-//        }
-//    }
+    public void save(Post post) {
+        if(post.getId() == null) {
+            em.persist(post); //신규
+        }
+        else {
+            em.merge(post); // 업데이트
+        }
+    }
 
     /**
      * 게시물 찾기
@@ -65,5 +66,18 @@ public class PostRepository {
                 .getResultList();
     }
 
+    /**
+     * 게시물 이미지 저장
+     */
+    public void saveImage(PostImage image) {
+        em.persist(image);
+    }
+
+    /**
+     * 게시물 이미지 삭제
+     */
+    public void deleteImage(PostImage image) {
+        em.remove(image);
+    }
 
 }

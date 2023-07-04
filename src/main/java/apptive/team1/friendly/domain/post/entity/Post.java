@@ -1,12 +1,17 @@
 package apptive.team1.friendly.domain.post.entity;
 
+import apptive.team1.friendly.domain.post.dto.PostFormDto;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 
 @Entity
 @Getter @Setter
@@ -31,7 +36,10 @@ public class Post {
     // 게시판 리스트에 보이는 필드
     private String title;
 
-    @Column(length = 500)
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImages = new ArrayList<>(); // 게시판 이미지
+
+    @Lob
     private String description;
 
     private int maxPeople;
@@ -53,4 +61,15 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY) // Post 저장시 연관되어 있는 Comment들도 함께 저장
     private Set<Comment> comments;
+
+
+    public void update(PostFormDto formDto) {
+        this.title = formDto.getTitle();
+        this.hashTag = formDto.getHashTag();
+        this.maxPeople = formDto.getMaxPeople();
+        this.description = formDto.getDescription();
+        this.promiseTime = formDto.getPromiseTime();
+        this.location = formDto.getLocation();
+        this.rules = formDto.getRules();
+    }
 }
