@@ -3,16 +3,17 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.service.PostService;
+import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
-import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,9 +25,15 @@ public class PostController {
     /**
      * 게시물 추가
      */
-    @PostMapping("/posts")
-    public ResponseEntity<Long> addPost(@RequestBody PostFormDto postFormDto) {
-        Long postId = postService.addPost(postFormDto);
+    @GetMapping("/posts/create") // 게시물 추가 화면 구성
+    public ResponseEntity<PostOwnerInfo> addPost() {
+        PostOwnerInfo userInfo = userService.getCurrentUserInfo();
+        return ResponseEntity.status(HttpStatus.OK).body(userInfo);
+    }
+
+    @PostMapping("/posts/create") // 게시물 추가 요청
+    public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+        Long postId = postService.addPost(postForm, imageFiles);
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
 
@@ -46,10 +53,15 @@ public class PostController {
     /**
      * 게시물 수정
      */
+    @GetMapping("/posts/{postId}/edit") // 업데이트 페이지 화면 구성
+    public ResponseEntity<PostFormDto> updatePost(@PathVariable("postId") Long postId) {
+        PostFormDto updateForm = postService.getUpdateForm(postId);
+        return ResponseEntity.status(HttpStatus.OK).body(updateForm);
+    }
 
-    @PutMapping("/posts/{postId}")
-    public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestBody PostFormDto postFormDto) {
-        Long updatedPostId = postService.updatePost(postId, postFormDto);
+    @PutMapping("/posts/{postId}/edit") // 업데이트 요청
+    public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
+        Long updatedPostId = postService.updatePost(postId, postForm, imageFiles);
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
 

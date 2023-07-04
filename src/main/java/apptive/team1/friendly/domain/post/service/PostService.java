@@ -1,21 +1,23 @@
 package apptive.team1.friendly.domain.post.service;
-import apptive.team1.friendly.domain.post.dto.CommentDto;
-import apptive.team1.friendly.domain.post.dto.PostDto;
-import apptive.team1.friendly.domain.post.dto.PostFormDto;
-import apptive.team1.friendly.domain.post.dto.PostListDto;
+import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
+import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -26,7 +28,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final AccountRepository accountRepository;
     private final AccountPostRepository accountPostRepository;
-
+    private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
     /**
@@ -43,6 +45,14 @@ public class PostService {
             postListDto.setMaxPeople(post.getMaxPeople());
             postListDto.setHashTag(post.getHashTag());
             postListDto.setPromiseTime(post.getPromiseTime());
+
+            // 대표 이미지 설정. 기본 이미지가 존재하기 때문에 예외처리 하지 않음
+            PostImageDto postImageDto = new PostImageDto();
+            postImageDto.setUploadFilePath(post.getPostImages().get(0).getUploadFilePath());
+            postImageDto.setUploadFileName(post.getPostImages().get(0).getUploadFileName());
+            postImageDto.setOriginalFileName(post.getPostImages().get(0).getOriginalFileName());
+            postImageDto.setUploadFileUrl(post.getPostImages().get(0).getUploadFileUrl());
+            postListDto.setPostImageDto(postImageDto);
 
             postListDtos.add(postListDto);
         }
@@ -69,7 +79,7 @@ public class PostService {
      * 게시물 추가하기
      */
     @Transactional
-    public Long addPost(PostFormDto postFormDto) {
+    public Long addPost(PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
@@ -82,10 +92,14 @@ public class PostService {
                 postFormDto.getRules(),
                 postFormDto.getHashTag()
         );
+        postRepository.save(post);
+        
+        // AWS 이미지 업로드 및 게시물에 이미지 저장
+        ImageUpload(multipartFiles, post);
 
-        // AccountPost 생성하고, Account와 연관 관계 설정 해준다.
+        // AccountPost 생성하고, Account와 연관 관계 설정
         AccountPost newAccountPost = new AccountPost();
-        newAccountPost.setUser(author);
+//        newAccountPost.setUser(author);
 
         // AccountPost를 Post와 연결
         newAccountPost.setPost(post);
@@ -104,7 +118,7 @@ public class PostService {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-        // 삭제한 post의 id 리턴. test용 9번 아이디 user
+        // 삭제한 post의 id 리턴
         return accountPostRepository.delete(author.getId(), postId);
 
     }
@@ -113,7 +127,7 @@ public class PostService {
      * 게시물 수정(업데이트)
      */
     @Transactional
-    public Long updatePost(Long postId, PostFormDto updatePostDto) {
+    public Long updatePost(Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
@@ -127,20 +141,25 @@ public class PostService {
         // AccountPost와 연관된 post 찾음
         Post findPost = findAccountPost.getPost();
 
-        // 찾은 게시물에 값 옮기기
-        findPost.setTitle(updatePostDto.getTitle());
-        findPost.setHashTag(updatePostDto.getHashTag());
-        findPost.setLocation(updatePostDto.getLocation());
-        findPost.setRules(updatePostDto.getRules());
-        findPost.setMaxPeople(updatePostDto.getMaxPeople());
-        findPost.setDescription(updatePostDto.getDescription());
-        findPost.setPromiseTime(updatePostDto.getPromiseTime());
+        findPost.update(updateForm);
+
+        // 이미지 모두 삭제
+        if(!Objects.equals(findPost.getPostImages().get(0).getOriginalFileName(), "기본 이미지 이름 예시")) { // 기본 이미지가 아니면 삭제
+            System.out.println("TEST");
+            List<PostImage> postImages = findPost.getPostImages();
+            for(PostImage postImage : postImages) {
+                awsS3Uploader.delete(postImage.getOriginalFileName());
+                postRepository.deleteImage(postImage);
+            }
+        }
+        // AWS에 이미지 업로드 및 게시물에 이미지 저장
+        ImageUpload(multipartFiles, findPost);
 
         accountPostRepository.save(findAccountPost);
         return findPost.getId();
     }
-
-
+    
+    
     /**
      * DTO 설정 메소드
      */
@@ -175,4 +194,36 @@ public class PostService {
         return postDto;
     }
 
+
+    /**
+     * 수정 화면을 보여주기 위해 현재 게시물의 내용을 PostFormDto에 담아서 반환
+     */
+    public PostFormDto getUpdateForm(Long postId) {
+        Post post = postRepository.findOneByPostId(postId);
+        return PostFormDto.builder()
+                .rules(post.getRules())
+                .title(post.getTitle())
+                .hashTag(post.getHashTag())
+                .description(post.getDescription())
+                .maxPeople(post.getMaxPeople())
+                .promiseTime(post.getPromiseTime())
+                .build();
+    }
+
+    /**
+     * Post에 이미지 업로드
+     */
+    private void ImageUpload(List<MultipartFile> multipartFiles, Post post) throws IOException {
+        for(MultipartFile multipartFile : multipartFiles) {
+            FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ post.getId().toString());
+            PostImage postImage = PostImage.builder()
+                    .post(post)
+                    .originalFileName(uploadFile.getOriginalFileName())
+                    .uploadFileName(uploadFile.getUploadFileName())
+                    .uploadFilePath(uploadFile.getUploadFileName())
+                    .uploadFileUrl(uploadFile.getUploadFileUrl())
+                    .build();
+            postRepository.saveImage(postImage);
+        }
+    }
 }

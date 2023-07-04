@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +40,6 @@ public class UserService {
     private final LanguageRepository languageRepository;
     private final LanguageLevelRepository languageLevelRepository;
     private final NationRepository nationRepository;
-    private final GenderRepository genderRepository;
     private final AccountInterestRepository accountInterestRepository;
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
@@ -59,7 +59,6 @@ public class UserService {
 
         Account account = createAccount(signupRequest);
 
-        addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
         addNation(account, signupRequest.getNation(), signupRequest.getCity());
@@ -80,7 +79,6 @@ public class UserService {
 
         extraSignup(account, signupRequest);
 
-        addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
         addNation(account, signupRequest.getNation(), signupRequest.getCity());
@@ -91,6 +89,7 @@ public class UserService {
     private Account createAccount(SignupRequest signupRequest) {
         Account account = accountRepository.findOneByEmail(signupRequest.getEmail()).orElseGet(() -> accountRepository.save(new Account()));
 
+        account.setGender(signupRequest.getGender());
         account.setEmail(signupRequest.getEmail());
         account.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         account.setFirstName(signupRequest.getFirstName());
@@ -166,17 +165,6 @@ public class UserService {
         accountNationRepository.save(accountNation);
     }
 
-    private void addGender(Account account, String genderName) {
-        Gender gender = genderRepository.findOneByName(genderName)
-                .orElseGet(() -> {
-                    Gender newGender = new Gender();
-                    newGender.setName(genderName);
-                    return genderRepository.save(newGender);
-                });
-
-        account.setGender(gender);
-    }
-
     private void addAuthority(Account user, Authority authority) {
         AccountAuthority accountAuthority = AccountAuthority.builder()
                 .account(user)
@@ -194,6 +182,7 @@ public class UserService {
         account.setFirstName(signupRequest.getFirstName());
         account.setLastName(signupRequest.getLastName());
         account.setIntroduction(signupRequest.getIntroduction());
+        account.setGender(signupRequest.getGender());
         account.setActivated(true);
     }
 
@@ -348,5 +337,27 @@ public class UserService {
         postOwnerInfo.setLanguageDtoList(languageDtoList);
 
         return postOwnerInfo;
+    }
+
+    public PostOwnerInfo accountToPostOwnerInfo(Account account) {
+        List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
+        ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
+        AccountNation nation = accountNationRepository.findOneByAccount(account).orElse(null);
+        return PostOwnerInfo.builder()
+                .gender(account.getGender())
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .nationDto(EntityToDtoConverter.nationToNationDto(nation))
+                .profileImgDto(EntityToDtoConverter.profileImgToProfileImgDto(profileImg))
+                .languageDtoList(accountLanguages.stream()
+                        .map(EntityToDtoConverter::languageToLanguageDto)
+                        .collect(Collectors.toList()))
+                .build();
+
+    }
+
+    public PostOwnerInfo getCurrentUserInfo() {
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        return accountToPostOwnerInfo(account);
     }
 }

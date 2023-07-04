@@ -1,13 +1,9 @@
 package apptive.team1.friendly.domain.user.data.entity;
 
-import apptive.team1.friendly.domain.post.entity.AccountPost;
-import apptive.team1.friendly.domain.user.data.entity.profile.Gender;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -32,9 +28,7 @@ public class Account {
 
     private String birthday;    // 생일
 
-    @ManyToOne
-    @JoinColumn(name = "gender_id")
-    private Gender gender;
+    private String gender;
 
     private String introduction;    // 자기소개
 

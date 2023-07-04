@@ -61,7 +61,7 @@ public class EntityToDtoConverter {
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
                 .birthday(account.getBirthday())
-                .gender(account.getGender().getName())
+                .gender(account.getGender())
                 .introduction(account.getIntroduction())
                 .interests(accountInterests.stream()
                         .map(EntityToDtoConverter::interestToInterestDto)

@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 
+import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Getter;
@@ -8,6 +9,8 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Getter @Setter
@@ -15,6 +18,8 @@ import java.util.Set;
 public class PostDto {
 
     private Long postId;
+
+    private List<PostImage> postImage = new ArrayList<>();
 
     private PostOwnerInfo postOwnerInfo;
 

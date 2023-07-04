@@ -14,6 +14,8 @@ public class PostListDto {
     // 게시판 리스트에 보이는 필드
     private Long postId;
 
+    private PostImageDto postImageDto;
+
     private String title;
 
     private int maxPeople;
@@ -22,9 +24,8 @@ public class PostListDto {
 
     private String location;
 
-    private Set<HashTag> hashTag = new HashSet<>();
+    private String description;
 
-    // 이미지 필드
-    private ProfileImgDto profileImgDto;
+    private Set<HashTag> hashTag = new HashSet<>();
 
 }
