@@ -136,7 +136,6 @@ public class PostService {
             List<PostImage> postImages = findPost.getPostImages();
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
-                postRepository.deleteImage(postImage);
             }
         }
 
