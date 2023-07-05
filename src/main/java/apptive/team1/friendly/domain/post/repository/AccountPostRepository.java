@@ -38,19 +38,13 @@ public class AccountPostRepository {
     /**
      * 게시물 삭제
      */
-    public Long delete(Long userId, Long postId) {
+    public Long delete(Long postId) {
         // postId에 해당하는 AccountPost 찾음
         AccountPost findAccountPost = em.createQuery("select ap from AccountPost ap where ap.post.id = :postId", AccountPost.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
 
-        // AccountPost에서 user를 찾아서 userId와 비교
-        if(findAccountPost.getUser().getId() != userId) // 본인 게시물이 아니면 삭제 불가
-            throw new RuntimeException("접근 권한이 없습니다.");
-
-        // AccountPost 삭제, CascadeType.remove 이기 때문에 Post도 함께 삭제 됨
         em.remove(findAccountPost);
-
         return postId;
     }
 

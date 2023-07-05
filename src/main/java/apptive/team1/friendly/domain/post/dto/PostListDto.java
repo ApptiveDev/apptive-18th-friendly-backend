@@ -2,7 +2,9 @@ package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.post.entity.HashTag;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -10,9 +12,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Getter @Setter
+@NoArgsConstructor
 public class PostListDto {
-    // 게시판 리스트에 보이는 필드
-    private Long postId;
 
     private PostImageDto postImageDto;
 
@@ -26,6 +27,21 @@ public class PostListDto {
 
     private String description;
 
-    private Set<HashTag> hashTag = new HashSet<>();
+    private Set<HashTag> hashTags = new HashSet<>();
+
+    @Builder
+    public PostListDto(PostImageDto postImageDto, String title, int maxPeople, LocalDateTime promiseTime, String location, String description, Set<HashTag> hashTags) {
+        this.postImageDto = postImageDto;
+        this.title = title;
+        this.maxPeople = maxPeople;
+        this.promiseTime = promiseTime;
+        this.location = location;
+        this.description = description;
+        HashSet<HashTag> copyHashTags = new HashSet<>();
+        for(HashTag hashTag : hashTags) {
+            copyHashTags.add(hashTag);
+        }
+        this.hashTags = copyHashTags;
+    }
 
 }

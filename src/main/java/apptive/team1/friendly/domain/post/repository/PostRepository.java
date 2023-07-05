@@ -21,10 +21,10 @@ public class PostRepository {
     /**
      * 임의의 user가 쓴 게시믈 userId로 조회
      */
-    public List<Post> findByUser(Long userId) {
+    public List<Post> findByUser(String userEmail) {
         // userId에 해당하는 AccountPost 객체 리스트를 찾는다
-        List<AccountPost> accountPosts = em.createQuery("select ap from AccountPost ap where ap.user.id =: userId", AccountPost.class)
-                .setParameter("userId", userId)
+        List<AccountPost> accountPosts = em.createQuery("select ap from AccountPost ap where ap.user.email =: userEmail", AccountPost.class)
+                .setParameter("userEmail", userEmail)
                 .getResultList();
 
         List<Post> posts = new ArrayList<>();
@@ -62,7 +62,8 @@ public class PostRepository {
      * 전체 게시물 조회
      */
     public List<Post> findAll() {
-        return em.createQuery("select p from Post p join fetch p.hashTag join fetch p.rules", Post.class)
+        return em.createQuery("select p from Post p", Post.class) // join fetch(select p from Post p join fetch p.hashTag join fetch p.rules)
+                                                                                                                    // 해서 한 번에 가져 오려고 했는데 결과가 이상하게 나옴. 공부하기
                 .getResultList();
     }
 
