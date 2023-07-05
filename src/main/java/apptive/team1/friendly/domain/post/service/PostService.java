@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -36,22 +37,25 @@ public class PostService {
      */
     public List<PostListDto> findAll() {
         List<Post> posts = postRepository.findAll();
-        List<PostListDto> postListDtos = new ArrayList<PostListDto>();
+        List<PostListDto> postListDtos = new ArrayList<>();
         for (Post post : posts) {
-            PostListDto postListDto = new PostListDto();
-
-            postListDto.setPostId(post.getId());
-            postListDto.setTitle(post.getTitle());
-            postListDto.setMaxPeople(post.getMaxPeople());
-            postListDto.getHashTag().addAll(post.getHashTag());
-            postListDto.setPromiseTime(post.getPromiseTime());
+            PostListDto postListDto = PostListDto.builder()
+                    .title(post.getTitle())
+                    .maxPeople(post.getMaxPeople())
+                    .hashTags(post.getHashTag())
+                    .promiseTime(post.getPromiseTime())
+                    .description(post.getDescription())
+                    .location(post.getLocation())
+                    .build();
 
             // 대표 이미지 설정. 기본 이미지가 존재하기 때문에 예외처리 하지 않음
-            PostImageDto postImageDto = new PostImageDto();
-            postImageDto.setUploadFilePath(post.getPostImages().get(0).getUploadFilePath());
-            postImageDto.setUploadFileName(post.getPostImages().get(0).getUploadFileName());
-            postImageDto.setOriginalFileName(post.getPostImages().get(0).getOriginalFileName());
-            postImageDto.setUploadFileUrl(post.getPostImages().get(0).getUploadFileUrl());
+            PostImageDto postImageDto = PostImageDto.builder()
+                    .originalFileName(post.getPostImages().get(0).getOriginalFileName())
+                    .uploadFileUrl(post.getPostImages().get(0).getUploadFileUrl())
+                    .uploadFileName(post.getPostImages().get(0).getUploadFileName())
+                    .uploadFilePath(post.getPostImages().get(0).getUploadFilePath())
+                    .build();
+
             postListDto.setPostImageDto(postImageDto);
 
             postListDtos.add(postListDto);
@@ -69,8 +73,8 @@ public class PostService {
     /**
      * userId로 user가 쓴 게시물 리스트 찾기
      */
-    public List<Post> findPostsByUserId(Long userId) {
-        return postRepository.findByUser(userId);
+    public List<Post> findPostsByUserEmail(String userEmail) {
+        return postRepository.findByUser(userEmail);
     }
 
 
@@ -83,15 +87,17 @@ public class PostService {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-        Post post = new Post(
-                postFormDto.getTitle(),
-                postFormDto.getDescription(),
-                postFormDto.getMaxPeople(),
-                postFormDto.getPromiseTime(),
-                postFormDto.getLocation(),
-                postFormDto.getRules(),
-                postFormDto.getHashTag()
-        );
+        Post post = Post.builder()
+                .createdDate(LocalDateTime.now())
+                .maxPeople(postFormDto.getMaxPeople())
+                .title(postFormDto.getTitle())
+                .promiseTime(postFormDto.getPromiseTime())
+                .description(postFormDto.getDescription())
+                .location(postFormDto.getLocation())
+                .hashTag(postFormDto.getHashTag())
+                .rules(postFormDto.getRules())
+                .build();
+
         postRepository.save(post);
         
         // AWS 이미지 업로드 및 게시물에 이미지 저장
@@ -99,10 +105,10 @@ public class PostService {
 
         // AccountPost 생성하고, Account와 연관 관계 설정
         AccountPost newAccountPost = new AccountPost();
-        newAccountPost.setUser(author);
+        newAccountPost.relateUser(author);
 
         // AccountPost를 Post와 연결
-        newAccountPost.setPost(post);
+        newAccountPost.relatePost(post);
 
         // post 저장, postId 리턴
         accountPostRepository.save(newAccountPost);
@@ -118,8 +124,24 @@ public class PostService {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
+        AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
+        Post findPost = findAccountPost.getPost();
+
+        // AccountPost에서 user를 찾아서 userId와 비교
+        if(!Objects.equals(findPost.getId(), author.getId())) // 본인 게시물이 아니면 삭제 불가
+            throw new RuntimeException("접근 권한이 없습니다.");
+
+        // 이미지 모두 삭제
+        if(!Objects.equals(findPost.getPostImages().get(0).getOriginalFileName(), "기본 이미지 이름 예시")) { // 기본 이미지가 아니면 삭제
+            List<PostImage> postImages = findPost.getPostImages();
+            for(PostImage postImage : postImages) {
+                awsS3Uploader.delete(postImage.getOriginalFileName());
+                postRepository.deleteImage(postImage);
+            }
+        }
+
         // 삭제한 post의 id 리턴
-        return accountPostRepository.delete(author.getId(), postId);
+        return accountPostRepository.delete(postId);
 
     }
 
@@ -145,7 +167,6 @@ public class PostService {
 
         // 이미지 모두 삭제
         if(!Objects.equals(findPost.getPostImages().get(0).getOriginalFileName(), "기본 이미지 이름 예시")) { // 기본 이미지가 아니면 삭제
-            System.out.println("TEST");
             List<PostImage> postImages = findPost.getPostImages();
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
@@ -186,7 +207,7 @@ public class PostService {
             CommentDto commentDto = new CommentDto();
             commentDto.setUsername(c.getAccount().getFirstName() + c.getAccount().getLastName());
             commentDto.setText(c.getText());
-            commentDto.setCreateTime(c.getCreateTime());
+            commentDto.setCreateTime(c.getCreatedDate());
             commentDtos.add(commentDto);
         }
         postDto.setComments(commentDtos);
@@ -207,6 +228,7 @@ public class PostService {
                 .description(post.getDescription())
                 .maxPeople(post.getMaxPeople())
                 .promiseTime(post.getPromiseTime())
+                .location(post.getLocation())
                 .build();
     }
 

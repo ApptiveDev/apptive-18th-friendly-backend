@@ -32,13 +32,12 @@ public class CommentService {
         Post post = postRepository.findOneByPostId(postId);
 
         // Comment 객체 생성하고 데이터 이동
-        Comment newComment = new Comment();
-        newComment.setText(commentFormDto.getText());
-        newComment.setCreateTime(LocalDateTime.now());
-        
-        // 연관관계 설정
-        newComment.setAccount(author);
-        newComment.setPost(post);
+        Comment newComment = Comment.builder()
+                .text(commentFormDto.getText())
+                .account(author)
+                .post(post)
+                .createTime(LocalDateTime.now())
+                .build();
 
         // 저장하면 id 생김
         commentRepository.save(newComment);

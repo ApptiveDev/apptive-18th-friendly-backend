@@ -3,16 +3,11 @@ import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
-
-import java.util.Optional;
-
-import static javax.persistence.FetchType.LAZY;
 
 @NoArgsConstructor
 @Entity
-@Getter @Setter
+@Getter
 public class AccountPost {
 
     @Id
@@ -25,9 +20,16 @@ public class AccountPost {
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 
+    public void relateUser(Account account) {
+        this.user = account;
+    }
+
+    public void relatePost(Post post) {
+        this.post = post;
+    }
 
 }
