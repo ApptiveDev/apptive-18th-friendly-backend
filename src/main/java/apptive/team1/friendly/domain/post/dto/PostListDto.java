@@ -1,21 +1,22 @@
 package apptive.team1.friendly.domain.post.dto;
 
-import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.post.entity.HashTag;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.Column;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Getter @Setter
+@NoArgsConstructor
 public class PostListDto {
-    // 게시판 리스트에 보이는 필드
-    private Long postId;
+
+    private PostImageDto postImageDto;
 
     private String title;
 
@@ -26,9 +27,23 @@ public class PostListDto {
 
     private String location;
 
-    private List<HashTag> hashTag = new ArrayList<HashTag>();
+    private String description;
 
-    // 이미지 필드
-    private FileInfo fileInfo;
+    private Set<HashTag> hashTags = new HashSet<>();
+
+    @Builder
+    public PostListDto(PostImageDto postImageDto, String title, int maxPeople, LocalDateTime promiseTime, String location, String description, Set<HashTag> hashTags) {
+        this.postImageDto = postImageDto;
+        this.title = title;
+        this.maxPeople = maxPeople;
+        this.promiseTime = promiseTime;
+        this.location = location;
+        this.description = description;
+        HashSet<HashTag> copyHashTags = new HashSet<>();
+        for(HashTag hashTag : hashTags) {
+            copyHashTags.add(hashTag);
+        }
+        this.hashTags = copyHashTags;
+    }
 
 }

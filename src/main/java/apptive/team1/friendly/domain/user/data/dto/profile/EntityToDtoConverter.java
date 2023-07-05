@@ -21,7 +21,7 @@ public class EntityToDtoConverter {
         LanguageDto languageDto = new LanguageDto();
         languageDto.setId(language.getId());
         languageDto.setName(language.getName());
-        languageDto.setLevel(accountLanguage.getLevel().getName());
+        languageDto.setLevel(accountLanguage.getLanguageLevel().getName());
         return languageDto;
     }
 
@@ -61,7 +61,7 @@ public class EntityToDtoConverter {
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
                 .birthday(account.getBirthday())
-                .gender(account.getGender().getName())
+                .gender(account.getGender())
                 .introduction(account.getIntroduction())
                 .interests(accountInterests.stream()
                         .map(EntityToDtoConverter::interestToInterestDto)

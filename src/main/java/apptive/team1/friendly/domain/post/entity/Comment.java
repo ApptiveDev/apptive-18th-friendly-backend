@@ -1,18 +1,28 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.global.BaseEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor
-public class Comment {
+public class Comment extends BaseEntity {
+
+    @Builder
+    public Comment(String text, Account account, Post post, LocalDateTime createTime) {
+        this.text = text;
+        this.account = account;
+        this.post = post;
+        this.setCreatedDate(createTime);
+        this.setLastModifiedDate(createTime);
+    }
 
     @Id
     @Column(name = "comment_id")
@@ -23,15 +33,12 @@ public class Comment {
     private String text;
 
     @JoinColumn(name = "user_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Account account;
 
     @JoinColumn(name = "post_id")
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Post post;
-
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createTime;
 
     /**
      * 연관관계 편의 메소드

@@ -1,8 +1,15 @@
 package apptive.team1.friendly.domain.user.service;
 
+import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.user.data.dto.*;
+import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
+import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
@@ -14,6 +21,9 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,8 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +49,11 @@ public class UserService {
     private final LanguageRepository languageRepository;
     private final LanguageLevelRepository languageLevelRepository;
     private final NationRepository nationRepository;
-    private final GenderRepository genderRepository;
     private final AccountInterestRepository accountInterestRepository;
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
     private final AccountProfileImgRepository accountProfileImgRepository;
+    private final AccountPostRepository accountPostRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AwsS3Uploader awsS3Uploader;
@@ -56,7 +68,6 @@ public class UserService {
 
         Account account = createAccount(signupRequest);
 
-        addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
         addNation(account, signupRequest.getNation(), signupRequest.getCity());
@@ -77,7 +88,6 @@ public class UserService {
 
         extraSignup(account, signupRequest);
 
-        addGender(account, signupRequest.getGender());
         addInterests(account, signupRequest.getInterests());
         addLanguages(account, signupRequest.getLanguages(), signupRequest.getLanguageLevels());
         addNation(account, signupRequest.getNation(), signupRequest.getCity());
@@ -88,6 +98,7 @@ public class UserService {
     private Account createAccount(SignupRequest signupRequest) {
         Account account = accountRepository.findOneByEmail(signupRequest.getEmail()).orElseGet(() -> accountRepository.save(new Account()));
 
+        account.setGender(signupRequest.getGender());
         account.setEmail(signupRequest.getEmail());
         account.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
         account.setFirstName(signupRequest.getFirstName());
@@ -129,17 +140,12 @@ public class UserService {
                     });
 
             String languageLevelName = languageLevels.get(i);
-            LanguageLevel languageLevel = languageLevelRepository.findOneByName(languageLevelName)
-                    .orElseGet(() -> {
-                        LanguageLevel newLevel = new LanguageLevel();
-                        newLevel.setName(languageLevelName);
-                        return languageLevelRepository.save(newLevel);
-                    });
+            LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
 
             AccountLanguage accountLanguage = AccountLanguage.builder()
                     .account(account)
                     .language(language)
-                    .level(languageLevel)
+                    .languageLevel(languageLevel)
                     .build();
 
             accountLanguageRepository.save(accountLanguage);
@@ -163,17 +169,6 @@ public class UserService {
         accountNationRepository.save(accountNation);
     }
 
-    private void addGender(Account account, String genderName) {
-        Gender gender = genderRepository.findOneByName(genderName)
-                .orElseGet(() -> {
-                    Gender newGender = new Gender();
-                    newGender.setName(genderName);
-                    return genderRepository.save(newGender);
-                });
-
-        account.setGender(gender);
-    }
-
     private void addAuthority(Account user, Authority authority) {
         AccountAuthority accountAuthority = AccountAuthority.builder()
                 .account(user)
@@ -191,6 +186,7 @@ public class UserService {
         account.setFirstName(signupRequest.getFirstName());
         account.setLastName(signupRequest.getLastName());
         account.setIntroduction(signupRequest.getIntroduction());
+        account.setGender(signupRequest.getGender());
         account.setActivated(true);
     }
 
@@ -292,5 +288,83 @@ public class UserService {
 
         // 회원 삭제
         accountRepository.delete(account);
+    }
+
+    /**
+     * 게시물 주인 정보 조회
+     */
+    public PostOwnerInfo getPostOwnerInfo(Long postId) {
+        PostOwnerInfo postOwnerInfo = new PostOwnerInfo();
+
+        // postId로 accountPost 찾아서 글 작성자를 찾음
+        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
+        Account postOwner = accountPost.getUser();
+
+        // 글 작성자 정보 찾기
+        Optional<AccountNation> nationOptional = accountNationRepository.findOneByAccount(postOwner);
+        List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(postOwner);
+        Optional<ProfileImg> profileImgOptional = accountProfileImgRepository.findOneByAccount(postOwner);
+
+        // language 설정
+        List<LanguageDto> languageDtoList = new ArrayList<>();
+        for(AccountLanguage al : accountLanguages) {
+            LanguageDto languageDto = new LanguageDto();
+            languageDto.setName(al.getLanguage().getName());
+            languageDto.setLevel(al.getLanguageLevel().getName());
+            languageDtoList.add(languageDto);
+        }
+
+        // nation 설정
+        if(nationOptional.isPresent()) {
+            AccountNation accountNation = nationOptional.get();
+            NationDto nationDto = new NationDto();
+            nationDto.setCity(accountNation.getCity());
+            nationDto.setName(accountNation.getNation().getName());
+            postOwnerInfo.setNationDto(nationDto);
+        }
+
+        // profileDto 설정
+        if(profileImgOptional.isPresent()) {
+            ProfileImg profileImg = profileImgOptional.get();
+            ProfileImgDto profileImgDto = new ProfileImgDto();
+            profileImgDto.setEmail(profileImg.getAccount().getEmail());
+            profileImgDto.setUploadFileName(profileImg.getUploadFileName());
+            profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
+            profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
+            profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
+            postOwnerInfo.setProfileImgDto(profileImgDto);
+        }
+
+        postOwnerInfo.setFirstName(postOwner.getFirstName());
+        postOwnerInfo.setLastName(postOwner.getLastName());
+//        postOwnerInfo.setGender(postOwner.getGender());
+        postOwnerInfo.setLanguageDtoList(languageDtoList);
+
+        return postOwnerInfo;
+    }
+
+    public PostOwnerInfo accountToPostOwnerInfo(Account account) {
+        List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
+        ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
+        AccountNation nation = accountNationRepository.findOneByAccount(account).orElse(null);
+        return PostOwnerInfo.builder()
+                .gender(account.getGender())
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .nationDto(EntityToDtoConverter.nationToNationDto(nation))
+                .profileImgDto(EntityToDtoConverter.profileImgToProfileImgDto(profileImg))
+                .languageDtoList(accountLanguages.stream()
+                        .map(EntityToDtoConverter::languageToLanguageDto)
+                        .collect(Collectors.toList()))
+                .build();
+
+    }
+
+    /**
+     * 현재 로그인된 유저 정보 반환 (PostOwnerInfo와 사용하는 필드 동일하여 재사용)
+     */
+    public PostOwnerInfo getCurrentUserInfo() {
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        return accountToPostOwnerInfo(account);
     }
 }
