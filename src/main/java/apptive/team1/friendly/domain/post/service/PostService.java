@@ -8,15 +8,9 @@ import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-<<<<<<< HEAD
-import apptive.team1.friendly.domain.user.data.entity.profile.Gender;
-import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
-import apptive.team1.friendly.domain.user.service.UserService;
-=======
 import apptive.team1.friendly.domain.user.data.repository.*;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
->>>>>>> 5a22d9ba936c5548f872168e182162b5ccba1f97
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -54,13 +48,6 @@ public class PostService {
                     .location(post.getLocation())
                     .build();
 
-<<<<<<< HEAD
-            postListDto.setPostId(post.getId());
-            postListDto.setTitle(post.getTitle());
-            postListDto.setMaxPeople(post.getMaxPeople());
-            postListDto.setHashTag(post.getHashTag());
-            postListDto.setPromiseTime(post.getPromiseTime());
-=======
             // 대표 이미지 설정. 기본 이미지가 존재하기 때문에 예외처리 하지 않음
             PostImageDto postImageDto = PostImageDto.builder()
                     .originalFileName(post.getPostImages().get(0).getOriginalFileName())
@@ -70,7 +57,6 @@ public class PostService {
                     .build();
 
             postListDto.setPostImageDto(postImageDto);
->>>>>>> 5a22d9ba936c5548f872168e182162b5ccba1f97
 
             postListDtos.add(postListDto);
         }
@@ -99,17 +85,7 @@ public class PostService {
     @Transactional
     public Long addPost(PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
         // author 찾기
-//        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
-        // test용
-        Account author = new Account();
-        author.setEmail("test@test");
-        author.setFirstName("mw");
-        author.setLastName("mw2");
-        Gender gender = new Gender();
-        gender.setName("male");
-        author.setGender(gender);
-        //
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
         Post post = Post.builder()
                 .createdDate(LocalDateTime.now())
@@ -148,10 +124,6 @@ public class PostService {
         // author 찾기
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
 
-<<<<<<< HEAD
-        // 삭제한 post의 id 리턴. test용 9번 아이디 user
-        return accountPostRepository.delete(1L, postId);
-=======
         AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
         Post findPost = findAccountPost.getPost();
 
@@ -169,7 +141,6 @@ public class PostService {
 
         // 삭제한 post의 id 리턴
         return accountPostRepository.delete(postId);
->>>>>>> 5a22d9ba936c5548f872168e182162b5ccba1f97
 
     }
 
@@ -215,19 +186,7 @@ public class PostService {
     public PostDto postDetail(Long postId, PostOwnerInfo postOwnerInfo) {
         Post findPost = findByPostId(postId);
 
-<<<<<<< HEAD
-        // postId로 accountPost 찾아서 글 작성자를 찾음
-        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
-        Account postOwner = accountPost.getUser();
-
-        // 글 작성자의 정보
-        AccountInfoResponse accountInfo = userService.accountToUserInfo(postOwner);
-
-
-
-=======
         // postDto 설정
->>>>>>> 5a22d9ba936c5548f872168e182162b5ccba1f97
         PostDto postDto = new PostDto();
         // user 정보
         postDto.setPostOwnerInfo(postOwnerInfo);
