@@ -1,6 +1,4 @@
 package apptive.team1.friendly.global;
-
-import jdk.vm.ci.meta.Local;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;

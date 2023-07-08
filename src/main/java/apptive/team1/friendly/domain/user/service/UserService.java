@@ -360,11 +360,16 @@ public class UserService {
 
     }
 
+    public Account getCurrentUser() {
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        return account;
+    }
+
     /**
      * 현재 로그인된 유저 정보 반환 (PostOwnerInfo와 사용하는 필드 동일하여 재사용)
      */
     public PostOwnerInfo getCurrentUserInfo() {
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
         return accountToPostOwnerInfo(account);
     }
 }

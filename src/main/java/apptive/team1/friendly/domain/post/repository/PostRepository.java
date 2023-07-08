@@ -3,10 +3,8 @@ package apptive.team1.friendly.domain.post.repository;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.entity.PostImage;
-import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import java.util.ArrayList;
@@ -53,7 +51,7 @@ public class PostRepository {
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
-        return em.createQuery("select p from Post p join fetch p.hashTag join fetch p.rules where p.id =: postId", Post.class)
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags join fetch p.rules where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
     }
@@ -62,8 +60,7 @@ public class PostRepository {
      * 전체 게시물 조회
      */
     public List<Post> findAll() {
-        return em.createQuery("select p from Post p", Post.class) // join fetch(select p from Post p join fetch p.hashTag join fetch p.rules)
-                                                                                                                    // 해서 한 번에 가져 오려고 했는데 결과가 이상하게 나옴. 공부하기
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags join fetch p.rules", Post.class)
                 .getResultList();
     }
 
