@@ -1,7 +1,9 @@
 package apptive.team1.friendly.domain.post.dto;
 import apptive.team1.friendly.domain.post.entity.PostImage;
+import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +15,24 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 public class PostDto {
+    @Builder
+    public PostDto(Long postId, List<PostImage> postImage, PostOwnerInfo postOwnerInfo,
+                   String title, Set<HashTag> hashTag, int maxPeople, String description,
+                   LocalDateTime promiseTime, String location, Set<String> rules,
+                   Set<CommentDto> comments, AudioGuide audioGuide) {
+        this.postId = postId;
+        this.postImage = postImage;
+        this.postOwnerInfo = postOwnerInfo;
+        this.title = title;
+        this.hashTag = hashTag;
+        this.maxPeople = maxPeople;
+        this.description = description;
+        this.promiseTime = promiseTime;
+        this.location = location;
+        this.rules = rules;
+        this.comments = comments;
+        this.audioGuide = audioGuide;
+    }
 
     private Long postId;
 
@@ -36,4 +56,6 @@ public class PostDto {
     private Set<String> rules;
 
     private Set<CommentDto> comments;
+
+    private AudioGuide audioGuide;
 }

@@ -1,7 +1,9 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
+import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.global.BaseEntity;
+import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,6 +12,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,14 +24,15 @@ public class Post extends BaseEntity {
     @Builder
     public Post(String title, String description, int maxPeople,
                 LocalDateTime promiseTime, String location, Set<String> rules,
-                Set<HashTag> hashTag, LocalDateTime createdDate) {
+                Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
         this.promiseTime = promiseTime;
         this.location = location;
         this.rules = rules;
-        this.hashTag = hashTag;
+        this.hashTags = hashTags;
+        this.audioGuide = audioGuide;
         this.setCreatedDate(createdDate);
         this.setLastModifiedDate(createdDate);
     }
@@ -61,18 +65,22 @@ public class Post extends BaseEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Set<HashTag> hashTag;
+    private Set<HashTag> hashTags = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @NotNull
-    private Set<String> rules;
+    private Set<String> rules = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Comment> comments;
+    private Set<Comment> comments = new HashSet<>();
+
+    @Embedded
+    @Nullable
+    private AudioGuide audioGuide;
 
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
-        this.hashTag = formDto.getHashTag();
+        this.hashTags= formDto.getHashTag();
         this.maxPeople = formDto.getMaxPeople();
         this.description = formDto.getDescription();
         this.promiseTime = formDto.getPromiseTime();
