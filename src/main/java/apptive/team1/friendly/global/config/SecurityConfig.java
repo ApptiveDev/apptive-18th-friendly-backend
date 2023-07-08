@@ -54,10 +54,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/google/login", "/api/google/signup").permitAll()
                 .antMatchers("/auth/social/GOOGLE", "/auth/social/KAKAO").permitAll()
                 .antMatchers("/auth/social/GOOGLE/callback", "/auth/social/KAKAO/callback").permitAll()
-                .antMatchers("/posts").permitAll()
-                .antMatchers("/posts/*").permitAll()
-                .antMatchers("/posts/audioGuide").permitAll()
-
                 .anyRequest().authenticated()
                 // jwt filter config
                 .and()

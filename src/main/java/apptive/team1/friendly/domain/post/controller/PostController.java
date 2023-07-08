@@ -54,8 +54,7 @@ public class PostController {
 
     @PostMapping("/posts/create") // 게시물 추가 요청
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
-//        Account author = userService.getCurrentUser();
-        Account author = new Account();
+        Account author = userService.getCurrentUser();
         Long postId = postService.addPost(author, postForm, imageFiles);
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
