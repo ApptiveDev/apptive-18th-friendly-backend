@@ -58,8 +58,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // jwt filter config
                 .and()
                 .apply(new JwtSecurityConfig(jwtTokenProvider));
-
-
-
     }
 }

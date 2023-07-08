@@ -1,21 +1,18 @@
 package apptive.team1.friendly.domain.post.dto;
-
 import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
 public class PostDto {
     @Builder
