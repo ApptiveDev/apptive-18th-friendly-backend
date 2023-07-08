@@ -126,8 +126,8 @@ public class PostService {
             throw new RuntimeException("접근 권한이 없습니다.");
 
         // 이미지 모두 삭제
-        if(findPost.getPostImages().size() > 0) {
-            List<PostImage> postImages = findPost.getPostImages();
+        List<PostImage> postImages = findPost.getPostImages();
+        if(postImages.size() > 0) {
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
             }
@@ -155,9 +155,9 @@ public class PostService {
 
         findPost.update(updateForm);
 
+        List<PostImage> postImages = findPost.getPostImages();
         // 이미지 모두 삭제
-        if(findPost.getPostImages().size() > 0) {
-            List<PostImage> postImages = findPost.getPostImages();
+        if(postImages.size() > 0) {
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
                 postRepository.deleteImage(postImage);
