@@ -24,14 +24,14 @@ public class Post extends BaseEntity {
     @Builder
     public Post(String title, String description, int maxPeople,
                 LocalDateTime promiseTime, String location, Set<String> rules,
-                Set<HashTag> hashTag, LocalDateTime createdDate, AudioGuide audioGuide) {
+                Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
         this.promiseTime = promiseTime;
         this.location = location;
         this.rules = rules;
-        this.hashTag = hashTag;
+        this.hashTags = hashTags;
         this.audioGuide = audioGuide;
         this.setCreatedDate(createdDate);
         this.setLastModifiedDate(createdDate);
@@ -65,14 +65,14 @@ public class Post extends BaseEntity {
     @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Set<HashTag> hashTag = new HashSet<>();
+    private Set<HashTag> hashTags = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @NotNull
     private Set<String> rules = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Comment> comments;
+    private Set<Comment> comments = new HashSet<>();
 
     @Embedded
     @Nullable
@@ -80,7 +80,7 @@ public class Post extends BaseEntity {
 
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
-        this.hashTag = formDto.getHashTag();
+        this.hashTags= formDto.getHashTag();
         this.maxPeople = formDto.getMaxPeople();
         this.description = formDto.getDescription();
         this.promiseTime = formDto.getPromiseTime();

@@ -16,7 +16,9 @@ public class PostFormDto {
      * 새로 글 쓰는 경우 생성자. postId가 없음
      */
     @Builder
-    public PostFormDto(String title, Set<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, Set<String> rules, AudioGuide audioGuide) {
+    public PostFormDto(String title, Set<HashTag> hashTag, int maxPeople, String description,
+                       LocalDateTime promiseTime, String location,
+                       Set<String> rules, AudioGuide audioGuide) {
         this.title = title;
         this.hashTag = hashTag;
         this.maxPeople = maxPeople;

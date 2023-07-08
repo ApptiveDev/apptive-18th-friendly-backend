@@ -40,7 +40,7 @@ public class PostService {
                     .postId(post.getId())
                     .title(post.getTitle())
                     .maxPeople(post.getMaxPeople())
-                    .hashTags(post.getHashTag())
+                    .hashTags(post.getHashTags())
                     .promiseTime(post.getPromiseTime())
                     .description(post.getDescription())
                     .location(post.getLocation())
@@ -90,7 +90,7 @@ public class PostService {
                 .promiseTime(postFormDto.getPromiseTime())
                 .description(postFormDto.getDescription())
                 .location(postFormDto.getLocation())
-                .hashTag(postFormDto.getHashTag())
+                .hashTags(postFormDto.getHashTag())
                 .rules(postFormDto.getRules())
                 .audioGuide(postFormDto.getAudioGuide())
                 .build();
@@ -122,11 +122,11 @@ public class PostService {
         Post findPost = findAccountPost.getPost();
 
         // AccountPost에서 user를 찾아서 userId와 비교
-        if(!Objects.equals(findPost.getId(), author.getId())) // 본인 게시물이 아니면 삭제 불가
+        if(!Objects.equals(findAccountPost.getUser().getId(), author.getId())) // 본인 게시물이 아니면 삭제 불가
             throw new RuntimeException("접근 권한이 없습니다.");
 
         // 이미지 모두 삭제
-        if(!Objects.equals(findPost.getPostImages().get(0).getOriginalFileName(), "기본 이미지 이름 예시")) { // 기본 이미지가 아니면 삭제
+        if(findPost.getPostImages().size() > 0) {
             List<PostImage> postImages = findPost.getPostImages();
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
@@ -147,7 +147,7 @@ public class PostService {
         AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
 
         // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
-        if(author.getId() != findAccountPost.getUser().getId())
+        if(!Objects.equals(author.getId(), findAccountPost.getUser().getId()))
             throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
 
         // AccountPost와 연관된 post 찾음
@@ -156,7 +156,7 @@ public class PostService {
         findPost.update(updateForm);
 
         // 이미지 모두 삭제
-        if(!Objects.equals(findPost.getPostImages().get(0).getOriginalFileName(), "기본 이미지 이름 예시")) { // 기본 이미지가 아니면 삭제
+        if(findPost.getPostImages().size() > 0) {
             List<PostImage> postImages = findPost.getPostImages();
             for(PostImage postImage : postImages) {
                 awsS3Uploader.delete(postImage.getOriginalFileName());
@@ -178,14 +178,16 @@ public class PostService {
         Post findPost = findByPostId(postId);
         Set<Comment> comments = findPost.getComments();
 
-        // 댓글 목록 설정
         Set<CommentDto> commentDtos = new HashSet<>();
-        for(Comment c : comments) {
-            CommentDto commentDto = new CommentDto();
-            commentDto.setUsername(c.getAccount().getFirstName() + c.getAccount().getLastName());
-            commentDto.setText(c.getText());
-            commentDto.setCreateTime(c.getCreatedDate());
-            commentDtos.add(commentDto);
+        // 댓글 목록 설정
+        if(comments.size() > 0) {
+            for (Comment c : comments) {
+                CommentDto commentDto = new CommentDto();
+                commentDto.setUsername(c.getAccount().getFirstName() + c.getAccount().getLastName());
+                commentDto.setText(c.getText());
+                commentDto.setCreateTime(c.getCreatedDate());
+                commentDtos.add(commentDto);
+            }
         }
 
         return PostDto.builder()
@@ -195,7 +197,7 @@ public class PostService {
                 .maxPeople(findPost.getMaxPeople())
                 .description(findPost.getDescription())
                 .rules(findPost.getRules())
-                .hashTag(findPost.getHashTag())
+                .hashTag(findPost.getHashTags())
                 .promiseTime(findPost.getPromiseTime())
                 .audioGuide(findPost.getAudioGuide())
                 .comments(commentDtos)
@@ -211,7 +213,7 @@ public class PostService {
         return PostFormDto.builder()
                 .rules(post.getRules())
                 .title(post.getTitle())
-                .hashTag(post.getHashTag())
+                .hashTag(post.getHashTags())
                 .description(post.getDescription())
                 .maxPeople(post.getMaxPeople())
                 .promiseTime(post.getPromiseTime())
@@ -226,7 +228,7 @@ public class PostService {
         for(MultipartFile multipartFile : multipartFiles) {
             FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ post.getId().toString());
             PostImage postImage = PostImage.builder()
-                    .post(post)
+                    .post(post) // 연관관계 설정
                     .originalFileName(uploadFile.getOriginalFileName())
                     .uploadFileName(uploadFile.getUploadFileName())
                     .uploadFilePath(uploadFile.getUploadFileName())

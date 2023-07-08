@@ -51,7 +51,7 @@ public class PostRepository {
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTag join fetch p.rules where p.id =: postId", Post.class)
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags join fetch p.rules where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
     }
@@ -60,7 +60,7 @@ public class PostRepository {
      * 전체 게시물 조회
      */
     public List<Post> findAll() {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTag join fetch p.rules", Post.class)
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags join fetch p.rules", Post.class)
                 .getResultList();
     }
 
