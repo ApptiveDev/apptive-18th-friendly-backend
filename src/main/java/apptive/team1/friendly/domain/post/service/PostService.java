@@ -8,10 +8,8 @@ import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.repository.*;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
-import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +25,6 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final AccountRepository accountRepository;
     private final AccountPostRepository accountPostRepository;
     private final AwsS3Uploader awsS3Uploader;
 
@@ -40,6 +37,7 @@ public class PostService {
         List<PostListDto> postListDtos = new ArrayList<>();
         for (Post post : posts) {
             PostListDto postListDto = PostListDto.builder()
+                    .postId(post.getId())
                     .title(post.getTitle())
                     .maxPeople(post.getMaxPeople())
                     .hashTags(post.getHashTag())
@@ -48,15 +46,16 @@ public class PostService {
                     .location(post.getLocation())
                     .build();
 
-            // 대표 이미지 설정. 기본 이미지가 존재하기 때문에 예외처리 하지 않음
-            PostImageDto postImageDto = PostImageDto.builder()
-                    .originalFileName(post.getPostImages().get(0).getOriginalFileName())
-                    .uploadFileUrl(post.getPostImages().get(0).getUploadFileUrl())
-                    .uploadFileName(post.getPostImages().get(0).getUploadFileName())
-                    .uploadFilePath(post.getPostImages().get(0).getUploadFilePath())
-                    .build();
-
-            postListDto.setPostImageDto(postImageDto);
+            // 대표 이미지 설정
+            if(post.getPostImages().size() > 0) {
+                PostImageDto postImageDto = PostImageDto.builder()
+                        .originalFileName(post.getPostImages().get(0).getOriginalFileName())
+                        .uploadFileUrl(post.getPostImages().get(0).getUploadFileUrl())
+                        .uploadFileName(post.getPostImages().get(0).getUploadFileName())
+                        .uploadFilePath(post.getPostImages().get(0).getUploadFilePath())
+                        .build();
+                postListDto.setPostImageDto(postImageDto);
+            }
 
             postListDtos.add(postListDto);
         }
@@ -71,7 +70,7 @@ public class PostService {
     }
 
     /**
-     * userId로 user가 쓴 게시물 리스트 찾기
+     * userEmail로 user가 쓴 게시물 리스트 찾기
      */
     public List<Post> findPostsByUserEmail(String userEmail) {
         return postRepository.findByUser(userEmail);
@@ -83,10 +82,7 @@ public class PostService {
      * 게시물 추가하기
      */
     @Transactional
-    public Long addPost(PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
-        // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
+    public Long addPost(Account author, PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
         Post post = Post.builder()
                 .createdDate(LocalDateTime.now())
                 .maxPeople(postFormDto.getMaxPeople())
@@ -96,6 +92,7 @@ public class PostService {
                 .location(postFormDto.getLocation())
                 .hashTag(postFormDto.getHashTag())
                 .rules(postFormDto.getRules())
+                .audioGuide(postFormDto.getAudioGuide())
                 .build();
 
         postRepository.save(post);
@@ -120,10 +117,7 @@ public class PostService {
      * 게시물 삭제
      */
     @Transactional
-    public Long deletePost(Long postId) {
-        // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
+    public Long deletePost(Account author, Long postId) {
         AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
         Post findPost = findAccountPost.getPost();
 
@@ -148,10 +142,7 @@ public class PostService {
      * 게시물 수정(업데이트)
      */
     @Transactional
-    public Long updatePost(Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
-        // author 찾기
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-
+    public Long updatePost(Account author, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
         // postId에 해당하는 AccountPost 찾기
         AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
 
@@ -185,22 +176,9 @@ public class PostService {
      */
     public PostDto postDetail(Long postId, PostOwnerInfo postOwnerInfo) {
         Post findPost = findByPostId(postId);
-
-        // postDto 설정
-        PostDto postDto = new PostDto();
-        // user 정보
-        postDto.setPostOwnerInfo(postOwnerInfo);
-        // 게시글 정보
-        postDto.setPostId(findPost.getId());
-        postDto.setTitle(findPost.getTitle());
-        postDto.setMaxPeople(findPost.getMaxPeople());
-        postDto.setDescription(findPost.getDescription());
-        postDto.setRules(findPost.getRules());
-        postDto.setHashTag(findPost.getHashTag());
-        postDto.setPromiseTime(findPost.getPromiseTime());
+        Set<Comment> comments = findPost.getComments();
 
         // 댓글 목록 설정
-        Set<Comment> comments = findPost.getComments();
         Set<CommentDto> commentDtos = new HashSet<>();
         for(Comment c : comments) {
             CommentDto commentDto = new CommentDto();
@@ -209,9 +187,19 @@ public class PostService {
             commentDto.setCreateTime(c.getCreatedDate());
             commentDtos.add(commentDto);
         }
-        postDto.setComments(commentDtos);
 
-        return postDto;
+        return PostDto.builder()
+                .postOwnerInfo(postOwnerInfo)
+                .postId(postId)
+                .title(findPost.getTitle())
+                .maxPeople(findPost.getMaxPeople())
+                .description(findPost.getDescription())
+                .rules(findPost.getRules())
+                .hashTag(findPost.getHashTag())
+                .promiseTime(findPost.getPromiseTime())
+                .audioGuide(findPost.getAudioGuide())
+                .comments(commentDtos)
+                .build();
     }
 
 

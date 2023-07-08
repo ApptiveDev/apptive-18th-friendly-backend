@@ -1,8 +1,7 @@
 package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.HashTag;
-import apptive.team1.friendly.domain.post.entity.PostImage;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -17,7 +16,7 @@ public class PostFormDto {
      * 새로 글 쓰는 경우 생성자. postId가 없음
      */
     @Builder
-    public PostFormDto(String title, Set<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, Set<String> rules) {
+    public PostFormDto(String title, Set<HashTag> hashTag, int maxPeople, String description, LocalDateTime promiseTime, String location, Set<String> rules, AudioGuide audioGuide) {
         this.title = title;
         this.hashTag = hashTag;
         this.maxPeople = maxPeople;
@@ -25,6 +24,7 @@ public class PostFormDto {
         this.promiseTime = promiseTime;
         this.location = location;
         this.rules = rules;
+        this.audioGuide = audioGuide;
     }
 
     private String title;
@@ -41,4 +41,6 @@ public class PostFormDto {
     private String location;
 
     private Set<String> rules = new HashSet<>();
+
+    private AudioGuide audioGuide;
 }
