@@ -1,14 +1,12 @@
 package apptive.team1.friendly.domain.user.service;
 
-import apptive.team1.friendly.domain.post.entity.AccountPost;
-import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.*;
 import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
-import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
@@ -21,9 +19,6 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
-import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
-import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,7 +48,7 @@ public class UserService {
     private final AccountLanguageRepository accountLanguageRepository;
     private final AccountNationRepository accountNationRepository;
     private final AccountProfileImgRepository accountProfileImgRepository;
-    private final AccountPostRepository accountPostRepository;
+    private final PostRepository postRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final AwsS3Uploader awsS3Uploader;
@@ -296,9 +291,7 @@ public class UserService {
     public PostOwnerInfo getPostOwnerInfo(Long postId) {
         PostOwnerInfo postOwnerInfo = new PostOwnerInfo();
 
-        // postId로 accountPost 찾아서 글 작성자를 찾음
-        AccountPost accountPost = accountPostRepository.findOneByPostId(postId);
-        Account postOwner = accountPost.getUser();
+        Account postOwner = accountRepository.findAuthorByPostId(postId);
 
         // 글 작성자 정보 찾기
         Optional<AccountNation> nationOptional = accountNationRepository.findOneByAccount(postOwner);
@@ -337,7 +330,7 @@ public class UserService {
 
         postOwnerInfo.setFirstName(postOwner.getFirstName());
         postOwnerInfo.setLastName(postOwner.getLastName());
-//        postOwnerInfo.setGender(postOwner.getGender());
+        postOwnerInfo.setGender(postOwner.getGender());
         postOwnerInfo.setLanguageDtoList(languageDtoList);
 
         return postOwnerInfo;

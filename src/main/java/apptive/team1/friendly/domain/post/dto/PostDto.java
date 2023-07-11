@@ -17,14 +17,14 @@ import java.util.Set;
 public class PostDto {
     @Builder
     public PostDto(Long postId, List<PostImage> postImage, PostOwnerInfo postOwnerInfo,
-                   String title, Set<HashTag> hashTag, int maxPeople, String description,
+                   String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDateTime promiseTime, String location, Set<String> rules,
                    Set<CommentDto> comments, AudioGuide audioGuide) {
         this.postId = postId;
         this.postImage = postImage;
         this.postOwnerInfo = postOwnerInfo;
         this.title = title;
-        this.hashTag = hashTag;
+        this.hashTags = hashTags;
         this.maxPeople = maxPeople;
         this.description = description;
         this.promiseTime = promiseTime;
@@ -42,7 +42,7 @@ public class PostDto {
 
     private String title;
 
-    private Set<HashTag> hashTag;
+    private Set<HashTag> hashTags;
 
     private int maxPeople;
 

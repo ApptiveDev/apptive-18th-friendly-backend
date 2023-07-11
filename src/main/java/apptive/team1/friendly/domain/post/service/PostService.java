@@ -1,22 +1,17 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
-import apptive.team1.friendly.domain.post.entity.AccountPost;
-import apptive.team1.friendly.domain.post.entity.Comment;
-import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.entity.PostImage;
-import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
+import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -25,7 +20,7 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final AccountPostRepository accountPostRepository;
+    private final AccountRepository accountRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
@@ -72,8 +67,8 @@ public class PostService {
     /**
      * userEmail로 user가 쓴 게시물 리스트 찾기
      */
-    public List<Post> findPostsByUserEmail(String userEmail) {
-        return postRepository.findByUser(userEmail);
+    public List<Post> findPostsByUserId(Long userId) {
+        return postRepository.findByUser(userId);
     }
 
 
@@ -83,32 +78,13 @@ public class PostService {
      */
     @Transactional
     public Long addPost(Account author, PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
-        Post post = Post.builder()
-                .createdDate(LocalDateTime.now())
-                .maxPeople(postFormDto.getMaxPeople())
-                .title(postFormDto.getTitle())
-                .promiseTime(postFormDto.getPromiseTime())
-                .description(postFormDto.getDescription())
-                .location(postFormDto.getLocation())
-                .hashTags(postFormDto.getHashTag())
-                .rules(postFormDto.getRules())
-                .audioGuide(postFormDto.getAudioGuide())
-                .build();
-
+        AccountPost accountPost = AccountPost.createAccountPost(author, AccountType.AUTHOR);
+        Post post = Post.createPost(postFormDto, accountPost);
+        // ImageUpload 함수 내부에서 postId를 사용하기 때문에 Id를 얻기 위해 persist
         postRepository.save(post);
         
         // AWS 이미지 업로드 및 게시물에 이미지 저장
         ImageUpload(multipartFiles, post);
-
-        // AccountPost 생성하고, Account와 연관 관계 설정
-        AccountPost newAccountPost = new AccountPost();
-        newAccountPost.relateUser(author);
-
-        // AccountPost를 Post와 연결
-        newAccountPost.relatePost(post);
-
-        // post 저장, postId 리턴
-        accountPostRepository.save(newAccountPost);
 
         return post.getId();
     }
@@ -117,24 +93,24 @@ public class PostService {
      * 게시물 삭제
      */
     @Transactional
-    public Long deletePost(Account author, Long postId) {
-        AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
-        Post findPost = findAccountPost.getPost();
+    public Long deletePost(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+        Account author = accountRepository.findAuthorByPostId(postId);
 
-        // AccountPost에서 user를 찾아서 userId와 비교
-        if(!Objects.equals(findAccountPost.getUser().getId(), author.getId())) // 본인 게시물이 아니면 삭제 불가
+        // AccountPost에서 첫 번째 user(방 생성자)를 찾아서 userId와 비교
+        if(!Objects.equals(author.getId(), currentUser.getId())) // 본인 게시물이 아니면 삭제 불가
             throw new RuntimeException("접근 권한이 없습니다.");
 
         // 이미지 모두 삭제
         List<PostImage> postImages = findPost.getPostImages();
         if(postImages.size() > 0) {
-            for(PostImage postImage : postImages) {
-                awsS3Uploader.delete(postImage.getOriginalFileName());
+            for(int i=postImages.size()-1; i>=0; i--) {
+                awsS3Uploader.delete(postImages.get(i).getOriginalFileName());
             }
         }
 
         // 삭제한 post의 id 리턴
-        return accountPostRepository.delete(postId);
+        return postRepository.delete(findPost);
 
     }
 
@@ -142,31 +118,28 @@ public class PostService {
      * 게시물 수정(업데이트)
      */
     @Transactional
-    public Long updatePost(Account author, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
-        // postId에 해당하는 AccountPost 찾기
-        AccountPost findAccountPost = accountPostRepository.findOneByPostId(postId);
+    public Long updatePost(Account currentUser, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
+        Post findPost = postRepository.findOneByPostId(postId);
+        Account author = accountRepository.findAuthorByPostId(postId);
 
         // 현재 로그인된 user와 게시글의 user가 다르면 예외 처리
-        if(!Objects.equals(author.getId(), findAccountPost.getUser().getId()))
+        if(!Objects.equals(author.getId(), currentUser.getId()))
             throw new RuntimeException("권한이 없습니다."); // 본인 게시물 아니면 수정 불가
 
-        // AccountPost와 연관된 post 찾음
-        Post findPost = findAccountPost.getPost();
 
         findPost.update(updateForm);
 
         List<PostImage> postImages = findPost.getPostImages();
         // 이미지 모두 삭제
         if(postImages.size() > 0) {
-            for(PostImage postImage : postImages) {
-                awsS3Uploader.delete(postImage.getOriginalFileName());
-                postRepository.deleteImage(postImage);
+            for(int i=postImages.size()-1; i>=0; i--) {
+                awsS3Uploader.delete(postImages.get(i).getOriginalFileName());
+                findPost.deleteImage(postImages.get(i));
             }
         }
         // AWS에 이미지 업로드 및 게시물에 이미지 저장
         ImageUpload(multipartFiles, findPost);
 
-        accountPostRepository.save(findAccountPost);
         return findPost.getId();
     }
     
@@ -197,7 +170,7 @@ public class PostService {
                 .maxPeople(findPost.getMaxPeople())
                 .description(findPost.getDescription())
                 .rules(findPost.getRules())
-                .hashTag(findPost.getHashTags())
+                .hashTags(findPost.getHashTags())
                 .promiseTime(findPost.getPromiseTime())
                 .audioGuide(findPost.getAudioGuide())
                 .comments(commentDtos)
@@ -234,7 +207,7 @@ public class PostService {
                     .uploadFilePath(uploadFile.getUploadFileName())
                     .uploadFileUrl(uploadFile.getUploadFileUrl())
                     .build();
-            postRepository.saveImage(postImage);
+            post.getPostImages().add(postImage);
         }
     }
 }

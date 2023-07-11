@@ -1,22 +1,15 @@
 package apptive.team1.friendly.PostService;
-
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.repository.AccountPostRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
-import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
-import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
-import apptive.team1.friendly.domain.user.service.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,11 +46,7 @@ public class PostServiceTest {
     @Autowired
     PostRepository postRepository;
     @Autowired
-    UserService userService;
-    @Autowired
     AccountRepository accountRepository;
-    @Autowired
-    AccountPostRepository accountPostRepository;
 
     @Test
     public void 게시물_정상_추가() throws IOException {
@@ -66,7 +55,8 @@ public class PostServiceTest {
         account.setEmail("TestAccount@gmail.com");
         account.setFirstName("KIM");
         account.setLastName("MW");
-        Set<String> rules = new HashSet<>();
+        accountRepository.save(account);
+       Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
         Set<HashTag> hashTag = new HashSet<>();
@@ -110,6 +100,7 @@ public class PostServiceTest {
         account.setEmail("TestAccount@gmail.com");
         account.setFirstName("KIM");
         account.setLastName("MW");
+        accountRepository.save(account);
         Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
@@ -152,6 +143,15 @@ public class PostServiceTest {
     public void 게시물_조회() throws IOException {
         // given
         Account account = new Account();
+        account.setEmail("TestAccount@gmail.com");
+        account.setFirstName("KIM");
+        account.setLastName("MW");
+        accountRepository.save(account);
+        PostOwnerInfo postOwnerInfo = PostOwnerInfo.builder()
+                .gender(account.getGender())
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .build();
         Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
@@ -179,10 +179,8 @@ public class PostServiceTest {
         PostFormDto postFormDto = new PostFormDto("title1", hashTags, 5,
                 "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
 
-
         // when
         Long postId = postService.addPost(account, postFormDto, files);
-        PostOwnerInfo postOwnerInfo = userService.getPostOwnerInfo(postId);
         PostDto postDto = postService.postDetail(postId, postOwnerInfo);
 
         // then
@@ -286,7 +284,57 @@ public class PostServiceTest {
         Assert.assertEquals(postId, updatedPostId);
         Assert.assertNotEquals(title, updatedPost.getTitle());
         Assert.assertEquals("updated!!", updatedPost.getTitle());
+        Assert.assertEquals(3, updatedPost.getPostImages().size());
+    }
 
+    @Test
+    public void 사진_삭제_테스트() throws IOException {
+        // given
+        Account account = new Account();
+        account.setEmail("TestAccount@naver.com");
+        accountRepository.save(account);
+        Set<String> rules = new HashSet<>();
+        rules.add("rule1");
+        rules.add("rule2");
+        Set<HashTag> hashTags = new HashSet<>();
+        hashTags.add(LIFE);
+        hashTags.add(NATIVE);
+        AudioGuide audioGuide = new AudioGuide();
+        List<MultipartFile> files = new ArrayList<>();
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "bus",
+                "bus.jpeg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new FileInputStream(new File("src/test/resources/bus.jpg"))
+        );
+        MockMultipartFile file2
+                = new MockMultipartFile(
+                "zidane",
+                "zidane.jpeg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new FileInputStream(new File("src/test/resources/zidane.jpg"))
+        );
+
+        files.add(file);
+        files.add(file2);
+        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
+                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
+        PostFormDto updateFormDto = new PostFormDto("updated!!", hashTags, 5,
+                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
+
+
+        // when
+        Long postId = postService.addPost(account, postFormDto, files);
+        Post post = postService.findByPostId(postId);
+        int imgCount = post.getPostImages().size();
+
+        files.remove(file2);
+        postService.updatePost(account, postId, updateFormDto, files);
+
+        // then
+        Assert.assertNotEquals(imgCount, post.getPostImages().size());
+        Assert.assertEquals(1, post.getPostImages().size());
     }
 
 
@@ -318,13 +366,6 @@ public class PostServiceTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 new FileInputStream(new File("src/test/resources/zidane.jpg"))
         );
-        MockMultipartFile file3
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
         files.add(file);
         files.add(file2);
         PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
@@ -335,9 +376,9 @@ public class PostServiceTest {
         postService.addPost(account, postFormDto, files);
         postService.addPost(account, postFormDto2, files);
 
-        List<Post> postsByUserEmail = postService.findPostsByUserEmail(account.getEmail());
+        List<Post> postsByUserId = postService.findPostsByUserId(account.getId());
 
-        Assert.assertEquals(2, postsByUserEmail.size());
+        Assert.assertEquals(2, postsByUserId.size());
     }
 
 //    @Test

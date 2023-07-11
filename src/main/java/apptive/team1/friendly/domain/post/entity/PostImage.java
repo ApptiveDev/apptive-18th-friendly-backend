@@ -9,7 +9,7 @@ import javax.persistence.*;
 
 
 @Entity
-@Getter
+@Getter @Setter
 public class PostImage{
     public PostImage() {
 

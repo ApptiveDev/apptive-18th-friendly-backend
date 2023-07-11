@@ -2,7 +2,7 @@ package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.global.BaseEntity;
+import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +46,7 @@ public class Post extends BaseEntity {
     // 게시판 리스트에 보이는 필드
     private String title;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> postImages = new ArrayList<>(); // 게시판 이미지
 
     @Lob
@@ -78,6 +78,16 @@ public class Post extends BaseEntity {
     @Nullable
     private AudioGuide audioGuide;
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<AccountPost> accountPost = new ArrayList<>();
+
+    //================== 연관관계 편의 메소드 ===============//
+    public void addAccountPost(AccountPost accountPost) {
+        this.getAccountPost().add(accountPost);
+        accountPost.setPost(this);
+    }
+    //==================================================//
+
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTag();
@@ -88,4 +98,26 @@ public class Post extends BaseEntity {
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
     }
+
+    public void deleteImage(PostImage postImage) {
+        this.postImages.remove(postImage);
+    }
+
+    //========= 정적 메소드 ===========/
+    public static Post createPost(PostFormDto formDto, AccountPost accountPost) {
+        Post post = Post.builder()
+                .createdDate(LocalDateTime.now())
+                .maxPeople(formDto.getMaxPeople())
+                .title(formDto.getTitle())
+                .promiseTime(formDto.getPromiseTime())
+                .description(formDto.getDescription())
+                .location(formDto.getLocation())
+                .hashTags(formDto.getHashTag())
+                .rules(formDto.getRules())
+                .audioGuide(formDto.getAudioGuide())
+                .build();
+        post.addAccountPost(accountPost);
+        return post;
+    }
+
 }
