@@ -3,12 +3,11 @@ import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import javax.persistence.*;
 
 @NoArgsConstructor
 @Entity
-@Getter @Setter
+@Getter
 public class AccountPost {
 
     @Id
@@ -33,10 +32,12 @@ public class AccountPost {
         this.user = user;
         this.accountType = accountType;
     }
-    public static AccountPost createAccountPost(Account account, AccountType accountType) {
+    public static AccountPost createAccountPost(Account account, Post post, AccountType accountType) {
         return AccountPost.builder()
                 .user(account)
+                .post(post)
                 .accountType(accountType)
                 .build();
     }
+
 }

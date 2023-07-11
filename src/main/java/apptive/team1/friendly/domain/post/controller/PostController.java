@@ -38,8 +38,6 @@ public class PostController extends ApiBase {
 
     private final UserService userService;
 
-    private final ApiBase apiBase;
-
     /**
      * 게시물 추가
      */

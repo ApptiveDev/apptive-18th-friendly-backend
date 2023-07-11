@@ -78,8 +78,8 @@ public class PostService {
      */
     @Transactional
     public Long addPost(Account author, PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
-        AccountPost accountPost = AccountPost.createAccountPost(author, AccountType.AUTHOR);
-        Post post = Post.createPost(postFormDto, accountPost);
+        Post post = Post.createPost(author, postFormDto);
+
         // ImageUpload 함수 내부에서 postId를 사용하기 때문에 Id를 얻기 위해 persist
         postRepository.save(post);
         
@@ -97,7 +97,6 @@ public class PostService {
         Post findPost = postRepository.findOneByPostId(postId);
         Account author = accountRepository.findAuthorByPostId(postId);
 
-        // AccountPost에서 첫 번째 user(방 생성자)를 찾아서 userId와 비교
         if(!Objects.equals(author.getId(), currentUser.getId())) // 본인 게시물이 아니면 삭제 불가
             throw new RuntimeException("접근 권한이 없습니다.");
 

@@ -2,6 +2,8 @@ package apptive.team1.friendly.PostService;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
+import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.entity.AccountType;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
@@ -24,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ import static apptive.team1.friendly.domain.post.entity.HashTag.NATIVE;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-@Rollback(value = true)
+@Rollback(value = false)
 public class PostServiceTest {
 
     @Autowired
@@ -81,7 +82,7 @@ public class PostServiceTest {
         files.add(file2);
         AudioGuide audioGuide = new AudioGuide();
         PostFormDto newPostForm = new PostFormDto("title1", hashTag, 5, "desc1", LocalDateTime.now(), "loc1", rules, audioGuide);
-        PostFormDto newPostForm2 = new PostFormDto("title2", hashTag, 3, "desc2", LocalDateTime.now(), "loc4", rules, audioGuide);
+        PostFormDto newPostForm2 = new PostFormDto("title2", hashTag, 3, "desc2", LocalDateTime.now(), "loc2", rules, audioGuide);
 
 
         // when
@@ -379,6 +380,19 @@ public class PostServiceTest {
         List<Post> postsByUserId = postService.findPostsByUserId(account.getId());
 
         Assert.assertEquals(2, postsByUserId.size());
+    }
+
+    @Test
+    public void cascade_옵션_테스트() {
+        Account account = new Account();
+        Post post = new Post();
+        AccountPost.builder()
+                .user(account)
+                .post(post)
+                .accountType(AccountType.AUTHOR)
+                .build();
+        postRepository.save(post);
+
     }
 
 //    @Test

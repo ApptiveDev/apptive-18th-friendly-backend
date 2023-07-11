@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
@@ -79,14 +80,7 @@ public class Post extends BaseEntity {
     private AudioGuide audioGuide;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<AccountPost> accountPost = new ArrayList<>();
-
-    //================== 연관관계 편의 메소드 ===============//
-    public void addAccountPost(AccountPost accountPost) {
-        this.getAccountPost().add(accountPost);
-        accountPost.setPost(this);
-    }
-    //==================================================//
+    private List<AccountPost> accountPosts = new ArrayList<>();
 
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
@@ -104,7 +98,9 @@ public class Post extends BaseEntity {
     }
 
     //========= 정적 메소드 ===========/
-    public static Post createPost(PostFormDto formDto, AccountPost accountPost) {
+    
+    // post 생성
+    public static Post createPost(Account author, PostFormDto formDto) {
         Post post = Post.builder()
                 .createdDate(LocalDateTime.now())
                 .maxPeople(formDto.getMaxPeople())
@@ -116,7 +112,8 @@ public class Post extends BaseEntity {
                 .rules(formDto.getRules())
                 .audioGuide(formDto.getAudioGuide())
                 .build();
-        post.addAccountPost(accountPost);
+        AccountPost accountPost = AccountPost.createAccountPost(author, post, AccountType.AUTHOR);
+        post.getAccountPosts().add(accountPost);
         return post;
     }
 

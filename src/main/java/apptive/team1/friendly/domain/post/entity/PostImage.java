@@ -3,13 +3,12 @@ package apptive.team1.friendly.domain.post.entity;
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 
 
 @Entity
-@Getter @Setter
+@Getter
 public class PostImage{
     public PostImage() {
 
