@@ -1,12 +1,12 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +58,7 @@ public class PostService {
 
         postRepository.save(post);
 
-        ImageUpload(multipartFiles, post);
+        post.uploadImages(multipartFiles, awsS3Uploader);
 
         return post.getId();
     }
@@ -73,11 +73,7 @@ public class PostService {
 
         isHasAuthority(currentUser, author); // 본인 게시물이 아니면 삭제 불가
 
-        List<PostImage> postImages = findPost.getPostImages();
-
-        if(postImages.size() > 0) {
-            deleteAllImagesInS3(postImages);
-        }
+        findPost.deleteImages(awsS3Uploader);
 
         return postRepository.delete(findPost);
     }
@@ -95,14 +91,9 @@ public class PostService {
 
         findPost.update(updateForm);
 
-        List<PostImage> postImages = findPost.getPostImages();
-        if(postImages.size() > 0) {
-            deleteAllImagesInS3(postImages);
+        findPost.deleteImages(awsS3Uploader);
 
-            deleteAllImagesInPost(findPost);
-        }
-
-        ImageUpload(multipartFiles, findPost);
+        findPost.uploadImages(multipartFiles, awsS3Uploader);
 
         return findPost.getId();
     }
@@ -126,40 +117,10 @@ public class PostService {
     }
 
     /**
-     * S3에서 post와 관련된 이미지 모두 제거
-     */
-    private void deleteAllImagesInS3(List<PostImage> postImages) {
-        for (PostImage postImage : postImages) {
-            awsS3Uploader.delete(postImage.getOriginalFileName());
-        }
-    }
-
-    private void deleteAllImagesInPost(Post post) {
-        List<PostImage> postImages = post.getPostImages();
-        for(int i=postImages.size()-1; i>=0; i--) {
-            post.deleteImage(postImages.get(i));
-        }
-    }
-
-    /**
-     * Post에 이미지 업로드
-     * S3 이미지 업로드 및 게시물에 이미지 저장
-     */
-    private void ImageUpload(List<MultipartFile> multipartFiles, Post post) throws IOException {
-        if(multipartFiles.size() > 0) {
-            for(MultipartFile multipartFile : multipartFiles) {
-                FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ post.getId().toString());
-                post.imageUpload(uploadFile);
-            }
-        }
-    }
-
-
-    /**
      * 게시물 수정/삭제 권한 확인
      */
     private void isHasAuthority(Account currentUser, Account author) {
         if(!Objects.equals(author.getId(), currentUser.getId()))
-            throw new RuntimeException("접근 권한이 없습니다.");
+            throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 }

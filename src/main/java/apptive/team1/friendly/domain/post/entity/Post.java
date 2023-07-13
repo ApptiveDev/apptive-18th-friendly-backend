@@ -4,14 +4,18 @@ import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
+import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -84,16 +88,34 @@ public class Post extends BaseEntity {
     private List<AccountPost> accountPosts = new ArrayList<>();
 
     //========비즈니스 로직==========//
-    public void imageUpload(FileInfo uploadFile) {
-        PostImage postImage = PostImage.builder()
-                .post(this) // 연관관계 설정
-                .originalFileName(uploadFile.getOriginalFileName())
-                .uploadFileName(uploadFile.getUploadFileName())
-                .uploadFilePath(uploadFile.getUploadFileName())
-                .uploadFileUrl(uploadFile.getUploadFileUrl())
-                .build();
-        this.postImages.add(postImage);
+    /**
+     * 게시물의 이미지 리스트를 게시물과 서버에서 삭제
+     */
+    public void deleteImages(AwsS3Uploader awsS3Uploader) {
+        if(this.postImages.size() > 0) {
+            for (int i=this.postImages.size()-1; i>=0; i--) {
+                awsS3Uploader.delete(this.postImages.get(i).getOriginalFileName());
+                deleteImage(this.postImages.get(i));
+            }
+        }
+
     }
+
+    /**
+     * 이미지 리스트를 서버에 업로드 및 게시물에 추가
+     */
+    public void uploadImages(List<MultipartFile> multipartFiles, AwsS3Uploader awsS3Uploader) throws IOException {
+        if(multipartFiles.size() > 0) {
+            for(MultipartFile multipartFile : multipartFiles) {
+                FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ this.getId().toString());
+                addImage(uploadFile);
+            }
+        }
+    }
+
+    /**
+     * 게시물 수정
+     */
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTags();
@@ -104,6 +126,24 @@ public class Post extends BaseEntity {
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
     }
+
+    /**
+     * 이미지를 게시물에 추가
+     */
+    public void addImage(FileInfo uploadFile) {
+        PostImage postImage = PostImage.builder()
+                .post(this) // 연관관계 설정
+                .originalFileName(uploadFile.getOriginalFileName())
+                .uploadFileName(uploadFile.getUploadFileName())
+                .uploadFilePath(uploadFile.getUploadFileName())
+                .uploadFileUrl(uploadFile.getUploadFileUrl())
+                .build();
+        this.postImages.add(postImage);
+    }
+
+    /**
+     * 이미지를 게시물에서 삭제
+     */
     public void deleteImage(PostImage postImage) {
         this.postImages.remove(postImage);
     }
@@ -126,5 +166,4 @@ public class Post extends BaseEntity {
         post.getAccountPosts().add(accountPost);
         return post;
     }
-
 }
