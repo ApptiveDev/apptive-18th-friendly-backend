@@ -39,7 +39,7 @@ import static apptive.team1.friendly.domain.post.entity.HashTag.NATIVE;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-@Rollback(value = false)
+@Rollback(value = true)
 public class PostServiceTest {
 
     @Autowired

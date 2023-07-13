@@ -4,6 +4,7 @@ import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import jdk.internal.jline.internal.Nullable;
 import lombok.Builder;
 import lombok.Getter;
@@ -73,7 +74,7 @@ public class Post extends BaseEntity {
     private Set<String> rules = new HashSet<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Comment> comments = new HashSet<>();
+    private List<Comment> comments = new ArrayList<>();
 
     @Embedded
     @Nullable
@@ -82,9 +83,20 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AccountPost> accountPosts = new ArrayList<>();
 
+    //========비즈니스 로직==========//
+    public void imageUpload(FileInfo uploadFile) {
+        PostImage postImage = PostImage.builder()
+                .post(this) // 연관관계 설정
+                .originalFileName(uploadFile.getOriginalFileName())
+                .uploadFileName(uploadFile.getUploadFileName())
+                .uploadFilePath(uploadFile.getUploadFileName())
+                .uploadFileUrl(uploadFile.getUploadFileUrl())
+                .build();
+        this.postImages.add(postImage);
+    }
     public void update(PostFormDto formDto) {
         this.title = formDto.getTitle();
-        this.hashTags= formDto.getHashTag();
+        this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
         this.description = formDto.getDescription();
         this.promiseTime = formDto.getPromiseTime();
@@ -92,13 +104,11 @@ public class Post extends BaseEntity {
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
     }
-
     public void deleteImage(PostImage postImage) {
         this.postImages.remove(postImage);
     }
 
     //========= 정적 메소드 ===========/
-    
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
         Post post = Post.builder()
@@ -108,7 +118,7 @@ public class Post extends BaseEntity {
                 .promiseTime(formDto.getPromiseTime())
                 .description(formDto.getDescription())
                 .location(formDto.getLocation())
-                .hashTags(formDto.getHashTag())
+                .hashTags(formDto.getHashTags())
                 .rules(formDto.getRules())
                 .audioGuide(formDto.getAudioGuide())
                 .build();

@@ -1,12 +1,9 @@
 package apptive.team1.friendly.domain.post.repository;
 
-import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.entity.PostImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
-import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -22,9 +19,6 @@ public class PostRepository {
         List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId ", Post.class)
                 .setParameter("userId", userId)
                 .getResultList();
-        for(Post post : posts) {
-            System.out.println("post.getId() = " + post.getId());
-        }
         return posts;
     }
 
@@ -52,7 +46,7 @@ public class PostRepository {
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags join fetch p.rules where p.id =: postId", Post.class) // 이 부분 해결 필요
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
     }
@@ -63,5 +57,16 @@ public class PostRepository {
     public List<Post> findAll() {
         return em.createQuery("select distinct p from Post p join fetch p.hashTags", Post.class)
                 .getResultList();
+    }
+
+    /**
+     * 게시물 전체 이미지 삭제
+     */
+    public int deleteAllImages(Post post) {
+        int deletedImageNum = em.createQuery("delete PostImage pimg where pimg.post = :post")
+                .setParameter("post", post)
+                .executeUpdate();
+        em.clear();
+        return deletedImageNum;
     }
 }
