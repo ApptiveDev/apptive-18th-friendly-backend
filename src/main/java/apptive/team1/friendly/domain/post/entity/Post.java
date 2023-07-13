@@ -98,7 +98,6 @@ public class Post extends BaseEntity {
                 deleteImage(this.postImages.get(i));
             }
         }
-
     }
 
     /**
