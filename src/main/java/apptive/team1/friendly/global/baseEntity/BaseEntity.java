@@ -1,4 +1,4 @@
-package apptive.team1.friendly.global;
+package apptive.team1.friendly.global.baseEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;

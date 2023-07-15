@@ -8,13 +8,13 @@ import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.global.config.ObjectMapperUtils;
+import apptive.team1.friendly.global.baseEntity.ApiBase;
+import apptive.team1.friendly.global.utils.ObjectMapperUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,17 +31,11 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class PostController {
+public class PostController extends ApiBase {
 
     private final PostService postService;
 
     private final UserService userService;
-
-    @Value("${travelAPI.encoding-key}")
-    private String apikey;
-
-    @Value("${travelAPI.mobileOS}")
-    private String mobileOS;
 
     /**
      * 게시물 추가
@@ -65,9 +59,9 @@ public class PostController {
      */
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<Long> deletePost(@PathVariable("postId") Long postId) {
-        Account author = userService.getCurrentUser();
+        Account currentUser = userService.getCurrentUser();
         // 게시물 삭제
-        Long deletedPostId = postService.deletePost(author, postId);
+        Long deletedPostId = postService.deletePost(currentUser, postId);
 
         // 삭제된 게시물 개수 반환
         return ResponseEntity.status(HttpStatus.OK).body(deletedPostId);
@@ -84,8 +78,8 @@ public class PostController {
 
     @PutMapping("/posts/{postId}/edit") // 업데이트 요청
     public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
-        Account author = userService.getCurrentUser();
-        Long updatedPostId = postService.updatePost(author, postId, postForm, imageFiles);
+        Account currentUser = userService.getCurrentUser();
+        Long updatedPostId = postService.updatePost(currentUser, postId, postForm, imageFiles);
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
 
@@ -117,8 +111,8 @@ public class PostController {
     public Mono<List<AudioGuide>> getAudioGuides(@RequestParam("locationName") String locationName, @RequestParam("languageCode") String languageCode) throws URISyntaxException {
         WebClient webClient = WebClient.create();
         URI uri = new URI("https://apis.data.go.kr/B551011/Odii/storySearchList" +
-                "?MobileOS=" + mobileOS + "&keyword=" + locationName + "&MobileApp=Photour" +
-                "&serviceKey=" + apikey +
+                "?MobileOS=" + getMobileOS() + "&keyword=" + locationName + "&MobileApp=Photour" +
+                "&serviceKey=" + getApikey() +
                 "&_type=json&langCode=" + languageCode);
 
         return webClient.get()

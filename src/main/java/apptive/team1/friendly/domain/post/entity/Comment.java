@@ -1,11 +1,10 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.global.BaseEntity;
+import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
