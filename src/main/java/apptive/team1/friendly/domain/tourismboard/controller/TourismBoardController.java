@@ -55,22 +55,18 @@ public class TourismBoardController extends ApiBase {
     }
 
     private void saveWalkingTravel(int pageNo) throws URISyntaxException, JsonProcessingException {
-        WebClient webClient = WebClientUtils.getWebClient();
         URI uri = new URI("https://apis.data.go.kr/6260000/WalkingService/getWalkingKr" +
                 "?serviceKey=" + getApikey() + "&numOfRows=50&pageNo=" + pageNo + "&resultType=json");
 
-        String block = webClient.get()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        String tourismData = getTourismData(uri);
+
         ObjectMapper objectMapper = ObjectMapperUtils.getObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(block).get("getWalkingKr").get("item");
+        JsonNode jsonNode = objectMapper.readTree(tourismData).get("getWalkingKr").get("item");
         if(jsonNode.size() == 0) {
             return;
         }
         List<WalkingTourism> walkingTourisms = objectMapper.readValue(jsonNode.toString(), new TypeReference<List<WalkingTourism>>() {});
+
         for (WalkingTourism walkingTourism : walkingTourisms) {
             walkingTourism.setTourismType();
             tourismService.saveTourism(walkingTourism);
@@ -78,19 +74,25 @@ public class TourismBoardController extends ApiBase {
         saveWalkingTravel(pageNo+1);
     }
 
-    private void saveThemeTravel(int pageNo) throws URISyntaxException, JsonProcessingException {
+    private static String getTourismData(URI uri) {
         WebClient webClient = WebClientUtils.getWebClient();
-        URI uri = new URI("http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr" +
-                "?serviceKey=" + getApikey() + "&numOfRows=50&pageNo=" + pageNo + "&resultType=json");
         String block = webClient.get()
                 .uri(uri)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
+        return block;
+    }
+
+    private void saveThemeTravel(int pageNo) throws URISyntaxException, JsonProcessingException {
+        URI uri = new URI("http://apis.data.go.kr/6260000/RecommendedService/getRecommendedKr" +
+                "?serviceKey=" + getApikey() + "&numOfRows=50&pageNo=" + pageNo + "&resultType=json");
+
+        String tourismData = getTourismData(uri);
 
         ObjectMapper objectMapper = ObjectMapperUtils.getObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(block).get("getRecommendedKr").get("item");
+        JsonNode jsonNode = objectMapper.readTree(tourismData).get("getRecommendedKr").get("item");
         if(jsonNode.size() == 0) {
             return;
         }
@@ -103,18 +105,13 @@ public class TourismBoardController extends ApiBase {
     }
 
     private void saveFamousRestaurant(int pageNo) throws URISyntaxException, JsonProcessingException {
-        WebClient webClient = WebClientUtils.getWebClient();
         URI uri = new URI("http://apis.data.go.kr/6260000/FoodService/getFoodKr" +
                 "?serviceKey=" + getApikey() + "&numOfRows=50&pageNo=" + pageNo + "&resultType=json");
 
-        String block = webClient.get()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+        String tourismData = getTourismData(uri);
+
         ObjectMapper objectMapper = ObjectMapperUtils.getObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(block).get("getFoodKr").get("item");
+        JsonNode jsonNode = objectMapper.readTree(tourismData).get("getFoodKr").get("item");
         if(jsonNode.size() == 0) {
             return;
         }

@@ -22,7 +22,11 @@ public class Tourism {
     @Enumerated(EnumType.STRING)
     private TourismType tourismType;
 
-    public void setTourismType(TourismType tourismType) {
+    public void setTourismType() {
+
+    }
+
+    protected void setTourismType(TourismType tourismType) {
         this.tourismType = tourismType;
     }
 }

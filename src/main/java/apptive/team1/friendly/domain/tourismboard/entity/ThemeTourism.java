@@ -15,8 +15,8 @@ public class ThemeTourism extends Tourism{
     private String addr1;
     private String homepage_url;
     private String gugun_nm;
+    @Override
     public void setTourismType() {
         this.setTourismType(TourismType.THEME);
     }
-
 }

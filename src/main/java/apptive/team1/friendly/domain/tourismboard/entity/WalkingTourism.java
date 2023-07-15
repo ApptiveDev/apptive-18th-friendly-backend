@@ -12,6 +12,7 @@ public class WalkingTourism extends Tourism {
     @Lob
     private String trfc_info; // 교통 정보
 
+    @Override
     public void setTourismType() {
         this.setTourismType(TourismType.STREET);
     }

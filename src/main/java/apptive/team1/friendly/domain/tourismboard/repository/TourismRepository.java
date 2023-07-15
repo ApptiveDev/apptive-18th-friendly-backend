@@ -6,7 +6,6 @@ import apptive.team1.friendly.domain.tourismboard.entity.Tourism;
 import apptive.team1.friendly.domain.tourismboard.entity.WalkingTourism;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class TourismRepository {
     }
 
     public List<Tourism> getAllTourism(int pageNum) {
-        return em.createQuery("select t from Tourism t", Tourism.class)
+        return em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class)
                 .setFirstResult(pageNum*resultCount)
                 .setMaxResults(resultCount)
                 .getResultList();
