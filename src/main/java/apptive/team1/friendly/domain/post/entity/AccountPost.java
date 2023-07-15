@@ -1,8 +1,8 @@
 package apptive.team1.friendly.domain.post.entity;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import javax.persistence.*;
 
 @NoArgsConstructor
@@ -15,21 +15,29 @@ public class AccountPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 데이터 베이스에 위임 MySQL Auto_Increment
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY) // 실제로 Post 객체가 필요 할 때 fetch. AccountPost 조회할 때 같이 fetch 하지 않음
-    // CascadeType.ALL 이므로 AccountPost가 저장되거나 삭제될 때 Post도 함께 저장되고 삭제 됨
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 
-    public void relateUser(Account account) {
-        this.user = account;
-    }
+    @Enumerated(EnumType.STRING)
+    private AccountType accountType;
 
-    public void relatePost(Post post) {
+    @Builder
+    public AccountPost(Post post, Account user, AccountType accountType) {
         this.post = post;
+        this.user = user;
+        this.accountType = accountType;
+    }
+    public static AccountPost createAccountPost(Account account, Post post, AccountType accountType) {
+        return AccountPost.builder()
+                .user(account)
+                .post(post)
+                .accountType(accountType)
+                .build();
     }
 
 }
