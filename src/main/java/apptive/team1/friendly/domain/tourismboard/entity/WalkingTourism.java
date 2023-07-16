@@ -1,7 +1,6 @@
 package apptive.team1.friendly.domain.tourismboard.entity;
 
 import lombok.Getter;
-
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 
@@ -14,6 +13,6 @@ public class WalkingTourism extends Tourism {
 
     @Override
     public void setTourismType() {
-        this.setTourismType(TourismType.STREET);
+        this.setTourismType(TourismType.WALKING);
     }
 }
