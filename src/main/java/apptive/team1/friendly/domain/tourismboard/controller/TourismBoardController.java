@@ -37,18 +37,18 @@ public class TourismBoardController extends ApiBase {
         return new ResponseEntity<>(tourisms, HttpStatus.OK);
     }
 
-    @GetMapping("/tourism/walkingTourism")
+    @GetMapping("/tourism/walking")
     public ResponseEntity<List<WalkingTourism>> getWalkingTravel(@RequestParam int pageNum) {
         List<WalkingTourism> walkingTourism = tourismService.getWalkingTourism(pageNum);
         return new ResponseEntity<>(walkingTourism, HttpStatus.OK);
     }
-    @GetMapping("/tourism/themeTourism")
+    @GetMapping("/tourism/theme")
     public ResponseEntity<List<ThemeTourism>> getThemeTourism(@RequestParam int pageNum) {
         List<ThemeTourism> walkingTourism = tourismService.getThemeTourism(pageNum);
         return new ResponseEntity<>(walkingTourism, HttpStatus.OK);
     }
 
-    @GetMapping("/tourism/famousRestaurant")
+    @GetMapping("/tourism/restaurant")
     public ResponseEntity<List<FamousRestaurant>> getFamousRestaurant(@RequestParam int pageNum) {
         List<FamousRestaurant> famousRestaurant = tourismService.getFamousRestaurant(pageNum);
         return new ResponseEntity<>(famousRestaurant, HttpStatus.OK);
@@ -76,13 +76,13 @@ public class TourismBoardController extends ApiBase {
 
     private static String getTourismData(URI uri) {
         WebClient webClient = WebClientUtils.getWebClient();
-        String block = webClient.get()
+        String data = webClient.get()
                 .uri(uri)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        return block;
+        return data;
     }
 
     private void saveThemeTravel(int pageNo) throws URISyntaxException, JsonProcessingException {
