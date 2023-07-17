@@ -19,7 +19,7 @@ public class AccountPost {
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 
