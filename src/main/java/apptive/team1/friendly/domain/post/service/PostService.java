@@ -91,7 +91,7 @@ public class PostService {
 
         findPost.update(updateForm);
 
-        findPost.deleteImages(awsS3Uploader);
+        findPost.deleteImages(awsS3Uploader); // 저장된 이미지를 모두 삭제
 
         findPost.uploadImages(multipartFiles, awsS3Uploader);
 
