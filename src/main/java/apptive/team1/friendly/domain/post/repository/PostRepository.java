@@ -16,7 +16,7 @@ public class PostRepository {
      * 임의의 user가 쓴 게시믈 userId로 조회
      */
     public List<Post> findByUser(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId ", Post.class)
+        List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId where p.id = ap.post.id", Post.class)
                 .setParameter("userId", userId)
                 .getResultList();
         return posts;
