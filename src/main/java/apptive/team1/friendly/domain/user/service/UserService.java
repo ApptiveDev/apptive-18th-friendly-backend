@@ -79,7 +79,7 @@ public class UserService {
     @Transactional
     public SignupResponse extraSignUp(GoogleSignUpRequest signupRequest) {
 
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
 
         extraSignup(account, signupRequest);
 
@@ -202,7 +202,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
-        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(getCurrentUser());
     }
 
     /**
@@ -226,7 +226,7 @@ public class UserService {
      */
     public ProfileImgDto accountProfileImgUpload(MultipartFile multipartFile) throws IOException {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
 
         // 기존 이미지 제거
         Optional<ProfileImg> accountProfile = accountProfileImgRepository.findOneByAccount(account);
@@ -251,7 +251,7 @@ public class UserService {
      */
     public void deleteAccount() {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
 
         // 회원 entity와 회원 관련 entity 삭제
         deleteAccount(account);
@@ -354,8 +354,7 @@ public class UserService {
     }
 
     public Account getCurrentUser() {
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-        return account;
+        return SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
     }
 
     /**
