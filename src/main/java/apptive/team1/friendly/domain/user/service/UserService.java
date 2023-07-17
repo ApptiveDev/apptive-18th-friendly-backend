@@ -19,6 +19,8 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.error.ErrorCode;
+import apptive.team1.friendly.global.error.exception.CustomException;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,7 +81,7 @@ public class UserService {
     @Transactional
     public SignupResponse extraSignUp(GoogleSignUpRequest signupRequest) {
 
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         extraSignup(account, signupRequest);
 
@@ -202,7 +204,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
-        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     /**
@@ -210,7 +212,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse  getUserWithAuthoritiesById(Long id) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     /**
@@ -218,7 +220,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     /**
@@ -226,7 +228,7 @@ public class UserService {
      */
     public ProfileImgDto accountProfileImgUpload(MultipartFile multipartFile) throws IOException {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 기존 이미지 제거
         Optional<ProfileImg> accountProfile = accountProfileImgRepository.findOneByAccount(account);
@@ -251,7 +253,7 @@ public class UserService {
      */
     public void deleteAccount() {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 회원 entity와 회원 관련 entity 삭제
         deleteAccount(account);
@@ -263,7 +265,7 @@ public class UserService {
      */
     public void deleteAccountByEmail(String email) {
         // 회원 찾기
-        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 회원 entity와 회원 관련 entity 삭제
         deleteAccount(account);
@@ -354,7 +356,7 @@ public class UserService {
     }
 
     public Account getCurrentUser() {
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return account;
     }
 
