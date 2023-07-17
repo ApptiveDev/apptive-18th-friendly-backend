@@ -13,9 +13,12 @@ public enum ErrorCode {
     TOKEN_MISS(BAD_REQUEST, "토큰이 없습니다."),
 
     /* 401 UNAUTHORIZED : 인증되지 않은 사용자 */
-    INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "계정 정보가 존재하지 않습니다"),
     WRONG_PASSWORD(UNAUTHORIZED, "비밀번호가 틀렸습니다."),
+
+    /* 403 FORBIDDEN: 권한 없음 */
+    INVALID_AUTH_USER(FORBIDDEN, "권한 정보가 없는 사용자입니다"),
+
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     QUESTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 카테고리 입니다."),

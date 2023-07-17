@@ -20,8 +20,16 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {AccessDeniedException.class})
-    protected ResponseEntity<String> handleAccessDeniedException(AccessDeniedException e) {
+    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
         log.error("ExceptionHandler catch AccessDeniedException: {}", e.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .error(HttpStatus.FORBIDDEN.name())
+                        .code("ACCESS_DENIED")
+                        .message(e.getMessage())
+                        .build()
+                );
     }
 }
