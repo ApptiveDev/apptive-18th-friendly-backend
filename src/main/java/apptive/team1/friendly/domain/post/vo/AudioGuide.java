@@ -1,7 +1,6 @@
 package apptive.team1.friendly.domain.post.vo;
 
 import lombok.Getter;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
