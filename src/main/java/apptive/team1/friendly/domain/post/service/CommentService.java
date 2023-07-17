@@ -7,6 +7,8 @@ import apptive.team1.friendly.domain.post.repository.CommentRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
+import apptive.team1.friendly.global.error.ErrorCode;
+import apptive.team1.friendly.global.error.exception.CustomException;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class CommentService {
     @Transactional
     public Long addComment(CommentFormDto commentFormDto, Long postId) {
         // 현재 로그인된 사용자 확인
-        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 댓글을 작성하는 게시물 확인
         Post post = postRepository.findOneByPostId(postId);
