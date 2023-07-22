@@ -40,6 +40,9 @@ public class PostService {
         return PostListDto.createPostListDto(posts);
     }
 
+    /**
+     * 유효한 해시태그인지 확인
+     */
     private void validateTag(String tag) {
         if(tag.equals("NATIVE") || tag.equals("LIFE") || tag.equals("FAMOUS") || tag.equals("HOTPLACE")) {
             ;
@@ -47,6 +50,14 @@ public class PostService {
         else {
             throw new InvalidHashTagException("유효하지 않은 해시태그");
         }
+    }
+
+    /**
+     * 키워드로 게시물 검색
+     */
+    public List<PostListDto> findByTitle(String keyword) {
+        List<Post> posts = postRepository.findByTitle(keyword);
+        return PostListDto.createPostListDto(posts);
     }
 
     /**
@@ -134,5 +145,6 @@ public class PostService {
         Post post = postRepository.findOneByPostId(postId);
         return PostFormDto.createPostFormDto(post);
     }
+
 
 }
