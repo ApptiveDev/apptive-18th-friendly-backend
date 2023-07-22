@@ -3,6 +3,7 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
@@ -87,9 +88,16 @@ public class PostController extends ApiBase {
     /**
      * 게시믈 리스트
      */
-    @GetMapping("/posts")
-    public ResponseEntity<List<PostListDto>> postList() {
-        List<PostListDto> postListDtos = postService.findAll();
+    @GetMapping("/posts" )
+    public ResponseEntity<List<PostListDto>> postList(@RequestParam("tag")String tag) {
+        tag = tag.toUpperCase();
+        List<PostListDto> postListDtos;
+        if(tag.equals("ALL")) {
+            postListDtos = postService.findAll();
+        }
+        else {
+            postListDtos = postService.findByHashTag(tag);
+        }
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 

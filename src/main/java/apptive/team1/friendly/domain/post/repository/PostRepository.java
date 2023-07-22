@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.repository;
 
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -60,6 +61,15 @@ public class PostRepository {
     }
 
     /**
+     * 해시태그로 게시물 조회
+     */
+    public List<Post> findByHashTag(String tag) {
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+                .setParameter("tag", HashTag.valueOf(tag))
+                .getResultList();
+    }
+
+    /**
      * 게시물 전체 이미지 삭제
      */
     public int deleteAllImages(Post post) {
@@ -69,4 +79,6 @@ public class PostRepository {
         em.clear();
         return deletedImageNum;
     }
+
+
 }
