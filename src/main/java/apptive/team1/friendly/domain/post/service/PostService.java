@@ -69,11 +69,8 @@ public class PostService {
     @Transactional
     public Long deletePost(Account currentUser, Long postId) {
         Post findPost = postRepository.findOneByPostId(postId);
-        Account author = accountRepository.findAuthorByPostId(postId);
 
-        isHasAuthority(currentUser, author); // 본인 게시물이 아니면 삭제 불가
-
-        findPost.deleteImages(awsS3Uploader);
+        findPost.deleteImages(currentUser, awsS3Uploader);
 
         return postRepository.delete(findPost);
     }
@@ -85,13 +82,10 @@ public class PostService {
     @Transactional
     public Long updatePost(Account currentUser, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
         Post findPost = postRepository.findOneByPostId(postId);
-        Account author = accountRepository.findAuthorByPostId(postId);
 
-        isHasAuthority(currentUser, author); // 본인 게시물 아니면 수정 불가
+        findPost.update(currentUser, updateForm);
 
-        findPost.update(updateForm);
-
-        findPost.deleteImages(awsS3Uploader); // 저장된 이미지를 모두 삭제
+        findPost.deleteImages(currentUser, awsS3Uploader); // 저장된 이미지를 모두 삭제
 
         findPost.uploadImages(multipartFiles, awsS3Uploader);
 
@@ -123,14 +117,6 @@ public class PostService {
     public PostFormDto getUpdateForm(Long postId) {
         Post post = postRepository.findOneByPostId(postId);
         return PostFormDto.createPostFormDto(post);
-    }
-
-    /**
-     * 게시물 수정/삭제 권한 확인
-     */
-    private void isHasAuthority(Account currentUser, Account author) {
-        if(!Objects.equals(author.getId(), currentUser.getId()))
-            throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 
 }
