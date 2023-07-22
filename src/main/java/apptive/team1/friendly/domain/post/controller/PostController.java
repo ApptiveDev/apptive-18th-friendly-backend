@@ -108,7 +108,7 @@ public class PostController extends ApiBase {
             postListDtos = postService.findAll();
         }
         else {
-            postListDtos = postService.findByTitle(keyword);
+            postListDtos = postService.findByKeyword(keyword);
         }
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }

@@ -55,8 +55,8 @@ public class PostService {
     /**
      * 키워드로 게시물 검색
      */
-    public List<PostListDto> findByTitle(String keyword) {
-        List<Post> posts = postRepository.findByTitle(keyword);
+    public List<PostListDto> findByKeyword(String keyword) {
+        List<Post> posts = postRepository.findByKeyword(keyword);
         return PostListDto.createPostListDto(posts);
     }
 
