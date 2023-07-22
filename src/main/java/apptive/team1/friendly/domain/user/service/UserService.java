@@ -291,8 +291,8 @@ public class UserService {
     /**
      * 게시물 주인 정보 조회
      */
-    public PostOwnerInfo getPostOwnerInfo(Long postId) {
-        PostOwnerInfo postOwnerInfo = new PostOwnerInfo();
+    public UserInfo getPostOwnerInfo(Long postId) {
+        UserInfo userInfo = new UserInfo();
 
         Account postOwner = accountRepository.findAuthorByPostId(postId);
 
@@ -316,7 +316,7 @@ public class UserService {
             NationDto nationDto = new NationDto();
             nationDto.setCity(accountNation.getCity());
             nationDto.setName(accountNation.getNation().getName());
-            postOwnerInfo.setNationDto(nationDto);
+            userInfo.setNationDto(nationDto);
         }
 
         // profileDto 설정
@@ -328,22 +328,22 @@ public class UserService {
             profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
             profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
             profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
-            postOwnerInfo.setProfileImgDto(profileImgDto);
+            userInfo.setProfileImgDto(profileImgDto);
         }
 
-        postOwnerInfo.setFirstName(postOwner.getFirstName());
-        postOwnerInfo.setLastName(postOwner.getLastName());
-        postOwnerInfo.setGender(postOwner.getGender());
-        postOwnerInfo.setLanguageDtoList(languageDtoList);
+        userInfo.setFirstName(postOwner.getFirstName());
+        userInfo.setLastName(postOwner.getLastName());
+        userInfo.setGender(postOwner.getGender());
+        userInfo.setLanguageDtoList(languageDtoList);
 
-        return postOwnerInfo;
+        return userInfo;
     }
 
-    public PostOwnerInfo accountToPostOwnerInfo(Account account) {
+    public UserInfo accountToPostOwnerInfo(Account account) {
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
         ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
         AccountNation nation = accountNationRepository.findOneByAccount(account).orElse(null);
-        return PostOwnerInfo.builder()
+        return UserInfo.builder()
                 .gender(account.getGender())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
@@ -361,9 +361,9 @@ public class UserService {
     }
 
     /**
-     * 현재 로그인된 유저 정보 반환 (PostOwnerInfo와 사용하는 필드 동일하여 재사용)
+     * 현재 로그인된 유저 정보 반환
      */
-    public PostOwnerInfo getCurrentUserInfo() {
+    public UserInfo getCurrentUserInfo() {
         Account account = getCurrentUser();
         return accountToPostOwnerInfo(account);
     }

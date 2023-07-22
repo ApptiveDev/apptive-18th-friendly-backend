@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
@@ -17,10 +18,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
@@ -91,7 +89,9 @@ public class Post extends BaseEntity {
     /**
      * 게시물의 이미지 리스트를 게시물과 서버에서 삭제
      */
-    public void deleteImages(AwsS3Uploader awsS3Uploader) {
+    public void deleteImages(Account currentUser, AwsS3Uploader awsS3Uploader) {
+        Account postOwner = accountPosts.get(0).getUser();
+        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 삭제 불가
         if(this.postImages.size() > 0) {
             for (int i=this.postImages.size()-1; i>=0; i--) {
                 awsS3Uploader.delete(this.postImages.get(i).getOriginalFileName());
@@ -115,7 +115,9 @@ public class Post extends BaseEntity {
     /**
      * 게시물 수정
      */
-    public void update(PostFormDto formDto) {
+    public void update(Account currentUser, PostFormDto formDto) {
+        Account postOwner = accountPosts.get(0).getUser();
+        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 수정 불가
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
@@ -147,6 +149,22 @@ public class Post extends BaseEntity {
         this.postImages.remove(postImage);
     }
 
+    /**
+     * 여행 참가자 추가
+     */
+    public void addParticipant(Account currentUser) {
+        AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
+        this.accountPosts.add(accountPost);
+    }
+
+    /**
+     * 게시물 수정/삭제 권한 확인
+     */
+    private void isHasAuthority(Account currentUser, Account author) {
+        if(!Objects.equals(author.getId(), currentUser.getId()))
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+    }
+
     //========= 정적 메소드 ===========/
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
@@ -165,4 +183,5 @@ public class Post extends BaseEntity {
         post.getAccountPosts().add(accountPost);
         return post;
     }
+
 }

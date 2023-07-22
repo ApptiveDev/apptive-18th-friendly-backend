@@ -3,9 +3,10 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.baseEntity.ApiBase;
@@ -41,8 +42,8 @@ public class PostController extends ApiBase {
      * 게시물 추가
      */
     @GetMapping("/posts/create") // 게시물 추가 화면 구성
-    public ResponseEntity<PostOwnerInfo> addPost() {
-        PostOwnerInfo userInfo = userService.getCurrentUserInfo();
+    public ResponseEntity<UserInfo> addPost() {
+        UserInfo userInfo = userService.getCurrentUserInfo();
         return ResponseEntity.status(HttpStatus.OK).body(userInfo);
     }
 
@@ -85,11 +86,30 @@ public class PostController extends ApiBase {
 
 
     /**
-     * 게시믈 리스트
+     * 게시믈 리스트 검색
      */
-    @GetMapping("/posts")
-    public ResponseEntity<List<PostListDto>> postList() {
-        List<PostListDto> postListDtos = postService.findAll();
+    @GetMapping("/posts" )
+    public ResponseEntity<List<PostListDto>> postListByHashTag(@RequestParam(required = false)String tag) {
+        List<PostListDto> postListDtos;
+        if(tag == null) {
+            postListDtos = postService.findAll();
+        }
+        else {
+            tag = tag.toUpperCase();
+            postListDtos = postService.findByHashTag(tag);
+        }
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/search" )
+    public ResponseEntity<List<PostListDto>> postListByKeyword(@RequestParam(required = false)String keyword) {
+        List<PostListDto> postListDtos;
+        if(keyword == null) {
+            postListDtos = postService.findAll();
+        }
+        else {
+            postListDtos = postService.findByTitle(keyword);
+        }
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 
@@ -98,8 +118,8 @@ public class PostController extends ApiBase {
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        PostOwnerInfo postOwnerInfo = userService.getPostOwnerInfo(postId);
-        PostDto postDto = postService.postDetail(postId, postOwnerInfo);
+        UserInfo userInfo = userService.getPostOwnerInfo(postId);
+        PostDto postDto = postService.postDetail(postId, userInfo);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -135,6 +155,16 @@ public class PostController extends ApiBase {
                     e.printStackTrace();
                     return Mono.just(new ArrayList<>());
                 });
+    }
+
+    /**
+     * 게시물 참가 신청
+     */
+    @PostMapping("/posts/{postId}")
+    public ResponseEntity<Void> applyJoin(@PathVariable("postId") Long postId) {
+        Account currentUser = userService.getCurrentUser();
+        postService.applyJoin(currentUser, postId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 
