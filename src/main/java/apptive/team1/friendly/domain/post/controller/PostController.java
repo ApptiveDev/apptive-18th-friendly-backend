@@ -5,7 +5,7 @@ import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.baseEntity.ApiBase;
@@ -41,8 +41,8 @@ public class PostController extends ApiBase {
      * 게시물 추가
      */
     @GetMapping("/posts/create") // 게시물 추가 화면 구성
-    public ResponseEntity<PostOwnerInfo> addPost() {
-        PostOwnerInfo userInfo = userService.getCurrentUserInfo();
+    public ResponseEntity<UserInfo> addPost() {
+        UserInfo userInfo = userService.getCurrentUserInfo();
         return ResponseEntity.status(HttpStatus.OK).body(userInfo);
     }
 
@@ -98,8 +98,8 @@ public class PostController extends ApiBase {
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        PostOwnerInfo postOwnerInfo = userService.getPostOwnerInfo(postId);
-        PostDto postDto = postService.postDetail(postId, postOwnerInfo);
+        UserInfo userInfo = userService.getPostOwnerInfo(postId);
+        PostDto postDto = postService.postDetail(postId, userInfo);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -135,6 +135,16 @@ public class PostController extends ApiBase {
                     e.printStackTrace();
                     return Mono.just(new ArrayList<>());
                 });
+    }
+
+    /**
+     * 게시물 참가 신청
+     */
+    @PostMapping("/posts/{postId}")
+    public ResponseEntity<Void> applyJoin(@PathVariable("postId") Long postId) {
+        Account currentUser = userService.getCurrentUser();
+        postService.applyJoin(currentUser, postId);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
 

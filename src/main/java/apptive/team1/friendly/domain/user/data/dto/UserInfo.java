@@ -9,12 +9,12 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PostOwnerInfo {
-    public PostOwnerInfo() {
+public class UserInfo {
+    public UserInfo() {
     }
 
     @Builder
-    public PostOwnerInfo(String firstName, String lastName, String gender, NationDto nationDto, List<LanguageDto> languageDtoList, ProfileImgDto profileImgDto) {
+    public UserInfo(String firstName, String lastName, String gender, NationDto nationDto, List<LanguageDto> languageDtoList, ProfileImgDto profileImgDto) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -23,7 +23,6 @@ public class PostOwnerInfo {
         this.profileImgDto = profileImgDto;
     }
 
-    // 방장 정보
     private String firstName;
 
     private String lastName;
@@ -33,7 +32,6 @@ public class PostOwnerInfo {
     private NationDto nationDto;
 
     private List<LanguageDto> languageDtoList;
-
 
     private ProfileImgDto profileImgDto;
 }

@@ -9,7 +9,7 @@ import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import org.junit.Assert;
@@ -147,7 +147,7 @@ public class PostServiceTest {
         account.setFirstName("KIM");
         account.setLastName("MW");
         accountRepository.save(account);
-        PostOwnerInfo postOwnerInfo = PostOwnerInfo.builder()
+        UserInfo userInfo = UserInfo.builder()
                 .gender(account.getGender())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
@@ -181,7 +181,7 @@ public class PostServiceTest {
 
         // when
         Long postId = postService.addPost(account, postFormDto, files);
-        PostDto postDto = postService.postDetail(postId, postOwnerInfo);
+        PostDto postDto = postService.postDetail(postId, userInfo);
 
         // then
         Assert.assertEquals(postDto.getPostId(), postId);
@@ -393,6 +393,56 @@ public class PostServiceTest {
         postRepository.save(post);
 
     }
+
+    @Test
+    public void 같이가요_참가신청_테스트() throws Exception {
+        //given
+        Account postOwner = new Account();
+        postOwner.setEmail("TestAccount@naver.com");
+        accountRepository.save(postOwner);
+
+        Account participant = new Account();
+        participant.setEmail("participant@naver.com");
+        accountRepository.save(participant);
+
+        Set<String> rules = new HashSet<>();
+        rules.add("rule1");
+        rules.add("rule2");
+        Set<HashTag> hashTags = new HashSet<>();
+        hashTags.add(LIFE);
+        hashTags.add(NATIVE);
+        AudioGuide audioGuide = new AudioGuide();
+        List<MultipartFile> files = new ArrayList<>();
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "bus",
+                "bus.jpeg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new FileInputStream(new File("src/test/resources/bus.jpg"))
+        );
+        MockMultipartFile file2
+                = new MockMultipartFile(
+                "zidane",
+                "zidane.jpeg",
+                MediaType.IMAGE_JPEG_VALUE,
+                new FileInputStream(new File("src/test/resources/zidane.jpg"))
+        );
+        files.add(file);
+        files.add(file2);
+        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
+                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
+
+        //when
+        Long postId = postService.addPost(postOwner, postFormDto, files);
+        postService.applyJoin(participant, postId);
+
+        Post post = postService.findByPostId(postId);
+        List<AccountPost> accountPosts = post.getAccountPosts();
+        //then
+        Assert.assertEquals(2, accountPosts.size());
+        Assert.assertEquals(AccountType.PARTICIPANT, accountPosts.get(accountPosts.size()-1).getAccountType());
+    }
+
 
 //    @Test
 //    public void 테스트용_회원추가() {

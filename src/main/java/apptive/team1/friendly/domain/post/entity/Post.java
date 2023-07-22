@@ -147,6 +147,14 @@ public class Post extends BaseEntity {
         this.postImages.remove(postImage);
     }
 
+    /**
+     * 여행 참가자 추가
+     */
+    public void addParticipant(Account currentUser) {
+        AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
+        this.accountPosts.add(accountPost);
+    }
+
     //========= 정적 메소드 ===========/
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
@@ -165,4 +173,5 @@ public class Post extends BaseEntity {
         post.getAccountPosts().add(accountPost);
         return post;
     }
+
 }

@@ -3,7 +3,7 @@ import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
@@ -98,13 +98,22 @@ public class PostService {
         return findPost.getId();
     }
 
+    /**
+     * 같이가요 참가 신청
+     */
+    @Transactional
+    public void applyJoin(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+        findPost.addParticipant(currentUser);
+    }
+
 
     /**
      * DTO 설정 메소드
      */
-    public PostDto postDetail(Long postId, PostOwnerInfo postOwnerInfo) {
+    public PostDto postDetail(Long postId, UserInfo userInfo) {
         Post findPost = findByPostId(postId);
-        return PostDto.createPostDto(findPost, postOwnerInfo);
+        return PostDto.createPostDto(findPost, userInfo);
     }
 
 
@@ -123,4 +132,5 @@ public class PostService {
         if(!Objects.equals(author.getId(), currentUser.getId()))
             throw new AccessDeniedException("접근 권한이 없습니다.");
     }
+
 }

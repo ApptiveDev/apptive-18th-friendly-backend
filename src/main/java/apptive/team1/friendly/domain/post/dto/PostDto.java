@@ -3,7 +3,7 @@ import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Builder;
 import lombok.Data;
@@ -19,13 +19,13 @@ import java.util.Set;
 @NoArgsConstructor
 public class PostDto {
     @Builder
-    public PostDto(Long postId, List<PostImage> postImage, PostOwnerInfo postOwnerInfo,
+    public PostDto(Long postId, List<PostImage> postImage, UserInfo userInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDateTime promiseTime, String location, Set<String> rules,
                    List<CommentDto> comments, AudioGuide audioGuide) {
         this.postId = postId;
         this.postImage = postImage;
-        this.postOwnerInfo = postOwnerInfo;
+        this.userInfo = userInfo;
         this.title = title;
         this.hashTags = hashTags;
         this.maxPeople = maxPeople;
@@ -41,7 +41,7 @@ public class PostDto {
 
     private List<PostImage> postImage = new ArrayList<>();
 
-    private PostOwnerInfo postOwnerInfo;
+    private UserInfo userInfo;
 
     private String title;
 
@@ -62,7 +62,7 @@ public class PostDto {
 
     private AudioGuide audioGuide;
 
-    public static PostDto createPostDto(Post findPost, PostOwnerInfo postOwnerInfo) {
+    public static PostDto createPostDto(Post findPost, UserInfo userInfo) {
 
         List<Comment> comments = findPost.getComments();
         List<CommentDto> commentDtos = new ArrayList<>();
@@ -78,7 +78,7 @@ public class PostDto {
         }
 
         return PostDto.builder()
-                .postOwnerInfo(postOwnerInfo)
+                .userInfo(userInfo)
                 .postId(findPost.getId())
                 .title(findPost.getTitle())
                 .maxPeople(findPost.getMaxPeople())
