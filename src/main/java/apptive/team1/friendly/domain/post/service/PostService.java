@@ -1,12 +1,9 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
-import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
-import apptive.team1.friendly.domain.post.exception.InvalidHashTagException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,21 +32,8 @@ public class PostService {
      * 해당 HashTag 게시물 찾아서 PostList DTO로 변환
      */
     public List<PostListDto> findByHashTag(String tag) {
-        validateTag(tag);
         List<Post> posts = postRepository.findByHashTag(tag);
         return PostListDto.createPostListDto(posts);
-    }
-
-    /**
-     * 유효한 해시태그인지 확인
-     */
-    private void validateTag(String tag) {
-        if(tag.equals("NATIVE") || tag.equals("LIFE") || tag.equals("FAMOUS") || tag.equals("HOTPLACE")) {
-            ;
-        }
-        else {
-            throw new InvalidHashTagException("유효하지 않은 해시태그");
-        }
     }
 
     /**
