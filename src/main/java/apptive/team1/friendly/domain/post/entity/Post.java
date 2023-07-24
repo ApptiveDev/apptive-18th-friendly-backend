@@ -153,8 +153,18 @@ public class Post extends BaseEntity {
      * 여행 참가자 추가
      */
     public void addParticipant(Account currentUser) {
+        checkCanParticipant();
         AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
         this.accountPosts.add(accountPost);
+    }
+
+    /**
+     * 참여가능한 인원수 확인
+     */
+    private void checkCanParticipant() {
+        if(accountPosts.size() >= maxPeople) {
+            throw new RuntimeException("인원 초과");
+        }
     }
 
     /**
