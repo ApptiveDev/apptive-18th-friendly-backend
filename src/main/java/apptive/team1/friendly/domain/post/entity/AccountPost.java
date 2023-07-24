@@ -1,13 +1,14 @@
 package apptive.team1.friendly.domain.post.entity;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
-@NoArgsConstructor
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountPost {
 
     @Id
