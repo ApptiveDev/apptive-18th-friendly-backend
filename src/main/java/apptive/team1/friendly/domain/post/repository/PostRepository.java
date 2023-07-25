@@ -72,8 +72,8 @@ public class PostRepository {
     /**
      * 제목으로 게시물 조회
      */
-    public List<Post> findByTitle(String keyword) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.title like :keyword", Post.class)
+    public List<Post> findByKeyword(String keyword) {
+        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
                 .setParameter("keyword", "%"+keyword+"%")
                 .getResultList();
     }

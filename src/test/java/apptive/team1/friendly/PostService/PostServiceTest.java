@@ -1,11 +1,12 @@
 package apptive.team1.friendly.PostService;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
-import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.AccountType;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
@@ -19,11 +20,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,13 +33,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import static apptive.team1.friendly.domain.post.entity.HashTag.LIFE;
-import static apptive.team1.friendly.domain.post.entity.HashTag.NATIVE;
+
+import static apptive.team1.friendly.domain.post.entity.HashTag.*;
+import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Transactional
-@Rollback(value = true)
 public class PostServiceTest {
 
     @Autowired
@@ -47,371 +48,253 @@ public class PostServiceTest {
     PostRepository postRepository;
     @Autowired
     AccountRepository accountRepository;
+    @Autowired
+    EntityManager em;
 
     @Test
-    public void 게시물_정상_추가() throws IOException {
+    public void 게시물_추가() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@gmail.com");
-        account.setFirstName("KIM");
-        account.setLastName("MW");
-        accountRepository.save(account);
-       Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTag = new HashSet<>();
-        hashTag.add(LIFE);
-        hashTag.add(NATIVE);
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        AudioGuide audioGuide = new AudioGuide();
-        PostFormDto newPostForm = new PostFormDto("title1", hashTag, 5, "desc1", LocalDateTime.now(), "loc1", rules, audioGuide);
-        PostFormDto newPostForm2 = new PostFormDto("title2", hashTag, 3, "desc2", LocalDateTime.now(), "loc2", rules, audioGuide);
-
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto newPostForm = createPostForm("title", 5, "add test", "location");
 
         // when
         Long postId = postService.addPost(account, newPostForm, files);
-        Long postId2 = postService.addPost(account, newPostForm2, files);
 
         // then
-        Assert.assertEquals(postId, postService.findByPostId(postId).getId());
-        Assert.assertEquals(postId2, postService.findByPostId(postId2).getId());
+        Assert.assertEquals("게시물 추가가 성공적으로 되어야 한다.", postId, postRepository.findOneByPostId(postId).getId());
     }
 
     @Test
     public void 게시물_리스트_조회() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@gmail.com");
-        account.setFirstName("KIM");
-        account.setLastName("MW");
-        accountRepository.save(account);
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto1 = new PostFormDto("title1", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-
-        PostFormDto postFormDto2 = new PostFormDto("title1", hashTags, 3,
-                "description2", LocalDateTime.now(), "Busan", rules, audioGuide);
-
-        // when
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
+        PostFormDto postFormDto2 = createPostForm("title", 5, "add", "location");
         postService.addPost(account, postFormDto1, files);
         postService.addPost(account, postFormDto2, files);
 
-        List<PostListDto> postListDtos = postService.findAll();
-        Assert.assertEquals(2, postListDtos.size());
+        // when
+        List<Post> posts = postRepository.findAll();
+
+        // then
+        Assert.assertEquals("추가한 게시물만큼 개수가 늘어야 한다.", 2, posts.size());
     }
 
     @Test
-    public void 게시물_조회() throws IOException {
+    public void 게시물_상세_조회() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@gmail.com");
-        account.setFirstName("KIM");
-        account.setLastName("MW");
-        accountRepository.save(account);
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
         UserInfo userInfo = UserInfo.builder()
                 .gender(account.getGender())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
                 .build();
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("title1", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        Long postId = postService.addPost(account, postFormDto, files);
 
         // when
-        Long postId = postService.addPost(account, postFormDto, files);
         PostDto postDto = postService.postDetail(postId, userInfo);
 
         // then
-        Assert.assertEquals(postDto.getPostId(), postId);
+        Post findPost = postRepository.findOneByPostId(postId);
+        Assert.assertEquals("게시물 id와 조회한 id가 일치해야 한다.", postId, postDto.getPostId());
+        Assert.assertEquals("게시물 title과 조회한 title이 일치해야 한다.", findPost.getTitle(), postDto.getTitle() );
     }
 
     @Test
     public void 게시물_삭제() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@naver.com");
-        accountRepository.save(account);
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("title1", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        Long addPostId = postService.addPost(account, postFormDto, files);
 
         // when
-        Long addPostId = postService.addPost(account, postFormDto, files);
         Long deletePostId = postService.deletePost(account, addPostId);
 
         // then
-        Assert.assertEquals(addPostId, deletePostId);
+        Assert.assertEquals("추가한 게시물과 삭제한 게시물의 아이디가 같아야 한다.", addPostId, deletePostId);
+        Assert.assertEquals("삭제 후 게시물 개수는 줄어들어야 한다.", 0, postRepository.findAll().size());
     }
 
     @Test
     public void 게시물_업데이트() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@naver.com");
-        accountRepository.save(account);
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        PostFormDto updateFormDto = createUpdatePostForm();
         MockMultipartFile file
                 = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
                 "zidane",
                 "zidane.jpeg",
                 MediaType.IMAGE_JPEG_VALUE,
                 new FileInputStream(new File("src/test/resources/zidane.jpg"))
         );
-        MockMultipartFile file3
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-        PostFormDto updateFormDto = new PostFormDto("updated!!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-
+        Long postId = postService.addPost(account, postFormDto, files);
 
         // when
-        Long postId = postService.addPost(account, postFormDto, files);
-        Post post = postService.findByPostId(postId);
-        String title = post.getTitle();
-
-        files.add(file3);
+        files.add(file);
         Long updatedPostId = postService.updatePost(account, postId, updateFormDto, files);
-        Post updatedPost = postService.findByPostId(updatedPostId);
+        Post updatedPost = postRepository.findOneByPostId(updatedPostId);
 
         // then
-        Assert.assertEquals(postId, updatedPostId);
-        Assert.assertNotEquals(title, updatedPost.getTitle());
-        Assert.assertEquals("updated!!", updatedPost.getTitle());
-        Assert.assertEquals(3, updatedPost.getPostImages().size());
+        Post post = postRepository.findOneByPostId(postId);
+        String title = post.getTitle();
+        Assert.assertEquals("업데이트 전과 후의 게시물 아이디는 동일하다",postId, updatedPostId);
+        Assert.assertNotEquals("title을 업데이트하면 변경이 되어야 한다", title, updatedPost.getTitle());
+        Assert.assertEquals("updated!!로 업데이트가 성공적으로 되었는지 확인", "updated!!", updatedPost.getTitle());
+        Assert.assertEquals("이미지 추가가 성공적으로 되어야 한다.", 3, updatedPost.getPostImages().size());
+    }
+    @Test(expected = AccessDeniedException.class)
+    public void 게시물_삭제_권한_테스트() throws Exception {
+        //given
+        Account author = createAccount("ABC@gmail.com", "A", "BC");
+        Account account = createAccount("CD@gamil.com", "C", "D");
+        PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
+        List<MultipartFile> imageFiles = createImageFiles();
+        Long postId = postService.addPost(author, postForm, imageFiles);
+
+        //when
+        postService.deletePost(account, postId);
+
+        //then
+        fail("게시물 작성자가 아닌 계정이 삭제시 예외가 발생해야 한다.");
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void 게시물_수정_권한_테스트() throws Exception {
+        //given
+        Account author = createAccount("ABC@gmail.com", "A", "BC");
+        Account account = createAccount("CD@gamil.com", "C", "D");
+        PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
+        List<MultipartFile> imageFiles = createImageFiles();
+        Long postId = postService.addPost(author, postForm, imageFiles);
+
+        //when
+        postService.updatePost(account, postId, postForm, imageFiles);
+
+        //then
+        fail("게시물 작성자가 아닌 계정이 삭제시 예외가 발생해야 한다.");
     }
 
     @Test
     public void 사진_삭제_테스트() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@naver.com");
-        accountRepository.save(account);
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-        PostFormDto updateFormDto = new PostFormDto("updated!!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add test", "location");
+        PostFormDto updateFormDto = createUpdatePostForm();
+        Long postId = postService.addPost(account, postFormDto, files);
 
         // when
-        Long postId = postService.addPost(account, postFormDto, files);
-        Post post = postService.findByPostId(postId);
-        int imgCount = post.getPostImages().size();
-
-        files.remove(file2);
-        postService.updatePost(account, postId, updateFormDto, files);
+        files.remove(0);
+        Long updatedPostId = postService.updatePost(account, postId, updateFormDto, files);
 
         // then
-        Assert.assertNotEquals(imgCount, post.getPostImages().size());
-        Assert.assertEquals(1, post.getPostImages().size());
+        Post post = postService.findByPostId(updatedPostId);
+        int imgCount = post.getPostImages().size();
+        Assert.assertNotEquals("삭제 전 이미지 개수와 삭제 후 개수는 달라야 한다.", imgCount, post.getPostImages().size());
+        Assert.assertEquals("삭제 후 이미지 개수는 삭제한 이미지 개수만큼 줄어들어야 한다.", 1, post.getPostImages().size());
     }
-
 
     @Test
     public void 유저_작성한_게시물_조회() throws IOException {
         // given
-        Account account = new Account();
-        account.setEmail("TestAccount@naver.com");
-        accountRepository.save(account);
-        Set<String> rules = new HashSet<>();
-        rules.add("rule1");
-        rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-        PostFormDto postFormDto2 = new PostFormDto("create2!", hashTags, 3,
-                "description", LocalDateTime.now(), "Busan", rules, audioGuide);
+        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        PostFormDto postFormDto2 = createPostForm("title2", 3, "add2", "location2");
 
         postService.addPost(account, postFormDto, files);
         postService.addPost(account, postFormDto2, files);
 
+        // when
         List<Post> postsByUserId = postService.findPostsByUserId(account.getId());
 
-        Assert.assertEquals(2, postsByUserId.size());
-    }
-
-    @Test
-    public void cascade_옵션_테스트() {
-        Account account = new Account();
-        Post post = new Post();
-        AccountPost.builder()
-                .user(account)
-                .post(post)
-                .accountType(AccountType.AUTHOR)
-                .build();
-        postRepository.save(post);
-
+        // then
+        Assert.assertEquals("유저가 작성한 게시물 수만큼 조회가 되어야 한다.",2, postsByUserId.size());
     }
 
     @Test
     public void 같이가요_참가신청_테스트() throws Exception {
         //given
-        Account postOwner = new Account();
-        postOwner.setEmail("TestAccount@naver.com");
-        accountRepository.save(postOwner);
+        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        Long postId = postService.addPost(postOwner, postFormDto, files);
 
-        Account participant = new Account();
-        participant.setEmail("participant@naver.com");
-        accountRepository.save(participant);
+        Account participant = createAccount("participant@gmail.com","A" , "B");
 
+        //when
+        postService.applyJoin(participant, postId);
+
+        //then
+        Post post = postRepository.findOneByPostId(postId);
+        List<AccountPost> accountPosts = post.getAccountPosts();
+        Assert.assertEquals("한 명이 참가신청을 하면 참가 인원은 2명이 되어야 한다.", 2, accountPosts.size());
+        Assert.assertEquals("신청한 사람은 참여자가 되어야 한다.", AccountType.PARTICIPANT, accountPosts.get(accountPosts.size()-1).getAccountType());
+        Assert.assertEquals("첫 번째는 게시물 작성자가 되어야 한다.", AccountType.AUTHOR, accountPosts.get(0).getAccountType());
+    }
+
+    @Test(expected = ExcessOfPeopleException.class)
+    public void 인원초과_테스트() throws Exception {
+        //given
+        // 게시물 생성
+        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
+        List<MultipartFile> files = createImageFiles();
+        Long postId = postService.addPost(postOwner, postFormDto, files);
+
+        // 참여자 목록
+        Account participant = createAccount("participant@gmail.com","A" , "B");
+        Account participant2 = createAccount("participant2@gmail.com","C" , "D");
+
+        //when
+        // 참여 신청
+        postService.applyJoin(participant, postId);
+        postService.applyJoin(participant2, postId);
+
+        //then
+        fail("인원 초과시 예외가 발생해야 한다.");
+    }
+
+
+    private Account createAccount(String email, String firstName, String lastName) {
+        Account account = new Account();
+        account.setEmail(email);
+        account.setFirstName(firstName);
+        account.setLastName(lastName);
+        accountRepository.save(account);
+        return account;
+    }
+
+    private PostFormDto createPostForm(String title, int maxPeople, String description, String location) {
         Set<String> rules = new HashSet<>();
         rules.add("rule1");
         rules.add("rule2");
-        Set<HashTag> hashTags = new HashSet<>();
-        hashTags.add(LIFE);
-        hashTags.add(NATIVE);
+        Set<HashTag> hashTag = new HashSet<>();
+        hashTag.add(LIFE);
+        hashTag.add(NATIVE);
         AudioGuide audioGuide = new AudioGuide();
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDateTime.now(), location, rules, audioGuide);
+    }
+
+    private PostFormDto createUpdatePostForm() {
+        Set<String> rules = new HashSet<>();
+        rules.add("rule1");
+        Set<HashTag> hashTag = new HashSet<>();
+        hashTag.add(LIFE);
+        hashTag.add(NATIVE);
+        hashTag.add(FAMOUS);
+        AudioGuide audioGuide = new AudioGuide();
+        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDateTime.now(), "updated location", rules, audioGuide);
+    }
+
+    private List<MultipartFile> createImageFiles() throws IOException {
         List<MultipartFile> files = new ArrayList<>();
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -429,19 +312,21 @@ public class PostServiceTest {
         );
         files.add(file);
         files.add(file2);
-        PostFormDto postFormDto = new PostFormDto("create!", hashTags, 5,
-                "description", LocalDateTime.now(), "Yangsan", rules, audioGuide);
-
-        //when
-        Long postId = postService.addPost(postOwner, postFormDto, files);
-        postService.applyJoin(participant, postId);
-
-        Post post = postService.findByPostId(postId);
-        List<AccountPost> accountPosts = post.getAccountPosts();
-        //then
-        Assert.assertEquals(2, accountPosts.size());
-        Assert.assertEquals(AccountType.PARTICIPANT, accountPosts.get(accountPosts.size()-1).getAccountType());
+        return files;
     }
+
+    //    @Test
+//    public void cascade_옵션_테스트() {
+//        Account account = new Account();
+//        Post post = new Post();
+//        AccountPost.builder()
+//                .user(account)
+//                .post(post)
+//                .accountType(AccountType.AUTHOR)
+//                .build();
+//        postRepository.save(post);
+//
+//    }
 
 
 //    @Test

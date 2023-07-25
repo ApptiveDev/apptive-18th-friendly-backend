@@ -2,11 +2,14 @@ package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
+import apptive.team1.friendly.domain.post.exception.NotParticipantException;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +25,7 @@ import java.util.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
     @Builder
@@ -153,8 +156,36 @@ public class Post extends BaseEntity {
      * 여행 참가자 추가
      */
     public void addParticipant(Account currentUser) {
+        checkCanParticipate();
         AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
         this.accountPosts.add(accountPost);
+    }
+
+    public void deleteParticipant(Account currentUser) {
+        isParticipant(currentUser);
+        accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == currentUser.getId());
+    }
+
+    private void isParticipant(Account currentUser) {
+        boolean isParticipant = false;
+        for (AccountPost accountPost : accountPosts) {
+            if (accountPost.getId() == currentUser.getId()) {
+                isParticipant = true;
+                break;
+            }
+        }
+        if(!isParticipant) {
+            throw new NotParticipantException("참여중인 이용자가 아닙니다.");
+        }
+    }
+
+    /**
+     * 참여가능한 인원수 확인
+     */
+    private void checkCanParticipate() {
+        if(accountPosts.size() >= maxPeople) {
+            throw new ExcessOfPeopleException("인원 초과");
+        }
     }
 
     /**
