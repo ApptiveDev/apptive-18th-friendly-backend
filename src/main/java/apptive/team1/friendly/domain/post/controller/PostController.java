@@ -160,11 +160,18 @@ public class PostController extends ApiBase {
     /**
      * 게시물 참가 신청
      */
-    @PostMapping("/posts/{postId}")
-    public ResponseEntity<Void> applyJoin(@PathVariable("postId") Long postId) {
+    @PostMapping("/posts/join/{postId}")
+    public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
         postService.applyJoin(currentUser, postId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/posts/join/{postId}}")
+    public ResponseEntity<Long> cancelJoun(@PathVariable("postId") Long postId) {
+        Account currentUser = userService.getCurrentUser();
+        postService.cancelJoin(currentUser, postId);
+        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 }
 

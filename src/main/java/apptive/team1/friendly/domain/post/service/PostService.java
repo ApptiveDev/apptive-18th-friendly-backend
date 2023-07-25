@@ -112,6 +112,12 @@ public class PostService {
         findPost.addParticipant(currentUser);
     }
 
+    @Transactional
+    public void cancelJoin(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+        findPost.deleteParticipant(currentUser);
+    }
+
 
     /**
      * DTO 설정 메소드
