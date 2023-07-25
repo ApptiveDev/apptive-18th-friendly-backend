@@ -7,6 +7,7 @@ import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
+import apptive.team1.friendly.domain.post.exception.NotParticipantException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
@@ -15,6 +16,7 @@ import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -138,12 +140,12 @@ public class PostServiceTest {
 
         // when
         files.add(file);
+        Post post = postRepository.findOneByPostId(postId);
+        String title = post.getTitle();
         Long updatedPostId = postService.updatePost(account, postId, updateFormDto, files);
         Post updatedPost = postRepository.findOneByPostId(updatedPostId);
 
         // then
-        Post post = postRepository.findOneByPostId(postId);
-        String title = post.getTitle();
         Assert.assertEquals("업데이트 전과 후의 게시물 아이디는 동일하다",postId, updatedPostId);
         Assert.assertNotEquals("title을 업데이트하면 변경이 되어야 한다", title, updatedPost.getTitle());
         Assert.assertEquals("updated!!로 업데이트가 성공적으로 되었는지 확인", "updated!!", updatedPost.getTitle());
@@ -191,12 +193,12 @@ public class PostServiceTest {
         Long postId = postService.addPost(account, postFormDto, files);
 
         // when
+        Post post = postService.findByPostId(postId);
+        int imgCount = post.getPostImages().size();
         files.remove(0);
-        Long updatedPostId = postService.updatePost(account, postId, updateFormDto, files);
+        postService.updatePost(account, postId, updateFormDto, files);
 
         // then
-        Post post = postService.findByPostId(updatedPostId);
-        int imgCount = post.getPostImages().size();
         Assert.assertNotEquals("삭제 전 이미지 개수와 삭제 후 개수는 달라야 한다.", imgCount, post.getPostImages().size());
         Assert.assertEquals("삭제 후 이미지 개수는 삭제한 이미지 개수만큼 줄어들어야 한다.", 1, post.getPostImages().size());
     }
@@ -260,6 +262,52 @@ public class PostServiceTest {
 
         //then
         fail("인원 초과시 예외가 발생해야 한다.");
+    }
+
+    @Test
+    public void 같이가요_참가취소_테스트() throws Exception {
+        //given
+        // 게시물 추가
+        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = createImageFiles();
+        PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
+        Long postId = postService.addPost(postOwner, postFormDto, files);
+
+        // 참여 신청
+        Account participant = createAccount("participant@gmail.com","A" , "B");
+        postService.applyJoin(participant, postId);
+
+        //when
+        // 참여 취소
+        postService.cancelJoin(participant, postId);
+
+        //then
+        Post post = postRepository.findOneByPostId(postId);
+        List<AccountPost> accountPosts = post.getAccountPosts();
+        Assertions.assertEquals(1,accountPosts.size(), "참여 취소 시 참여 인원이 감소해야 한다.");
+    }
+
+    @Test(expected = NotParticipantException.class)
+    public void 취소_예외() throws Exception {
+        //given
+        // 게시물 생성
+        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
+        List<MultipartFile> files = createImageFiles();
+        Long postId = postService.addPost(postOwner, postFormDto, files);
+
+        // 참여자 목록
+        Account participant = createAccount("participant@gmail.com","A" , "B");
+        Account participant2 = createAccount("participant2@gmail.com","C" , "D");
+
+        // 참여 신청
+        postService.applyJoin(participant, postId);
+
+        //when
+        postService.cancelJoin(participant2, postId);
+
+        //then
+        fail("참여자가 아닌 이용자는 참가 취소를 할 수 없다.");
     }
 
 

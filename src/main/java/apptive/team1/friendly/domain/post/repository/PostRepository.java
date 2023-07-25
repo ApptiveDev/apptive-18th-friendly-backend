@@ -27,12 +27,7 @@ public class PostRepository {
      * 게시물 저장
      */
     public void save(Post post) {
-        if(post.getId() == null) {
-            em.persist(post); //신규
-        }
-        else {
-            em.merge(post); // 업데이트
-        }
+        em.persist(post); //신규
     }
 
     /**
