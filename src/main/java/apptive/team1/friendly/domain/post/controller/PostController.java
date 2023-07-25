@@ -171,7 +171,7 @@ public class PostController extends ApiBase {
      * 참가 취소
      */
     @DeleteMapping("/posts/join/{postId}")
-    public ResponseEntity<Long> Join(@PathVariable("postId") Long postId) {
+    public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
         postService.cancelJoin(currentUser, postId);
         return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
