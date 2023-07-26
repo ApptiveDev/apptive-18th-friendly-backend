@@ -169,7 +169,7 @@ public class Post extends BaseEntity {
     private void isParticipant(Account currentUser) {
         boolean isParticipant = false;
         for (AccountPost accountPost : accountPosts) {
-            if (accountPost.getId() == currentUser.getId()) {
+            if (accountPost.getUser().getId() == currentUser.getId() && accountPost.getAccountType() != AccountType.AUTHOR) {
                 isParticipant = true;
                 break;
             }
