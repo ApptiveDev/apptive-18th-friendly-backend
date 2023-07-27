@@ -1,11 +1,9 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
-import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,17 +18,30 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final AccountRepository accountRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
     /**
-     * 모든 게시물 찾아서 Post List DTO로 변환
+     * 모든 게시물 찾아서 PostList DTO로 변환
      */
     public List<PostListDto> findAll() {
         List<Post> posts = postRepository.findAll();
-        List<PostListDto> postListDtos = PostListDto.createPostListDto(posts);
-        return postListDtos;
+        return PostListDto.createPostListDto(posts);
+    }
+    /**
+     * 해당 HashTag 게시물 찾아서 PostList DTO로 변환
+     */
+    public List<PostListDto> findByHashTag(String tag) {
+        List<Post> posts = postRepository.findByHashTag(tag);
+        return PostListDto.createPostListDto(posts);
+    }
+
+    /**
+     * 키워드로 게시물 검색
+     */
+    public List<PostListDto> findByKeyword(String keyword) {
+        List<Post> posts = postRepository.findByKeyword(keyword);
+        return PostListDto.createPostListDto(posts);
     }
 
     /**
@@ -69,11 +80,8 @@ public class PostService {
     @Transactional
     public Long deletePost(Account currentUser, Long postId) {
         Post findPost = postRepository.findOneByPostId(postId);
-        Account author = accountRepository.findAuthorByPostId(postId);
 
-        isHasAuthority(currentUser, author); // 본인 게시물이 아니면 삭제 불가
-
-        findPost.deleteImages(awsS3Uploader);
+        findPost.deleteImages(currentUser, awsS3Uploader);
 
         return postRepository.delete(findPost);
     }
@@ -85,26 +93,38 @@ public class PostService {
     @Transactional
     public Long updatePost(Account currentUser, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
         Post findPost = postRepository.findOneByPostId(postId);
-        Account author = accountRepository.findAuthorByPostId(postId);
 
-        isHasAuthority(currentUser, author); // 본인 게시물 아니면 수정 불가
+        findPost.update(currentUser, updateForm);
 
-        findPost.update(updateForm);
-
-        findPost.deleteImages(awsS3Uploader);
+        findPost.deleteImages(currentUser, awsS3Uploader); // 저장된 이미지를 모두 삭제
 
         findPost.uploadImages(multipartFiles, awsS3Uploader);
 
         return findPost.getId();
     }
 
+    /**
+     * 같이가요 참가 신청
+     */
+    @Transactional
+    public void applyJoin(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+        findPost.addParticipant(currentUser);
+    }
+
+    @Transactional
+    public void cancelJoin(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+        findPost.deleteParticipant(currentUser);
+    }
+
 
     /**
      * DTO 설정 메소드
      */
-    public PostDto postDetail(Long postId, PostOwnerInfo postOwnerInfo) {
+    public PostDto postDetail(Long postId, UserInfo userInfo) {
         Post findPost = findByPostId(postId);
-        return PostDto.createPostDto(findPost, postOwnerInfo);
+        return PostDto.createPostDto(findPost, userInfo);
     }
 
 
@@ -116,11 +136,5 @@ public class PostService {
         return PostFormDto.createPostFormDto(post);
     }
 
-    /**
-     * 게시물 수정/삭제 권한 확인
-     */
-    private void isHasAuthority(Account currentUser, Account author) {
-        if(!Objects.equals(author.getId(), currentUser.getId()))
-            throw new AccessDeniedException("접근 권한이 없습니다.");
-    }
+
 }
