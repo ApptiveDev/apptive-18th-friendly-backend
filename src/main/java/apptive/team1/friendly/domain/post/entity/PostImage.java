@@ -1,18 +1,18 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostImage{
-    public PostImage() {
-
-    }
     @Builder
     public PostImage(Post post, String originalFileName, String uploadFileName, String uploadFilePath, String uploadFileUrl) {
         this.post = post;
