@@ -8,6 +8,7 @@ import apptive.team1.friendly.domain.curating.repository.ContentRepository;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
+import apptive.team1.friendly.global.TestMethods;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -42,14 +43,16 @@ public class ContentServiceTest {
     AccountRepository accountRepository;
     @Autowired
     EntityManager em;
+    @Autowired
+    TestMethods tm;
 
     @Test
     public void 게시물_리스트_조회() throws Exception {
         //given
-        Account account = createAccount("TEST@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("TEST@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test Title", "location", "11:00~12:00", "010-0000-0000", "instagram", "contents");
         ContentFormDto contentForm2 = createContentForm("test Title2", "location2", "11:00~14:00", "010-0000-0001", "instagram2", "contents2");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         contentService.addContent(account, contentForm, imageFiles);
         contentService.addContent(account, contentForm2, imageFiles);
 
@@ -63,9 +66,9 @@ public class ContentServiceTest {
     @Test
     public void 게시물_정보_조회() throws Exception {
         //given
-        Account account = createAccount("TEST@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("TEST@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test Title", "location", "11:00~12:00", "010-0000-0000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
 
         //when
@@ -87,9 +90,9 @@ public class ContentServiceTest {
     @Test
     public void 게시물_생성() throws IOException {
         //given
-        Account account = createAccount("TEST@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("TEST@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test Title", "location", "11:00~12:00", "010-0000-0000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
 
         //when
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
@@ -101,9 +104,9 @@ public class ContentServiceTest {
     @Test
     public void 게시물_삭제() throws Exception {
         //given
-        Account account = createAccount("author@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("author@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test", "loc", "1:00~2:00", "000-000-000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
 
         //when
@@ -117,11 +120,11 @@ public class ContentServiceTest {
     @Test(expected = AccessDeniedException.class)
     public void 게시물_삭제_권한확인() throws Exception {
         //given
-        Account account = createAccount("author@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("author@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test", "loc", "1:00~2:00", "000-000-000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
-        Account watcher = createAccount("watcher@gmail.com", "lee", "mw");
+        Account watcher = tm.createAccount("watcher@gmail.com", "lee", "mw");
 
         //when
         contentService.deleteContent(watcher, contentId);
@@ -133,14 +136,14 @@ public class ContentServiceTest {
     @Test
     public void 게시물_업데이트() throws Exception {
         //given
-        Account account = createAccount("author@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("author@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test", "loc", "1:00~2:00", "000-000-000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
 
         //update info
         ContentFormDto updateForm = createContentForm("updated!", "loc2", "1:00~4:00", "000-000-001", "instagram2", "contents2");
-        List<MultipartFile> updatedFiles = createImageFiles();
+        List<MultipartFile> updatedFiles = tm.createImageFiles();
         updatedFiles.remove(0);
 
         //when
@@ -158,15 +161,15 @@ public class ContentServiceTest {
     @Test(expected = AccessDeniedException.class)
     public void 게시물_업데이트_권한확인() throws Exception {
         //given
-        Account account = createAccount("author@gmail.com", "kim", "mw");
+        Account account = tm.createAccount("author@gmail.com", "kim", "mw");
         ContentFormDto contentForm = createContentForm("test", "loc", "1:00~2:00", "000-000-000", "instagram", "contents");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
-        Account watcher = createAccount("watcher@gmail.com", "lee", "mw");
+        Account watcher = tm.createAccount("watcher@gmail.com", "lee", "mw");
 
         //update info
         ContentFormDto updateForm = createContentForm("test", "loc", "1:00~2:00", "000-000-000", "instagram", "contents");
-        List<MultipartFile> updatedFiles = createImageFiles();
+        List<MultipartFile> updatedFiles = tm.createImageFiles();
 
         //when
         contentService.updateContent(watcher, contentId, updateForm, updatedFiles);
@@ -180,33 +183,4 @@ public class ContentServiceTest {
         return new ContentFormDto(title, location, openingHours, tel, instagram, content);
     }
 
-    private Account createAccount(String email, String firstName, String lastName) {
-        Account account = new Account();
-        account.setEmail(email);
-        account.setFirstName(firstName);
-        account.setLastName(lastName);
-        accountRepository.save(account);
-        return account;
-    }
-
-    private List<MultipartFile> createImageFiles() throws IOException {
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        return files;
-    }
 }
