@@ -29,10 +29,12 @@ public class HeartRepository {
     }
 
     public Optional<Heart> findHeartByUserIdAndContentId(Long userId, Long contentId) {
-        return Optional.ofNullable(em.createQuery("select h from Heart h where h.account.id = :userId and h.content.id = :contentId", Heart.class)
+        List<Heart> resultList = em.createQuery("select h from Heart h where h.account.id = :userId and h.content.id = :contentId", Heart.class)
                 .setParameter("userId", userId)
                 .setParameter("contentId", contentId)
-                .getSingleResult());
+                .getResultList();
+
+        return resultList.stream().findAny();
     }
 
 }

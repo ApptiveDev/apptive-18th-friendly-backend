@@ -28,6 +28,8 @@ public class Heart {
     private Content content;
 
     public static Heart create(Account currentUser, Content content) {
-        return new Heart(currentUser, content);
+        Heart heart = new Heart(currentUser, content);
+        content.getHearts().add(heart);
+        return heart;
     }
 }
