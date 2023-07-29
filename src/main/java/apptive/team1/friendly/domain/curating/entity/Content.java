@@ -7,6 +7,7 @@ import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,48 +15,57 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Content extends BaseEntity {
 
     @Builder
-    public Content(Account account, String title, List<Image> images, String location, String openingHours, String tel, String instagram, String content, int like) {
+    public Content(Account account, String title, String location, String openingHours,
+                   String tel, String instagram, String content, LocalDateTime createdDate) {
         this.account = account;
         this.title = title;
-        this.images = images;
         this.location = location;
         this.openingHours = openingHours;
         this.tel = tel;
         this.instagram = instagram;
         this.content = content;
-        this.like = like;
+        this.setCreatedDate(createdDate);
+        this.setLastModifiedDate(createdDate);
     }
 
     @Id @GeneratedValue
     @Column(name = "content_id")
     private Long id;
+
     @OneToOne
     @JoinColumn(name = "account_id")
     private Account account;
+
     private String title;
+
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
+
     private String location;
+
     private String openingHours;
+
     private String tel;
+
     private String instagram;
+
     @Lob
     private String content;
-    private int like;
-
 
     //===정적 생성 메서드===//
     public static Content createContent(Account user, ContentFormDto contentFormDto) {
         return Content.builder()
+                .createdDate(LocalDateTime.now())
                 .account(user)
                 .content(contentFormDto.getContent())
                 .title(contentFormDto.getTitle())
@@ -63,7 +73,6 @@ public class Content extends BaseEntity {
                 .instagram(contentFormDto.getInstagram())
                 .location(contentFormDto.getLocation())
                 .openingHours(contentFormDto.getOpeningHours())
-                .like(0)
                 .build();
     }
 
@@ -78,11 +87,11 @@ public class Content extends BaseEntity {
 
     private void addImage(FileInfo uploadFile) {
         Image image = Image.builder()
+                .content(this)
                 .originalFileName(uploadFile.getOriginalFileName())
                 .uploadFileUrl(uploadFile.getUploadFileUrl())
                 .uploadFilePath(uploadFile.getUploadFilePath())
                 .uploadFileName(uploadFile.getUploadFileName())
-                .content(this)
                 .build();
         this.images.add(image);
     }
@@ -104,17 +113,13 @@ public class Content extends BaseEntity {
 
     public void update(Account currentUser, ContentFormDto form) {
         isAuthor(currentUser);
+        this.setLastModifiedDate(LocalDateTime.now());
         this.content = form.getContent();
         this.instagram = form.getInstagram();
         this.location = form.getLocation();
         this.openingHours = form.getOpeningHours();
         this.tel = form.getTel();
         this.title = form.getTitle();
-    }
-
-    public void addLike(Account currentUser) {
-        canPushLike(currentUser);
-        this.like += 1;
     }
 
     private void canPushLike(Account currentUser) {

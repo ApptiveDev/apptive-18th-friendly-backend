@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.curating.dto;
 
 import apptive.team1.friendly.domain.curating.entity.Image;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Builder;
 import lombok.Data;
 
@@ -12,7 +13,10 @@ import java.util.List;
 @Data
 public class ContentDto {
     @Builder
-    public ContentDto(String title, List<Image> images, String location, String openingHours, String tel, String instagram, String content, int like) {
+    public ContentDto(Long id, Account author, String title, List<Image> images, String location, String openingHours,
+                      String tel, String instagram, String content) {
+        this.id = id;
+        this.author = author;
         this.title = title;
         this.images = images;
         this.location = location;
@@ -20,9 +24,10 @@ public class ContentDto {
         this.tel = tel;
         this.instagram = instagram;
         this.content = content;
-        this.like = like;
     }
 
+    private Long id;
+    private Account author;
     private String title;
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> images;
@@ -35,10 +40,12 @@ public class ContentDto {
     private int like;
 
     //==정적 생성 메서드==//
-    public static ContentDto create(String title, List<Image> images,
+    public static ContentDto create(Long id, Account author, String title, List<Image> images,
                               String location, String instagram,
-                              String openingHours, String tel, String content, int like) {
+                              String openingHours, String tel, String content) {
         return ContentDto.builder()
+                .id(id)
+                .author(author)
                 .content(content)
                 .instagram(instagram)
                 .images(images)
@@ -46,7 +53,6 @@ public class ContentDto {
                 .location(location)
                 .openingHours(openingHours)
                 .tel(tel)
-                .like(like)
                 .build();
     }
 }

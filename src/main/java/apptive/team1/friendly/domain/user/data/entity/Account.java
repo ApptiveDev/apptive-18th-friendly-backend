@@ -12,6 +12,21 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 public class Account {
+    @Builder
+    public Account(String email, String password, String firstName,
+                   String lastName, String birthday, String gender,
+                   String introduction, Set<AccountAuthority> accountAuthorities, boolean activated) {
+        this.email = email;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthday = birthday;
+        this.gender = gender;
+        this.introduction = introduction;
+        this.accountAuthorities = accountAuthorities;
+        this.activated = activated;
+    }
+
     @Id
     @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

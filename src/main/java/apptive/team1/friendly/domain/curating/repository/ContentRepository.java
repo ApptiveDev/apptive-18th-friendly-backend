@@ -22,14 +22,8 @@ public class ContentRepository {
     }
 
     public List<Content> findAll(SearchBase searchBase) {
-        if(searchBase == SearchBase.RECOMMENDATION) {
-            return em.createQuery("select c from Content c order by c.like", Content.class)
-                    .getResultList();
-        }
-        else {
-            return em.createQuery("select c from Content c order by c.createdDate", Content.class)
-                    .getResultList();
-        }
+        return em.createQuery("select c from Content c order by c.createdDate", Content.class)
+                .getResultList();
     }
 
     public Content findOne(Long contentId) {

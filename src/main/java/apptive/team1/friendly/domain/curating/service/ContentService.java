@@ -40,10 +40,10 @@ public class ContentService {
      */
     public ContentDto createContentDto(Long contentId) {
         Content content = contentRepository.findOne(contentId);
-        return ContentDto.create(content.getTitle(), content.getImages(),
+        return ContentDto.create(content.getId(), content.getAccount(), content.getTitle(), content.getImages(),
                 content.getLocation(), content.getInstagram(),
                 content.getOpeningHours(), content.getTel(),
-                content.getContent(), content.getLike());
+                content.getContent());
     }
 
     /**
@@ -89,15 +89,4 @@ public class ContentService {
         return content.getId();
     }
 
-    /**
-     * 좋아요 버튼
-     */
-    @Transactional
-    public Long addContentLike(Account currentUser, Long contentId) {
-        Content content = contentRepository.findOne(contentId);
-
-        content.addLike(currentUser);
-
-        return content.getId();
-    }
 }
