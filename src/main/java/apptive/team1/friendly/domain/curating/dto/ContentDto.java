@@ -15,7 +15,7 @@ import java.util.List;
 public class ContentDto {
     @Builder
     public ContentDto(Long id, Account author, String title, List<Image> images, String location, String openingHours,
-                      String tel, String instagram, String content, int likeCount) {
+                      String tel, String instagram, String content, List<Heart> hearts) {
         this.id = id;
         this.author = author;
         this.title = title;
@@ -25,7 +25,7 @@ public class ContentDto {
         this.tel = tel;
         this.instagram = instagram;
         this.content = content;
-        this.likeCount = likeCount;
+        this.hearts = hearts;
     }
 
     private Long id;
@@ -48,12 +48,12 @@ public class ContentDto {
     @Lob
     private String content;
 
-    private int likeCount;
+    private List<Heart> hearts;
 
     //==정적 생성 메서드==//
     public static ContentDto create(Long id, Account author, String title, List<Image> images,
                               String location, String instagram,
-                              String openingHours, String tel, String content, int likeCount) {
+                              String openingHours, String tel, String content, List<Heart> hearts) {
         return ContentDto.builder()
                 .id(id)
                 .author(author)
@@ -64,7 +64,7 @@ public class ContentDto {
                 .location(location)
                 .openingHours(openingHours)
                 .tel(tel)
-                .likeCount(likeCount)
+                .hearts(hearts)
                 .build();
     }
 }
