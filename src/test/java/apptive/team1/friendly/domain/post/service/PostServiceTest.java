@@ -1,4 +1,4 @@
-package apptive.team1.friendly.PostService;
+package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
