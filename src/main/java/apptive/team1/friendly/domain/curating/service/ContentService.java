@@ -43,7 +43,7 @@ public class ContentService {
         return ContentDto.create(content.getId(), content.getAccount(), content.getTitle(), content.getImages(),
                 content.getLocation(), content.getInstagram(),
                 content.getOpeningHours(), content.getTel(),
-                content.getContent());
+                content.getContent(), content.getHearts().size());
     }
 
     /**

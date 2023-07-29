@@ -1,7 +1,7 @@
 package apptive.team1.friendly.domain.curating.entity;
 
 import apptive.team1.friendly.domain.curating.dto.ContentFormDto;
-import apptive.team1.friendly.domain.curating.exception.CanNotPushLikeException;
+import apptive.team1.friendly.domain.curating.exception.CanNotPushHeartException;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
@@ -61,6 +61,9 @@ public class Content extends BaseEntity {
 
     @Lob
     private String content;
+
+    @OneToMany(mappedBy = "content", cascade = CascadeType.REMOVE)
+    private List<Heart> hearts = new ArrayList<>();
 
     //===정적 생성 메서드===//
     public static Content createContent(Account user, ContentFormDto contentFormDto) {
@@ -124,7 +127,7 @@ public class Content extends BaseEntity {
 
     private void canPushLike(Account currentUser) {
         if(this.account.getId() == currentUser.getId()) {
-            throw new CanNotPushLikeException("본인 게시물은 좋아요를 누를 수 없습니다.");
+            throw new CanNotPushHeartException("본인 게시물은 좋아요를 누를 수 없습니다.");
         }
     }
 
