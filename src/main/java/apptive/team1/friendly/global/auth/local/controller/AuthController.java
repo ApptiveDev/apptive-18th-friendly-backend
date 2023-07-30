@@ -29,11 +29,11 @@ public class AuthController {
     @PostMapping("/auth")
     public ResponseEntity<LoginResponse> authorize(@Valid @RequestBody LoginRequest loginRequest) {
 
-        LoginResponse accessToken = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
+        LoginResponse loginResponse = authService.authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + loginResponse.getAccessToken());
 
-        return new ResponseEntity<>(accessToken, httpHeaders, HttpStatus.OK);
+        return new ResponseEntity<>(loginResponse, httpHeaders, HttpStatus.OK);
     }
 }
