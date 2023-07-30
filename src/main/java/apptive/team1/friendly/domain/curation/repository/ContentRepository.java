@@ -22,8 +22,13 @@ public class ContentRepository {
     }
 
     public List<Content> findAll(SearchBase searchBase) {
-        return em.createQuery("select c from Content c join fetch c.images order by c.createdDate", Content.class)
-                .getResultList();
+        if(searchBase == SearchBase.LATEST)
+            return em.createQuery("select distinct c from Content c join fetch c.images order by c.createdDate desc", Content.class)
+                    .getResultList();
+        else {
+            return em.createQuery("select distinct c from Content c join fetch c.images order by c.hearts.size desc", Content.class)
+                    .getResultList();
+        }
     }
 
     public Content findOne(Long contentId) {
