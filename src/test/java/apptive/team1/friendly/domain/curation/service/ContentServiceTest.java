@@ -68,7 +68,7 @@ public class ContentServiceTest {
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
         UserInfo userInfo = userService.accountToPostOwnerInfo(account);
         //when
-        ContentDto contentDto = contentService.createContentDto(userInfo, contentId);
+        ContentDto contentDto = contentService.createContentDto(account, userInfo, contentId);
 
         //then
         Content content = contentRepository.findOne(contentId);
@@ -80,7 +80,7 @@ public class ContentServiceTest {
         Assertions.assertEquals(content.getInstagram(), contentDto.getInstagram(), "content로 생성한 contentDto의 Instagram은 동일해야 한다.");
         Assertions.assertEquals(content.getLocation(), contentDto.getLocation(), "content로 생성한 contentDto의 Location은 동일해야 한다.");
         Assertions.assertEquals(content.getOpeningHours(), contentDto.getOpeningHours(), "content로 생성한 contentDto의 OpeningHours은 동일해야 한다.");
-        Assertions.assertEquals(content.getAccount().getLastName(), contentDto.getUserInfo().getLastName(), "content로 생성한 contentDto의 user는 동일해야 한다.");
+        Assertions.assertEquals(content.getAccount().getLastName(), contentDto.getAuthorInfo().getLastName(), "content로 생성한 contentDto의 user는 동일해야 한다.");
     }
 
     @Test

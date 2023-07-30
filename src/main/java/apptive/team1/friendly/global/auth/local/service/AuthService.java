@@ -43,11 +43,8 @@ public class AuthService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
-        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         return LoginResponse.builder()
                 .accessToken(jwt)
-                .userId(account.getId())
                 .build();
     }
 }

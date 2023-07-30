@@ -39,10 +39,11 @@ public class ContentController {
      */
     @GetMapping("/curation/{contentId}")
     public ResponseEntity<ContentDto> contentDetail(@PathVariable("contentId") Long contentId) {
+        Account currentUser = userService.getCurrentUser();
         Content content = contentService.findOne(contentId);
-        UserInfo userInfo = userService.accountToPostOwnerInfo(content.getAccount());
+        UserInfo authorInfo = userService.accountToPostOwnerInfo(content.getAccount());
 
-        ContentDto contentDto = contentService.createContentDto(userInfo, contentId);
+        ContentDto contentDto = contentService.createContentDto(currentUser, authorInfo, contentId);
         return new ResponseEntity<>(contentDto, HttpStatus.OK);
     }
 

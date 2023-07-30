@@ -4,8 +4,10 @@ import apptive.team1.friendly.domain.curation.dto.ContentDto;
 import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
 import apptive.team1.friendly.domain.curation.dto.ContentListDto;
 import apptive.team1.friendly.domain.curation.entity.Content;
+import apptive.team1.friendly.domain.curation.entity.Heart;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
 import apptive.team1.friendly.domain.curation.repository.ContentRepository;
+import apptive.team1.friendly.domain.curation.repository.HeartRepository;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
@@ -15,12 +17,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ContentService {
     private final ContentRepository contentRepository;
+    private final HeartRepository heartRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     /**
@@ -41,12 +45,17 @@ public class ContentService {
     /**
      * 유저에게 보여줄 Content DTO 생성
      */
-    public ContentDto createContentDto(UserInfo userInfo, Long contentId) {
+    public ContentDto createContentDto(Account currentUser, UserInfo authorInfo, Long contentId) {
         Content content = contentRepository.findOne(contentId);
-        return ContentDto.create(content.getId(), userInfo, content.getTitle(), content.getImages(),
+
+        // 현재 로그인된 유저가 게시물에 대해 누른 좋아요 확인
+        Optional<Heart> heartByUserIdAndContentId = heartRepository.findHeartByUserIdAndContentId(currentUser.getId(), contentId);
+        boolean isCurrentUserPushLike = heartByUserIdAndContentId.isPresent();
+
+        return ContentDto.create(content.getId(), authorInfo, content.getTitle(), content.getImages(),
                 content.getLocation(), content.getInstagram(),
                 content.getOpeningHours(), content.getTel(),
-                content.getContent(), content.getHearts());
+                content.getContent(), content.getHearts().size(), isCurrentUserPushLike);
     }
 
     /**
