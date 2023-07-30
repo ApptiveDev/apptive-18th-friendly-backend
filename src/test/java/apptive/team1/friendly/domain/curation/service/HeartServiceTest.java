@@ -1,11 +1,11 @@
-package apptive.team1.friendly.domain.curating.service;
+package apptive.team1.friendly.domain.curation.service;
 
 import apptive.team1.friendly.global.TestMethods;
-import apptive.team1.friendly.domain.curating.dto.ContentFormDto;
-import apptive.team1.friendly.domain.curating.exception.CanNotDeleteHeartException;
-import apptive.team1.friendly.domain.curating.exception.CanNotPushHeartException;
-import apptive.team1.friendly.domain.curating.repository.ContentRepository;
-import apptive.team1.friendly.domain.curating.repository.HeartRepository;
+import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
+import apptive.team1.friendly.domain.curation.exception.CanNotDeleteHeartException;
+import apptive.team1.friendly.domain.curation.exception.CanNotPushHeartException;
+import apptive.team1.friendly.domain.curation.repository.ContentRepository;
+import apptive.team1.friendly.domain.curation.repository.HeartRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import org.junit.Test;

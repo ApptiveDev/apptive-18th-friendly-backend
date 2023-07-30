@@ -1,10 +1,13 @@
-package apptive.team1.friendly.domain.curating.dto;
+package apptive.team1.friendly.domain.curation.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Lob;
 
 @Data
+@NoArgsConstructor
 public class ContentFormDto {
     @Builder
     public ContentFormDto(String title, String location, String openingHours, String tel, String instagram, String content) {

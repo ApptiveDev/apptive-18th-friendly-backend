@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.curating.exception;
+package apptive.team1.friendly.domain.curation.exception;
 
 public class CanNotPushHeartException extends RuntimeException{
     public CanNotPushHeartException() {

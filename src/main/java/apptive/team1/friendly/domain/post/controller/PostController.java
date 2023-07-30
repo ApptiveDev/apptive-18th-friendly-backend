@@ -54,7 +54,6 @@ public class PostController extends ApiBase {
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
 
-
     /**
      * 게시물 삭제
      */
@@ -83,7 +82,6 @@ public class PostController extends ApiBase {
         Long updatedPostId = postService.updatePost(currentUser, postId, postForm, imageFiles);
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
-
 
     /**
      * 게시믈 리스트 검색

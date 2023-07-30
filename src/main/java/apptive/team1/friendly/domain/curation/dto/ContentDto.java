@@ -1,7 +1,7 @@
-package apptive.team1.friendly.domain.curating.dto;
+package apptive.team1.friendly.domain.curation.dto;
 
-import apptive.team1.friendly.domain.curating.entity.Heart;
-import apptive.team1.friendly.domain.curating.entity.Image;
+import apptive.team1.friendly.domain.curation.entity.Heart;
+import apptive.team1.friendly.domain.curation.entity.Image;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Builder;
 import lombok.Data;

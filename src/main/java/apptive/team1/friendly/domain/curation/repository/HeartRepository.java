@@ -1,6 +1,6 @@
-package apptive.team1.friendly.domain.curating.repository;
+package apptive.team1.friendly.domain.curation.repository;
 
-import apptive.team1.friendly.domain.curating.entity.Heart;
+import apptive.team1.friendly.domain.curation.entity.Heart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

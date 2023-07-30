@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.curating.exception;
+package apptive.team1.friendly.domain.curation.exception;
 
 public class CanNotDeleteHeartException extends RuntimeException{
     public CanNotDeleteHeartException() {

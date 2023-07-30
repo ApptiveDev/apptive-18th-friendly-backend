@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.curating.entity;
+package apptive.team1.friendly.domain.curation.entity;
 
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Getter;

@@ -1,7 +1,7 @@
-package apptive.team1.friendly.domain.curating.entity;
+package apptive.team1.friendly.domain.curation.entity;
 
-import apptive.team1.friendly.domain.curating.dto.ContentFormDto;
-import apptive.team1.friendly.domain.curating.exception.CanNotPushHeartException;
+import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
+import apptive.team1.friendly.domain.curation.exception.CanNotPushHeartException;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
@@ -42,7 +42,7 @@ public class Content extends BaseEntity {
     @Column(name = "content_id")
     private Long id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 

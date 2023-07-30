@@ -1,10 +1,10 @@
-package apptive.team1.friendly.domain.curating.service;
+package apptive.team1.friendly.domain.curation.service;
 
-import apptive.team1.friendly.domain.curating.dto.ContentDto;
-import apptive.team1.friendly.domain.curating.dto.ContentFormDto;
-import apptive.team1.friendly.domain.curating.entity.Content;
-import apptive.team1.friendly.domain.curating.entity.SearchBase;
-import apptive.team1.friendly.domain.curating.repository.ContentRepository;
+import apptive.team1.friendly.domain.curation.dto.ContentDto;
+import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
+import apptive.team1.friendly.domain.curation.entity.Content;
+import apptive.team1.friendly.domain.curation.entity.SearchBase;
+import apptive.team1.friendly.domain.curation.repository.ContentRepository;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
@@ -49,7 +49,7 @@ public class ContentServiceTest {
         contentService.addContent(account, contentForm2, imageFiles);
 
         //when
-        List<Content> contents = contentService.findAll(SearchBase.LATEST);
+        List<Content> contents = contentRepository.findAll(SearchBase.LATEST);
 
         //then
         Assertions.assertEquals(2, contents.size(),"게시물을 추가한 만큼 개수가 늘어야 한다.");

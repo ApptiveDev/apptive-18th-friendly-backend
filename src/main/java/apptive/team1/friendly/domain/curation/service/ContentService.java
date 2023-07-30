@@ -1,10 +1,11 @@
-package apptive.team1.friendly.domain.curating.service;
+package apptive.team1.friendly.domain.curation.service;
 
-import apptive.team1.friendly.domain.curating.dto.ContentDto;
-import apptive.team1.friendly.domain.curating.dto.ContentFormDto;
-import apptive.team1.friendly.domain.curating.entity.Content;
-import apptive.team1.friendly.domain.curating.entity.SearchBase;
-import apptive.team1.friendly.domain.curating.repository.ContentRepository;
+import apptive.team1.friendly.domain.curation.dto.ContentDto;
+import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
+import apptive.team1.friendly.domain.curation.dto.ContentListDto;
+import apptive.team1.friendly.domain.curation.entity.Content;
+import apptive.team1.friendly.domain.curation.entity.SearchBase;
+import apptive.team1.friendly.domain.curation.repository.ContentRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +25,9 @@ public class ContentService {
     /**
      * 전체 조회
      */
-    public List<Content> findAll(SearchBase searchBase) {
-        return contentRepository.findAll(searchBase);
+    public List<ContentListDto> findAll(String searchBase) {
+        List<Content> contents = contentRepository.findAll(SearchBase.valueOf(searchBase.toUpperCase()));
+        return ContentListDto.create(contents);
     }
 
     /**
