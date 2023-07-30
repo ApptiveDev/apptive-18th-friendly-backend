@@ -125,10 +125,10 @@ public class TourismBoardController extends ApiBase {
 
     @GetMapping("tourism/admin")
     public void SetTourismData() throws URISyntaxException, JsonProcessingException {
-        int deletedCount = tourismService.deleteAll();
-        System.out.println("deleted:" + deletedCount);
-        saveWalkingTravel(1);
-        saveThemeTravel(1);
+//        int deletedCount = tourismService.deleteAll();
+//        System.out.println("deleted:" + deletedCount);
+//        saveWalkingTravel(1);
+//        saveThemeTravel(1);
         saveFamousRestaurant(1);
     }
 }
