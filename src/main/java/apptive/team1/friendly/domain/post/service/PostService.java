@@ -58,7 +58,6 @@ public class PostService {
         return postRepository.findByUser(userId);
     }
 
-
     // CUD
     /**
      * 게시물 추가하기
@@ -85,7 +84,6 @@ public class PostService {
 
         return postRepository.delete(findPost);
     }
-
 
     /**
      * 게시물 수정(업데이트)
@@ -118,7 +116,6 @@ public class PostService {
         findPost.deleteParticipant(currentUser);
     }
 
-
     /**
      * DTO 설정 메소드
      */
@@ -127,7 +124,6 @@ public class PostService {
         return PostDto.createPostDto(findPost, userInfo);
     }
 
-
     /**
      * 수정 화면을 보여주기 위해 현재 게시물의 내용을 PostFormDto에 담아서 반환
      */
@@ -135,6 +131,4 @@ public class PostService {
         Post post = postRepository.findOneByPostId(postId);
         return PostFormDto.createPostFormDto(post);
     }
-
-
 }

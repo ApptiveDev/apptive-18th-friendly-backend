@@ -88,6 +88,8 @@ public class PostDto {
                 .promiseTime(findPost.getPromiseTime())
                 .audioGuide(findPost.getAudioGuide())
                 .comments(commentDtos)
+                .postImage(findPost.getPostImages())
+                .location(findPost.getLocation())
                 .build();
     }
 }

@@ -1,4 +1,5 @@
-package apptive.team1.friendly.PostService;
+package apptive.team1.friendly.domain.post.service;
+
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
@@ -9,11 +10,11 @@ import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
 import apptive.team1.friendly.domain.post.exception.NotParticipantException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
+import apptive.team1.friendly.global.TestMethods;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,12 +52,14 @@ public class PostServiceTest {
     AccountRepository accountRepository;
     @Autowired
     EntityManager em;
+    @Autowired
+    TestMethods tm;
 
     @Test
     public void 게시물_추가() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto newPostForm = createPostForm("title", 5, "add test", "location");
 
         // when
@@ -70,8 +72,8 @@ public class PostServiceTest {
     @Test
     public void 게시물_리스트_조회() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createPostForm("title", 5, "add", "location");
         postService.addPost(account, postFormDto1, files);
@@ -87,13 +89,13 @@ public class PostServiceTest {
     @Test
     public void 게시물_상세_조회() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         UserInfo userInfo = UserInfo.builder()
                 .gender(account.getGender())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
                 .build();
-        List<MultipartFile> files = createImageFiles();
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         Long postId = postService.addPost(account, postFormDto, files);
 
@@ -109,8 +111,8 @@ public class PostServiceTest {
     @Test
     public void 게시물_삭제() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         Long addPostId = postService.addPost(account, postFormDto, files);
 
@@ -125,8 +127,8 @@ public class PostServiceTest {
     @Test
     public void 게시물_업데이트() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         PostFormDto updateFormDto = createUpdatePostForm();
         MockMultipartFile file
@@ -154,10 +156,10 @@ public class PostServiceTest {
     @Test(expected = AccessDeniedException.class)
     public void 게시물_삭제_권한_테스트() throws Exception {
         //given
-        Account author = createAccount("ABC@gmail.com", "A", "BC");
-        Account account = createAccount("CD@gamil.com", "C", "D");
+        Account author = tm.createAccount("ABC@gmail.com", "A", "BC");
+        Account account = tm.createAccount("CD@gamil.com", "C", "D");
         PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long postId = postService.addPost(author, postForm, imageFiles);
 
         //when
@@ -170,10 +172,10 @@ public class PostServiceTest {
     @Test(expected = AccessDeniedException.class)
     public void 게시물_수정_권한_테스트() throws Exception {
         //given
-        Account author = createAccount("ABC@gmail.com", "A", "BC");
-        Account account = createAccount("CD@gamil.com", "C", "D");
+        Account author = tm.createAccount("ABC@gmail.com", "A", "BC");
+        Account account = tm.createAccount("CD@gamil.com", "C", "D");
         PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
-        List<MultipartFile> imageFiles = createImageFiles();
+        List<MultipartFile> imageFiles = tm.createImageFiles();
         Long postId = postService.addPost(author, postForm, imageFiles);
 
         //when
@@ -186,8 +188,8 @@ public class PostServiceTest {
     @Test
     public void 사진_삭제_테스트() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add test", "location");
         PostFormDto updateFormDto = createUpdatePostForm();
         Long postId = postService.addPost(account, postFormDto, files);
@@ -206,8 +208,8 @@ public class PostServiceTest {
     @Test
     public void 유저_작성한_게시물_조회() throws IOException {
         // given
-        Account account = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createPostForm("title2", 3, "add2", "location2");
 
@@ -224,12 +226,12 @@ public class PostServiceTest {
     @Test
     public void 같이가요_참가신청_테스트() throws Exception {
         //given
-        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         Long postId = postService.addPost(postOwner, postFormDto, files);
 
-        Account participant = createAccount("participant@gmail.com","A" , "B");
+        Account participant = tm.createAccount("participant@gmail.com","A" , "B");
 
         //when
         postService.applyJoin(participant, postId);
@@ -246,14 +248,14 @@ public class PostServiceTest {
     public void 인원초과_테스트() throws Exception {
         //given
         // 게시물 생성
-        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
-        List<MultipartFile> files = createImageFiles();
+        List<MultipartFile> files = tm.createImageFiles();
         Long postId = postService.addPost(postOwner, postFormDto, files);
 
         // 참여자 목록
-        Account participant = createAccount("participant@gmail.com","A" , "B");
-        Account participant2 = createAccount("participant2@gmail.com","C" , "D");
+        Account participant = tm.createAccount("participant@gmail.com","A" , "B");
+        Account participant2 = tm.createAccount("participant2@gmail.com","C" , "D");
 
         //when
         // 참여 신청
@@ -268,13 +270,13 @@ public class PostServiceTest {
     public void 같이가요_참가취소_테스트() throws Exception {
         //given
         // 게시물 추가
-        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
-        List<MultipartFile> files = createImageFiles();
+        Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         Long postId = postService.addPost(postOwner, postFormDto, files);
 
         // 참여 신청
-        Account participant = createAccount("participant@gmail.com","A" , "B");
+        Account participant = tm.createAccount("participant@gmail.com","A" , "B");
         postService.applyJoin(participant, postId);
 
         //when
@@ -291,14 +293,14 @@ public class PostServiceTest {
     public void 취소_예외() throws Exception {
         //given
         // 게시물 생성
-        Account postOwner = createAccount("TestAccount@gmail.com", "KIM", "MW");
+        Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
-        List<MultipartFile> files = createImageFiles();
+        List<MultipartFile> files = tm.createImageFiles();
         Long postId = postService.addPost(postOwner, postFormDto, files);
 
         // 참여자 목록
-        Account participant = createAccount("participant@gmail.com","A" , "B");
-        Account participant2 = createAccount("participant2@gmail.com","C" , "D");
+        Account participant = tm.createAccount("participant@gmail.com","A" , "B");
+        Account participant2 = tm.createAccount("participant2@gmail.com","C" , "D");
 
         // 참여 신청
         postService.applyJoin(participant, postId);
@@ -310,15 +312,6 @@ public class PostServiceTest {
         fail("참여자가 아닌 이용자는 참가 취소를 할 수 없다.");
     }
 
-
-    private Account createAccount(String email, String firstName, String lastName) {
-        Account account = new Account();
-        account.setEmail(email);
-        account.setFirstName(firstName);
-        account.setLastName(lastName);
-        accountRepository.save(account);
-        return account;
-    }
 
     private PostFormDto createPostForm(String title, int maxPeople, String description, String location) {
         Set<String> rules = new HashSet<>();
@@ -342,26 +335,6 @@ public class PostServiceTest {
         return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDateTime.now(), "updated location", rules, audioGuide);
     }
 
-    private List<MultipartFile> createImageFiles() throws IOException {
-        List<MultipartFile> files = new ArrayList<>();
-        MockMultipartFile file
-                = new MockMultipartFile(
-                "bus",
-                "bus.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/bus.jpg"))
-        );
-        MockMultipartFile file2
-                = new MockMultipartFile(
-                "zidane",
-                "zidane.jpeg",
-                MediaType.IMAGE_JPEG_VALUE,
-                new FileInputStream(new File("src/test/resources/zidane.jpg"))
-        );
-        files.add(file);
-        files.add(file2);
-        return files;
-    }
 
     //    @Test
 //    public void cascade_옵션_테스트() {
