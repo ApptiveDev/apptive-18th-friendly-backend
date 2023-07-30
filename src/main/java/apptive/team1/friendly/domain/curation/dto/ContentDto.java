@@ -3,6 +3,7 @@ package apptive.team1.friendly.domain.curation.dto;
 import apptive.team1.friendly.domain.curation.entity.Heart;
 import apptive.team1.friendly.domain.curation.entity.Image;
 import apptive.team1.friendly.domain.user.data.dto.ImageDto;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Builder;
 import lombok.Data;
@@ -16,17 +17,22 @@ import java.util.List;
 @Data
 public class ContentDto {
     @Builder
-    public ContentDto(Long id, Account author, String title, List<Image> images, String location, String openingHours,
+    public ContentDto(Long id, UserInfo userInfo, String title, List<Image> images, String location, String openingHours,
                       String tel, String instagram, String content, List<Heart> hearts) {
         this.id = id;
-        this.author = author;
+        this.userInfo = userInfo;
         this.title = title;
         this.location = location;
         this.openingHours = openingHours;
         this.tel = tel;
         this.instagram = instagram;
         this.content = content;
-        this.hearts = hearts;
+
+        for (Heart heart : hearts) {
+            HeartDto heartDto = new HeartDto(heart.getId(), heart.getAccount().getId());
+            this.hearts.add(heartDto);
+        }
+
         for (Image image : images) {
             ImageDto imageDto = new ImageDto(image.getOriginalFileName(), image.getUploadFileName(),
                     image.getUploadFilePath(), image.getUploadFileUrl());
@@ -36,7 +42,7 @@ public class ContentDto {
 
     private Long id;
 
-    private Account author;
+    private UserInfo userInfo;
 
     private String title;
 
@@ -54,15 +60,15 @@ public class ContentDto {
     @Lob
     private String content;
 
-    private List<Heart> hearts;
+    private List<HeartDto> hearts = new ArrayList<>();
 
     //==정적 생성 메서드==//
-    public static ContentDto create(Long id, Account author, String title, List<Image> images,
+    public static ContentDto create(Long id, UserInfo userInfo, String title, List<Image> images,
                               String location, String instagram,
                               String openingHours, String tel, String content, List<Heart> hearts) {
         return ContentDto.builder()
                 .id(id)
-                .author(author)
+                .userInfo(userInfo)
                 .content(content)
                 .instagram(instagram)
                 .images(images)

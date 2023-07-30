@@ -3,8 +3,10 @@ package apptive.team1.friendly.domain.curation.controller;
 import apptive.team1.friendly.domain.curation.dto.ContentDto;
 import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
 import apptive.team1.friendly.domain.curation.dto.ContentListDto;
+import apptive.team1.friendly.domain.curation.entity.Content;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
 import apptive.team1.friendly.domain.curation.service.ContentService;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +39,10 @@ public class ContentController {
      */
     @GetMapping("/curation/{contentId}")
     public ResponseEntity<ContentDto> contentDetail(@PathVariable("contentId") Long contentId) {
-        ContentDto contentDto = contentService.createContentDto(contentId);
+        Content content = contentService.findOne(contentId);
+        UserInfo userInfo = userService.accountToPostOwnerInfo(content.getAccount());
+
+        ContentDto contentDto = contentService.createContentDto(userInfo, contentId);
         return new ResponseEntity<>(contentDto, HttpStatus.OK);
     }
 

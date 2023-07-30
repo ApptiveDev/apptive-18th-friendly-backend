@@ -6,8 +6,10 @@ import apptive.team1.friendly.domain.curation.entity.Content;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
 import apptive.team1.friendly.domain.curation.repository.ContentRepository;
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
+import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.TestMethods;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -29,6 +31,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ContentServiceTest {
     @Autowired
     ContentService contentService;
+    @Autowired
+    UserService userService;
     @Autowired
     ContentRepository contentRepository;
     @Autowired
@@ -62,9 +66,9 @@ public class ContentServiceTest {
         ContentFormDto contentForm = createContentForm("test Title", "location", "11:00~12:00", "010-0000-0000", "instagram", "contents");
         List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
-
+        UserInfo userInfo = userService.accountToPostOwnerInfo(account);
         //when
-        ContentDto contentDto = contentService.createContentDto(contentId);
+        ContentDto contentDto = contentService.createContentDto(userInfo, contentId);
 
         //then
         Content content = contentRepository.findOne(contentId);
@@ -76,7 +80,7 @@ public class ContentServiceTest {
         Assertions.assertEquals(content.getInstagram(), contentDto.getInstagram(), "content로 생성한 contentDto의 Instagram은 동일해야 한다.");
         Assertions.assertEquals(content.getLocation(), contentDto.getLocation(), "content로 생성한 contentDto의 Location은 동일해야 한다.");
         Assertions.assertEquals(content.getOpeningHours(), contentDto.getOpeningHours(), "content로 생성한 contentDto의 OpeningHours은 동일해야 한다.");
-        Assertions.assertEquals(content.getAccount().getId(), contentDto.getAuthor().getId(), "content로 생성한 contentDto의 user는 동일해야 한다.");
+        Assertions.assertEquals(content.getAccount().getLastName(), contentDto.getUserInfo().getLastName(), "content로 생성한 contentDto의 user는 동일해야 한다.");
     }
 
     @Test

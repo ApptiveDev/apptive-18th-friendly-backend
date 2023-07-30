@@ -27,6 +27,8 @@ public class ContentRepository {
     }
 
     public Content findOne(Long contentId) {
-        return em.find(Content.class, contentId);
+        return em.createQuery("select distinct c from Content c join fetch c.account left join fetch c.images where c.id = :contentId", Content.class)
+                .setParameter("contentId", contentId)
+                .getSingleResult();
     }
 }

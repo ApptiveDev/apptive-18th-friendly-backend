@@ -1,13 +1,18 @@
 package apptive.team1.friendly.global.auth.local.service;
 
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.auth.local.dto.LoginResponse;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.jwt.JwtTokenProvider;
+import apptive.team1.friendly.global.error.ErrorCode;
+import apptive.team1.friendly.global.error.exception.CustomException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -38,8 +43,11 @@ public class AuthService {
 
         String jwt = jwtTokenProvider.createToken(authentication);
 
+        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         return LoginResponse.builder()
                 .accessToken(jwt)
+                .userId(account.getId())
                 .build();
     }
 }

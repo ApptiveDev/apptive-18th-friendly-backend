@@ -6,6 +6,7 @@ import apptive.team1.friendly.domain.curation.dto.ContentListDto;
 import apptive.team1.friendly.domain.curation.entity.Content;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
 import apptive.team1.friendly.domain.curation.repository.ContentRepository;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,9 @@ public class ContentService {
     /**
      * 유저에게 보여줄 Content DTO 생성
      */
-    public ContentDto createContentDto(Long contentId) {
+    public ContentDto createContentDto(UserInfo userInfo, Long contentId) {
         Content content = contentRepository.findOne(contentId);
-        return ContentDto.create(content.getId(), content.getAccount(), content.getTitle(), content.getImages(),
+        return ContentDto.create(content.getId(), userInfo, content.getTitle(), content.getImages(),
                 content.getLocation(), content.getInstagram(),
                 content.getOpeningHours(), content.getTel(),
                 content.getContent(), content.getHearts());

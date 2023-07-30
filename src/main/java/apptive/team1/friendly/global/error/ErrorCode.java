@@ -22,7 +22,6 @@ public enum ErrorCode {
 
     /* 404 NOT_FOUND : Resource 를 찾을 수 없음 */
     QUESTION_NOT_FOUND(NOT_FOUND, "존재하지 않는 카테고리 입니다."),
-    WINE_NOT_FOUND(NOT_FOUND, "해당 와인을 찾을 수 없습니다."),
     IMAGE_NOT_FOUND(NOT_FOUND, "해당 이미지를 찾을 수 없습니다"),
     MEMBER_NOT_FOUND(NOT_FOUND, "해당 유저 정보를 찾을 수 없습니다"),
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
