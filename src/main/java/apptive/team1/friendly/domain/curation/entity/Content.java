@@ -42,7 +42,7 @@ public class Content extends BaseEntity {
     @Column(name = "content_id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 

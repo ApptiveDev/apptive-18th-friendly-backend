@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.curation.dto;
 
 import apptive.team1.friendly.domain.curation.entity.Heart;
 import apptive.team1.friendly.domain.curation.entity.Image;
+import apptive.team1.friendly.domain.user.data.dto.ImageDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +10,7 @@ import lombok.Data;
 import javax.persistence.CascadeType;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,13 +21,17 @@ public class ContentDto {
         this.id = id;
         this.author = author;
         this.title = title;
-        this.images = images;
         this.location = location;
         this.openingHours = openingHours;
         this.tel = tel;
         this.instagram = instagram;
         this.content = content;
         this.hearts = hearts;
+        for (Image image : images) {
+            ImageDto imageDto = new ImageDto(image.getOriginalFileName(), image.getUploadFileName(),
+                    image.getUploadFilePath(), image.getUploadFileUrl());
+            this.images.add(imageDto);
+        }
     }
 
     private Long id;
@@ -35,7 +41,7 @@ public class ContentDto {
     private String title;
 
     @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> images;
+    private List<ImageDto> images = new ArrayList<>();
 
     private String location;
 

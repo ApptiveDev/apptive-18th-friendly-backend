@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.curation.repository;
 
 import apptive.team1.friendly.domain.curation.entity.Content;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -21,7 +22,7 @@ public class ContentRepository {
     }
 
     public List<Content> findAll(SearchBase searchBase) {
-        return em.createQuery("select c from Content c join fetch c.images join fetch c.account order by c.createdDate", Content.class)
+        return em.createQuery("select c from Content c join fetch c.images order by c.createdDate", Content.class)
                 .getResultList();
     }
 
