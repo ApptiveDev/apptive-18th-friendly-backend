@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.post.service;
 
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
+import apptive.team1.friendly.domain.post.dto.PostListDto;
 import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.AccountType;
 import apptive.team1.friendly.domain.post.entity.HashTag;
@@ -31,6 +32,7 @@ import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +72,7 @@ public class PostServiceTest {
     }
 
     @Test
-    public void 게시물_리스트_조회() throws IOException {
+    public void 게시물_전체_조회() throws IOException {
         // given
         Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         List<MultipartFile> files = tm.createImageFiles();
@@ -80,10 +82,65 @@ public class PostServiceTest {
         postService.addPost(account, postFormDto2, files);
 
         // when
-        List<Post> posts = postRepository.findAll();
+        List<PostListDto> postListDtos = postService.findAll(null, null);
 
         // then
-        Assert.assertEquals("추가한 게시물만큼 개수가 늘어야 한다.", 2, posts.size());
+        Assert.assertEquals("추가한 게시물만큼 개수가 늘어야 한다.", 2, postListDtos.size());
+    }
+
+    @Test
+    public void 게시물_해시태그_조회() throws Exception {
+        //given
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
+        PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
+        PostFormDto postFormDto2 = createUpdatePostForm();
+        postService.addPost(account, postFormDto1, files);
+        postService.addPost(account, postFormDto2, files);
+
+        //when
+        List<PostListDto> postListDtos = postService.findAll("famous", null);
+
+        //then
+        Assert.assertEquals("추가한 게시물 중 해시태그로 필터해서 검색한다.", 1, postListDtos.size());
+    }
+
+    @Test
+    public void 게시물_키워드_조회() throws Exception {
+        //given
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
+        PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
+        PostFormDto postFormDto2 = createUpdatePostForm();
+        PostFormDto postFormDto3 = createUpdatePostForm();
+        postService.addPost(account, postFormDto1, files);
+        postService.addPost(account, postFormDto2, files);
+        postService.addPost(account, postFormDto3, files);
+
+        //when
+        List<PostListDto> postListDtos = postService.findAll(null, "updated");
+
+        //then
+        Assert.assertEquals("추가한 게시물 중 keyword로 필터해서 검색한다.", 2, postListDtos.size());
+    }
+
+    @Test
+    public void 게시물_키워드_해시태그_조회() throws Exception {
+        //given
+        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+        List<MultipartFile> files = tm.createImageFiles();
+        PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
+        PostFormDto postFormDto2 = createUpdatePostForm();
+        PostFormDto postFormDto3 = createUpdatePostForm();
+        postService.addPost(account, postFormDto1, files);
+        postService.addPost(account, postFormDto2, files);
+        postService.addPost(account, postFormDto3, files);
+
+        //when
+        List<PostListDto> postListDtos = postService.findAll("life", "updated");
+
+        //then
+        Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 2, postListDtos.size());
     }
 
     @Test
@@ -121,7 +178,7 @@ public class PostServiceTest {
 
         // then
         Assert.assertEquals("추가한 게시물과 삭제한 게시물의 아이디가 같아야 한다.", addPostId, deletePostId);
-        Assert.assertEquals("삭제 후 게시물 개수는 줄어들어야 한다.", 0, postRepository.findAll().size());
+        Assert.assertEquals("삭제 후 게시물 개수는 줄어들어야 한다.", 0, postRepository.findAll(null, null).size());
     }
 
     @Test
@@ -321,7 +378,7 @@ public class PostServiceTest {
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
         AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto(title, hashTag, maxPeople, description, LocalDateTime.now(), location, rules, audioGuide);
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.now(), location, rules, audioGuide);
     }
 
     private PostFormDto createUpdatePostForm() {
@@ -332,7 +389,7 @@ public class PostServiceTest {
         hashTag.add(NATIVE);
         hashTag.add(FAMOUS);
         AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDateTime.now(), "updated location", rules, audioGuide);
+        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules, audioGuide);
     }
 
 

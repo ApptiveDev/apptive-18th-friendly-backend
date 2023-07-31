@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -30,12 +31,14 @@ public class Post extends BaseEntity {
 
     @Builder
     public Post(String title, String description, int maxPeople,
-                LocalDateTime promiseTime, String location, Set<String> rules,
+                LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
                 Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
-        this.promiseTime = promiseTime;
+//        this.promiseTime = promiseTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.location = location;
         this.rules = rules;
         this.hashTags = hashTags;
@@ -63,6 +66,12 @@ public class Post extends BaseEntity {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promiseTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     private String location;
 
@@ -125,7 +134,9 @@ public class Post extends BaseEntity {
         this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
         this.description = formDto.getDescription();
-        this.promiseTime = formDto.getPromiseTime();
+//        this.promiseTime = formDto.getPromiseTime();
+        this.startDate = formDto.getStartDate();
+        this.endDate = formDto.getEndDate();
         this.location = formDto.getLocation();
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
@@ -203,7 +214,9 @@ public class Post extends BaseEntity {
                 .createdDate(LocalDateTime.now())
                 .maxPeople(formDto.getMaxPeople())
                 .title(formDto.getTitle())
-                .promiseTime(formDto.getPromiseTime())
+//                .promiseTime(formDto.getPromiseTime())
+                .startDate(formDto.getStartDate())
+                .endDate(formDto.getEndDate())
                 .description(formDto.getDescription())
                 .location(formDto.getLocation())
                 .hashTags(formDto.getHashTags())

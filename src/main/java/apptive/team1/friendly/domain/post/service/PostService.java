@@ -24,23 +24,8 @@ public class PostService {
     /**
      * 모든 게시물 찾아서 PostList DTO로 변환
      */
-    public List<PostListDto> findAll() {
-        List<Post> posts = postRepository.findAll();
-        return PostListDto.createPostListDto(posts);
-    }
-    /**
-     * 해당 HashTag 게시물 찾아서 PostList DTO로 변환
-     */
-    public List<PostListDto> findByHashTag(String tag) {
-        List<Post> posts = postRepository.findByHashTag(tag);
-        return PostListDto.createPostListDto(posts);
-    }
-
-    /**
-     * 키워드로 게시물 검색
-     */
-    public List<PostListDto> findByKeyword(String keyword) {
-        List<Post> posts = postRepository.findByKeyword(keyword);
+    public List<PostListDto> findAll(String tag, String keyword) {
+        List<Post> posts = postRepository.findAll(tag, keyword);
         return PostListDto.createPostListDto(posts);
     }
 

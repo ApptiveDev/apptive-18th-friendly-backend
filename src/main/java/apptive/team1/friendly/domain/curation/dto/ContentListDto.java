@@ -18,8 +18,8 @@ public class ContentListDto {
         }
     }
 
+//    private List<ImageDto> images = new ArrayList<>();
     private List<ImageDto> images = new ArrayList<>();
-
     public static List<ContentListDto> create(List<Content> contents) {
         List<ContentListDto> contentListDtos = new ArrayList<>();
         for (Content content : contents) {
