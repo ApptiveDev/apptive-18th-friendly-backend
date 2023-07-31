@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class CommentController {
     private final CommentService commentService;
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<Long> addComment(@PathVariable(value = "postId") Long postId, @RequestBody CommentFormDto commentFormDto) {
-        Long commentId = commentService.addComment(commentFormDto, postId);
+    public ResponseEntity<Long> addComment(@PathVariable(value = "postId") Long postId, @RequestBody CommentFormDto comment) {
+        Long commentId = commentService.addComment(comment, postId);
         return new ResponseEntity<>(commentId, HttpStatus.OK);
     }
 
