@@ -87,27 +87,8 @@ public class PostController extends ApiBase {
      * 게시믈 리스트 검색
      */
     @GetMapping("/posts" )
-    public ResponseEntity<List<PostListDto>> postListByHashTag(@RequestParam(required = false)String tag) {
-        List<PostListDto> postListDtos;
-        if(tag == null) {
-            postListDtos = postService.findAll();
-        }
-        else {
-            tag = tag.toUpperCase();
-            postListDtos = postService.findByHashTag(tag);
-        }
-        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
-    }
-
-    @GetMapping("/posts/search" )
-    public ResponseEntity<List<PostListDto>> postListByKeyword(@RequestParam(required = false)String keyword) {
-        List<PostListDto> postListDtos;
-        if(keyword == null) {
-            postListDtos = postService.findAll();
-        }
-        else {
-            postListDtos = postService.findByKeyword(keyword);
-        }
+    public ResponseEntity<List<PostListDto>> postList(@RequestParam(required = false) String tag, @RequestParam(required = false) String keyword) {
+        List<PostListDto> postListDtos = postService.findAll(tag, keyword);
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 

@@ -50,27 +50,26 @@ public class PostRepository {
     /**
      * 전체 게시물 조회
      */
-    public List<Post> findAll() {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags", Post.class)
-                .getResultList();
-    }
-
-    /**
-     * 해시태그로 게시물 조회
-     */
-    public List<Post> findByHashTag(String tag) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
-                .setParameter("tag", HashTag.valueOf(tag))
-                .getResultList();
-    }
-
-    /**
-     * 제목으로 게시물 조회
-     */
-    public List<Post> findByKeyword(String keyword) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
-                .setParameter("keyword", "%"+keyword+"%")
-                .getResultList();
+    public List<Post> findAll(String tag, String keyword) {
+        if(tag == null && keyword == null)
+            return em.createQuery("select distinct p from Post p join fetch p.hashTags", Post.class)
+                    .getResultList();
+        else if(tag == null) {
+            return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+                    .setParameter("keyword", "%"+keyword+"%")
+                    .getResultList();
+        }
+        else if(keyword == null) {
+            return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+                    .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
+                    .getResultList();
+        }
+        else {
+            return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags and p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+                    .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
+                    .setParameter("keyword", "%"+keyword+"%")
+                    .getResultList();
+        }
     }
 
 //    /**
