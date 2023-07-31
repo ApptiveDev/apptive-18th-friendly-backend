@@ -8,6 +8,12 @@ import java.time.LocalDateTime;
 @Data
 public class CommentDto {
 
+    public CommentDto(String username, String text, LocalDateTime createTime) {
+        this.username = username;
+        this.text = text;
+        this.createTime = createTime;
+    }
+
     private String username;
 
     private String text;

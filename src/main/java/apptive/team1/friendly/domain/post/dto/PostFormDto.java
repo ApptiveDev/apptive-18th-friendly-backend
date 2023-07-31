@@ -5,12 +5,13 @@ import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@NoArgsConstructor
 public class PostFormDto {
 
     /**
@@ -18,13 +19,15 @@ public class PostFormDto {
      */
     @Builder
     public PostFormDto(String title, Set<HashTag> hashTags, int maxPeople, String description,
-                       LocalDateTime promiseTime, String location,
+                       LocalDate startDate, LocalDate endDate, String location,
                        Set<String> rules, AudioGuide audioGuide) {
         this.title = title;
         this.hashTags = hashTags;
         this.maxPeople = maxPeople;
         this.description = description;
-        this.promiseTime = promiseTime;
+//        this.promiseTime = promiseTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.location = location;
         this.rules = rules;
         this.audioGuide = audioGuide;
@@ -38,8 +41,14 @@ public class PostFormDto {
 
     private String description;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime promiseTime;
+//    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+//    private LocalDateTime promiseTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     private String location;
 
@@ -54,7 +63,9 @@ public class PostFormDto {
                 .hashTags(post.getHashTags())
                 .description(post.getDescription())
                 .maxPeople(post.getMaxPeople())
-                .promiseTime(post.getPromiseTime())
+//                .promiseTime(post.getPromiseTime())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
                 .location(post.getLocation())
                 .build();
     }
