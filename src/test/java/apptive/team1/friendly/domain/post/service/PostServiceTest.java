@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -377,7 +378,7 @@ public class PostServiceTest {
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
         AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto(title, hashTag, maxPeople, description, LocalDateTime.now(), location, rules, audioGuide);
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.now(), location, rules, audioGuide);
     }
 
     private PostFormDto createUpdatePostForm() {
@@ -388,7 +389,7 @@ public class PostServiceTest {
         hashTag.add(NATIVE);
         hashTag.add(FAMOUS);
         AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDateTime.now(), "updated location", rules, audioGuide);
+        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules, audioGuide);
     }
 
 

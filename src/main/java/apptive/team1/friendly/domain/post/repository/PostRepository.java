@@ -42,7 +42,7 @@ public class PostRepository {
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.id =: postId", Post.class)
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
     }
@@ -52,20 +52,20 @@ public class PostRepository {
      */
     public List<Post> findAll(String tag, String keyword) {
         if(tag == null && keyword == null)
-            return em.createQuery("select distinct p from Post p join fetch p.hashTags", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags", Post.class)
                     .getResultList();
         else if(tag == null) {
-            return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();
         }
         else if(keyword == null) {
-            return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+            return em.createQuery("select distinct p from Post p join left fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .getResultList();
         }
         else {
-            return em.createQuery("select distinct p from Post p join fetch p.hashTags where :tag MEMBER OF p.hashTags and p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();

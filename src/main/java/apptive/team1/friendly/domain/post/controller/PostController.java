@@ -71,7 +71,7 @@ public class PostController extends ApiBase {
      * 게시물 수정
      */
     @GetMapping("/posts/{postId}/edit") // 업데이트 페이지 화면 구성
-    public ResponseEntity<PostFormDto> updatePost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<PostFormDto> updatePostForm(@PathVariable("postId") Long postId) {
         PostFormDto updateForm = postService.getUpdateForm(postId);
         return ResponseEntity.status(HttpStatus.OK).body(updateForm);
     }
