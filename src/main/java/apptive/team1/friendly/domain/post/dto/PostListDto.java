@@ -49,6 +49,7 @@ public class PostListDto {
     }
 
     public static List<PostListDto> createPostListDto(List<Post> posts) {
+
         List<PostListDto> postListDtos = new ArrayList<>();
         for(Post post : posts) {
             PostListDto postListDto = PostListDto.builder()
@@ -60,6 +61,7 @@ public class PostListDto {
                     .description(post.getDescription())
                     .location(post.getLocation())
                     .build();
+
             // 대표 이미지 설정
             if(post.getPostImages().size() > 0) {
                 PostImageDto postImageDto = PostImageDto.builder()
@@ -71,7 +73,9 @@ public class PostListDto {
                 postListDto.setPostImageDto(postImageDto);
             }
             postListDtos.add(postListDto);
+
         }
+
         return postListDtos;
     }
 }

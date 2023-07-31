@@ -60,7 +60,7 @@ public class PostRepository {
                     .getResultList();
         }
         else if(keyword == null) {
-            return em.createQuery("select distinct p from Post p join left fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .getResultList();
         }
