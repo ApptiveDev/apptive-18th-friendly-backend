@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.user.data.dto;
+package apptive.team1.friendly.global.common.s3;
 
 import lombok.Builder;
 import lombok.Data;

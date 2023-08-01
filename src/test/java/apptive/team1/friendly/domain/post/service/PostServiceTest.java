@@ -378,7 +378,7 @@ public class PostServiceTest {
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
         AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.now(), location, rules, audioGuide);
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.of(2023,8,30), location, rules, audioGuide);
     }
 
     private PostFormDto createUpdatePostForm() {
