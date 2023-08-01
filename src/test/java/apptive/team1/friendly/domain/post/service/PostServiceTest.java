@@ -138,9 +138,11 @@ public class PostServiceTest {
 
         //when
         List<PostListDto> postListDtos = postService.findAll("life", "updated");
+        List<PostListDto> postListDtos2 = postService.findAll("famous", "title");
 
         //then
         Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 2, postListDtos.size());
+        Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 0, postListDtos2.size());
     }
 
     @Test
