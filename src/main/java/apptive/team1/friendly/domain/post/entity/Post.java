@@ -116,11 +116,9 @@ public class Post extends BaseEntity {
      * 이미지 리스트를 서버에 업로드 및 게시물에 추가
      */
     public void uploadImages(List<MultipartFile> multipartFiles, AwsS3Uploader awsS3Uploader) throws IOException {
-        if(multipartFiles.size() > 0) {
-            for(MultipartFile multipartFile : multipartFiles) {
-                FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ this.getId().toString());
-                addImage(uploadFile);
-            }
+        for(MultipartFile multipartFile : multipartFiles) {
+            FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ this.getId().toString());
+            addImage(uploadFile);
         }
     }
 

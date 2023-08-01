@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,8 +28,12 @@ public class PostListDto {
 
     private int maxPeople;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime promiseTime;
+//    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+//    private LocalDateTime promiseTime;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
 
     private String location;
 
@@ -37,12 +42,14 @@ public class PostListDto {
     private Set<HashTag> hashTags = new HashSet<>();
 
     @Builder
-    public PostListDto(Long postId, PostImageDto postImageDto, String title, int maxPeople, LocalDateTime promiseTime, String location, String description, Set<HashTag> hashTags) {
+    public PostListDto(Long postId, PostImageDto postImageDto, String title, int maxPeople, LocalDate startDate, LocalDate endDate, String location, String description, Set<HashTag> hashTags) {
         this.postId = postId;
         this.postImageDto = postImageDto;
         this.title = title;
         this.maxPeople = maxPeople;
-        this.promiseTime = promiseTime;
+//        this.promiseTime = promiseTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.location = location;
         this.description = description;
         this.hashTags = hashTags;
@@ -57,7 +64,9 @@ public class PostListDto {
                     .title(post.getTitle())
                     .maxPeople(post.getMaxPeople())
                     .hashTags(post.getHashTags())
-                    .promiseTime(post.getPromiseTime())
+//                    .promiseTime(post.getPromiseTime())
+                    .startDate(post.getStartDate())
+                    .endDate(post.getEndDate())
                     .description(post.getDescription())
                     .location(post.getLocation())
                     .build();
