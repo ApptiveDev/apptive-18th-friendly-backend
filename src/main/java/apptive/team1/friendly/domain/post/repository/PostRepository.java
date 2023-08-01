@@ -65,7 +65,7 @@ public class PostRepository {
                     .getResultList();
         }
         else {
-            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and (p.title like :keyword or p.description like :keyword or p.location like :keyword)", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();

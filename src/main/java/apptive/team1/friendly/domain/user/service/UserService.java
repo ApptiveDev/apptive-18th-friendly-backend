@@ -311,25 +311,25 @@ public class UserService {
         }
 
         // nation 설정
+        NationDto nationDto = new NationDto();
         if(nationOptional.isPresent()) {
             AccountNation accountNation = nationOptional.get();
-            NationDto nationDto = new NationDto();
             nationDto.setCity(accountNation.getCity());
             nationDto.setName(accountNation.getNation().getName());
-            userInfo.setNationDto(nationDto);
         }
+        userInfo.setNationDto(nationDto);
 
         // profileDto 설정
+        ProfileImgDto profileImgDto = new ProfileImgDto();
         if(profileImgOptional.isPresent()) {
             ProfileImg profileImg = profileImgOptional.get();
-            ProfileImgDto profileImgDto = new ProfileImgDto();
             profileImgDto.setEmail(profileImg.getAccount().getEmail());
             profileImgDto.setUploadFileName(profileImg.getUploadFileName());
             profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
             profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
             profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
-            userInfo.setProfileImgDto(profileImgDto);
         }
+        userInfo.setProfileImgDto(profileImgDto);
 
         userInfo.setFirstName(postOwner.getFirstName());
         userInfo.setLastName(postOwner.getLastName());

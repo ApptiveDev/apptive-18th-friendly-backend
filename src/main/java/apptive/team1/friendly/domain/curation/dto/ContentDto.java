@@ -1,7 +1,7 @@
 package apptive.team1.friendly.domain.curation.dto;
 
 import apptive.team1.friendly.domain.curation.entity.Image;
-import apptive.team1.friendly.domain.user.data.dto.ImageDto;
+import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import lombok.Builder;
 import lombok.Data;

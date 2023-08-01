@@ -3,14 +3,13 @@ import apptive.team1.friendly.domain.post.entity.Comment;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.entity.PostImage;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +34,7 @@ public class PostDto {
         this.location = location;
         this.audioGuide = audioGuide;
         for (PostImage postImage : postImages) {
-            PostImageDto postImageDto = new PostImageDto(postImage.getOriginalFileName(), postImage.getUploadFileName(),
+            ImageDto postImageDto = new ImageDto(postImage.getOriginalFileName(), postImage.getUploadFileName(),
                     postImage.getUploadFilePath(), postImage.getUploadFileUrl());
             this.postImages.add(postImageDto);
         }
@@ -49,7 +48,7 @@ public class PostDto {
 
     private Long postId;
 
-    private List<PostImageDto> postImages = new ArrayList<>();
+    private List<ImageDto> postImages = new ArrayList<>();
 
     private UserInfo authorInfo;
 
