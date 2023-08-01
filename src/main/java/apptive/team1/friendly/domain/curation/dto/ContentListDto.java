@@ -10,7 +10,8 @@ import java.util.List;
 
 @Data
 public class ContentListDto {
-    public ContentListDto(List<Image> images) {
+    public ContentListDto(Long contentId, List<Image> images) {
+        this.contentId = contentId;
         for (Image image : images) {
             ImageDto imageDto = new ImageDto(image.getOriginalFileName(), image.getUploadFileName(),
                     image.getUploadFilePath(), image.getUploadFileUrl());
@@ -18,14 +19,18 @@ public class ContentListDto {
         }
     }
 
-//    private List<ImageDto> images = new ArrayList<>();
+    private Long contentId;
+
     private List<ImageDto> images = new ArrayList<>();
     public static List<ContentListDto> create(List<Content> contents) {
+
         List<ContentListDto> contentListDtos = new ArrayList<>();
+
         for (Content content : contents) {
-            ContentListDto contentListDto = new ContentListDto(content.getImages());
+            ContentListDto contentListDto = new ContentListDto(content.getId(), content.getImages());
             contentListDtos.add(contentListDto);
         }
+
         return contentListDtos;
     }
 }
