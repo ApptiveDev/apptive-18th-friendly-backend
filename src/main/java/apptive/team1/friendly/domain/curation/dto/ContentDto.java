@@ -41,7 +41,6 @@ public class ContentDto {
 
     private String title;
 
-    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageDto> images = new ArrayList<>();
 
     private String location;
