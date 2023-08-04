@@ -36,4 +36,10 @@ public class EnrollmentRepository {
         else
             return enrollments.get(0);
     }
+
+    public List<Enrollment> findByPost(Long postId) {
+        return em.createQuery("select e from Enrollment e where e.post.id = :postId", Enrollment.class)
+                .setParameter("postId", postId)
+                .getResultList();
+    }
 }
