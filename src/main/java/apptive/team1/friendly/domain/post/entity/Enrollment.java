@@ -14,10 +14,9 @@ import java.time.LocalDateTime;
 public class Enrollment extends BaseEntity {
 
     @Builder
-    public Enrollment(Post post, Account account, LocalDateTime enrolledAt, boolean isAccepted) {
+    public Enrollment(Post post, Account account, boolean isAccepted) {
         this.post = post;
         this.account = account;
-        this.enrolledAt = enrolledAt;
         this.isAccepted = isAccepted;
     }
 
@@ -36,4 +35,25 @@ public class Enrollment extends BaseEntity {
     private LocalDateTime enrolledAt;
 
     private boolean isAccepted;
+
+
+    //======== 정적 생성 메서드 =========//
+    public static Enrollment create(Account account, Post post) {
+        return Enrollment.builder()
+                .account(account)
+                .post(post)
+                .isAccepted(false)
+                .build();
+    }
+
+    //====== 비즈니스 로직 ======//
+
+    public void accept() {
+        this.isAccepted = true;
+        this.enrolledAt = LocalDateTime.now();
+    }
+
+    public void reject() {
+        this.isAccepted = false;
+    }
 }

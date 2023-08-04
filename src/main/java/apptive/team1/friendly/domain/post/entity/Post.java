@@ -75,7 +75,6 @@ public class Post extends BaseEntity {
 
     private String location;
 
-
     // 게시글에 들어가야 보이는 필드
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -87,15 +86,18 @@ public class Post extends BaseEntity {
     @NotNull
     private Set<String> rules = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     @Embedded
     @Nullable
     private AudioGuide audioGuide;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<AccountPost> accountPosts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<Enrollment> enrollments;
 
     //========비즈니스 로직==========//
     /**
@@ -226,4 +228,15 @@ public class Post extends BaseEntity {
         return post;
     }
 
+    public void acceptEnrollment(Enrollment enrollment) {
+        checkCanParticipate();
+        AccountPost accountPost = AccountPost.createAccountPost(enrollment.getAccount(), this, AccountType.PARTICIPANT);
+        this.accountPosts.add(accountPost);
+        enrollment.accept();
+    }
+
+    public void rejectEnrollment(Enrollment enrollment) {
+        accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == enrollment.getAccount().getId());
+        enrollment.reject();
+    }
 }

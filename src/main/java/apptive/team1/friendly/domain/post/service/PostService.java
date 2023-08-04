@@ -1,6 +1,9 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.post.exception.WrongApproachException;
+import apptive.team1.friendly.domain.post.repository.EnrollmentRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -18,6 +21,7 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final EnrollmentRepository enrollmentRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
@@ -87,21 +91,6 @@ public class PostService {
     }
 
     /**
-     * 같이가요 참가 신청
-     */
-    @Transactional
-    public void applyJoin(Account currentUser, Long postId) {
-        Post findPost = postRepository.findOneByPostId(postId);
-        findPost.addParticipant(currentUser);
-    }
-
-    @Transactional
-    public void cancelJoin(Account currentUser, Long postId) {
-        Post findPost = postRepository.findOneByPostId(postId);
-        findPost.deleteParticipant(currentUser);
-    }
-
-    /**
      * DTO 설정 메소드
      */
     public PostDto postDetail(Long postId, UserInfo userInfo) {
@@ -116,4 +105,64 @@ public class PostService {
         Post post = postRepository.findOneByPostId(postId);
         return PostFormDto.createPostFormDto(post);
     }
+
+    //================= 참가 신청관련 서비스 =================//
+
+    /**
+     * 같이가요 참가 신청
+     */
+    @Transactional
+    public void applyEnrollment(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+
+        Enrollment enrollment = Enrollment.create(currentUser, findPost);
+
+        enrollmentRepository.save(enrollment);
+    }
+
+    @Transactional
+    public void cancelEnrollment(Account currentUser, Long postId) {
+        Enrollment enrollment = enrollmentRepository.findOneByAccountAndPost(currentUser.getId(), postId);
+        if(!enrollment.isAccepted())
+            enrollmentRepository.delete(enrollment);
+        else
+            throw new WrongApproachException("이미 신청이 승인되었습니다."); // 이미 신청이 승인되면 취소 불가. 직접 방을 나가야 함
+    }
+
+    @Transactional
+    public void userLeaveRoom(Account currentUser, Long postId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+
+        findPost.deleteParticipant(currentUser);
+    }
+
+    @Transactional
+    public void acceptEnrollment(Account currentUser, Long postId, Long enrollmentId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+
+        isAuthor(currentUser, findPost);
+
+        Enrollment enrollment = enrollmentRepository.findOneById(enrollmentId);
+
+        findPost.acceptEnrollment(enrollment);
+    }
+
+    @Transactional
+    public void rejectEnrollment(Account currentUser, Long postId, Long enrollmentId) {
+        Post findPost = postRepository.findOneByPostId(postId);
+
+        isAuthor(currentUser, findPost);
+
+        Enrollment enrollment = enrollmentRepository.findOneById(enrollmentId);
+
+        findPost.rejectEnrollment(enrollment);
+    }
+
+    private void isAuthor(Account currentUser, Post findPost) {
+        if(findPost.getAccountPosts().get(0).getUser().getId() != currentUser.getId()) {
+            throw new AccessDeniedException("글 작성자만 참가 수락/거절할 수 있습니다.");
+        }
+    }
+
+
 }
