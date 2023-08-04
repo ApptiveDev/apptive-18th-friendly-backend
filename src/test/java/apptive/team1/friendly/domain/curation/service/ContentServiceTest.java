@@ -66,7 +66,7 @@ public class ContentServiceTest {
         ContentFormDto contentForm = createContentForm("test Title", "location", "11:00~12:00", "010-0000-0000", "instagram", "contents");
         List<MultipartFile> imageFiles = tm.createImageFiles();
         Long contentId = contentService.addContent(account, contentForm, imageFiles);
-        UserInfo userInfo = userService.accountToPostOwnerInfo(account);
+        UserInfo userInfo = userService.accountToOwnerInfo(account);
         //when
         ContentDto contentDto = contentService.createContentDto(account, userInfo, contentId);
 

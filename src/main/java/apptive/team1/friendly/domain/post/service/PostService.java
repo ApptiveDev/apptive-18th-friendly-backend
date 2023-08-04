@@ -95,7 +95,7 @@ public class PostService {
      */
     public PostDto postDetail(Long postId, UserInfo userInfo) {
 
-        Post findPost = findByPostId(postId);
+        Post findPost = postRepository.findOneByPostId(postId);
 
         return PostDto.createPostDto(findPost, userInfo);
     }

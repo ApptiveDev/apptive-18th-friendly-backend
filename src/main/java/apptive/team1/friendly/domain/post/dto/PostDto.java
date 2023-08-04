@@ -1,11 +1,9 @@
 package apptive.team1.friendly.domain.post.dto;
-import apptive.team1.friendly.domain.post.entity.Comment;
-import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.entity.PostImage;
+import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
-import apptive.team1.friendly.domain.post.entity.HashTag;
 import lombok.Builder;
 import lombok.Data;
 
@@ -21,7 +19,7 @@ public class PostDto {
     public PostDto(Long postId, List<PostImage> postImages, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                   List<Comment> comments, AudioGuide audioGuide) {
+                   List<Comment> comments, AudioGuide audioGuide, List<Enrollment> enrollments) {
         this.postId = postId;
         this.authorInfo = authorInfo;
         this.title = title;
@@ -43,6 +41,11 @@ public class PostDto {
                     comment.getText(), comment.getCreatedDate());
             this.comments.add(commentDto);
         }
+//        for (Enrollment enrollment : enrollments) {
+//            new EnrollmentDto(enrollment.getId(), enrollment.getPost().getId());
+//        }
+
+
         this.rules.addAll(rules);
     }
 
@@ -75,6 +78,9 @@ public class PostDto {
 
     private AudioGuide audioGuide;
 
+    private List<EnrollmentDto> enrollments;
+
+
     public static PostDto createPostDto(Post findPost, UserInfo authorInfo) {
 
         return PostDto.builder()
@@ -92,6 +98,7 @@ public class PostDto {
                 .rules(findPost.getRules())
                 .postImages(findPost.getPostImages())
                 .location(findPost.getLocation())
+//                .enrollments(findPost.getEnrollments())
                 .build();
     }
 }

@@ -339,7 +339,7 @@ public class UserService {
         return userInfo;
     }
 
-    public UserInfo accountToPostOwnerInfo(Account account) {
+    public UserInfo accountToOwnerInfo(Account account) {
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
         ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
         AccountNation nation = accountNationRepository.findOneByAccount(account).orElse(null);
@@ -365,6 +365,6 @@ public class UserService {
      */
     public UserInfo getCurrentUserInfo() {
         Account account = getCurrentUser();
-        return accountToPostOwnerInfo(account);
+        return accountToOwnerInfo(account);
     }
 }

@@ -3,6 +3,9 @@ package apptive.team1.friendly.domain.user.data.dto;
 import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
+import apptive.team1.friendly.domain.user.data.entity.profile.Language;
+import apptive.team1.friendly.domain.user.data.entity.profile.Nation;
+import apptive.team1.friendly.domain.user.data.entity.profile.ProfileImg;
 import lombok.Builder;
 import lombok.Data;
 
@@ -34,4 +37,10 @@ public class UserInfo {
     private List<LanguageDto> languageDtoList;
 
     private ProfileImgDto profileImgDto;
+
+//    public static UserInfo create(String firstName, String lastName, String gender,
+//                                  Nation nation, List<Language> languages,
+//                                  ProfileImg profileImg) {
+//
+//    }
 }
