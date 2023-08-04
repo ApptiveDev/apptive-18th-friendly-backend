@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.curation.service;
 
 import apptive.team1.friendly.domain.curation.dto.ContentDto;
 import apptive.team1.friendly.domain.curation.dto.ContentFormDto;
+import apptive.team1.friendly.domain.curation.dto.ContentListDto;
 import apptive.team1.friendly.domain.curation.entity.Content;
 import apptive.team1.friendly.domain.curation.entity.SearchBase;
 import apptive.team1.friendly.domain.curation.repository.ContentRepository;
@@ -53,10 +54,11 @@ public class ContentServiceTest {
         contentService.addContent(account, contentForm2, imageFiles);
 
         //when
-        List<Content> contents = contentRepository.findAll(SearchBase.LATEST);
+        List<ContentListDto> contentListDtos = contentService.findAll("latest");
 
         //then
-        Assertions.assertEquals(2, contents.size(),"게시물을 추가한 만큼 개수가 늘어야 한다.");
+        Assertions.assertEquals(2, contentListDtos.size(),"게시물을 추가한 만큼 개수가 늘어야 한다.");
+        Assertions.assertEquals(imageFiles.get(0).getOriginalFilename(), contentListDtos.get(0).getImage().getOriginalFileName(), "첫 번째 추가한 파일이 리스트의 대표 이미지가 되어야 한다.");
     }
 
     @Test
