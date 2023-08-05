@@ -42,7 +42,7 @@ public class PostDto {
             this.comments.add(commentDto);
         }
 //        for (Enrollment enrollment : enrollments) {
-//            new EnrollmentDto(enrollment.getId(), enrollment.getPost().getId());
+//            new EnrollmentDto(enrollment.getAccount().getEmail(), enrollment.getId(), enrollment.getPost().getId());
 //        }
 
 

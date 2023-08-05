@@ -84,7 +84,7 @@ public class Post extends BaseEntity {
     @NotNull
     private Set<String> rules = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
     @Embedded
@@ -93,6 +93,10 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<AccountPost> accountPosts = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_account")
+    private AccountPost authorAccount;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Enrollment> enrollments;
@@ -277,7 +281,7 @@ public class Post extends BaseEntity {
                 .build();
         AccountPost accountPost = AccountPost.createAccountPost(author, post, AccountType.AUTHOR);
         post.getAccountPosts().add(accountPost);
+
         return post;
     }
-    
 }

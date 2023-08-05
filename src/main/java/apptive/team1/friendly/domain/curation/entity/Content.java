@@ -62,7 +62,7 @@ public class Content extends BaseEntity {
     @Lob
     private String content;
 
-    @OneToMany(mappedBy = "content", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "content", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Heart> hearts = new ArrayList<>();
 
     //===정적 생성 메서드===//
@@ -135,5 +135,9 @@ public class Content extends BaseEntity {
         if(this.account.getId() != currentUser.getId()) {
             throw new AccessDeniedException("접근 권한이 없습니다.");
         }
+    }
+
+    public void setWithdrawalUser() {
+        this.account = null;
     }
 }

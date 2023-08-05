@@ -3,7 +3,6 @@ package apptive.team1.friendly.global.auth.social.service;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
-import apptive.team1.friendly.domain.user.data.repository.AccountAuthorityRepository;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.data.repository.AuthorityRepository;
 import apptive.team1.friendly.global.auth.social.GoogleOauth;
@@ -40,10 +39,8 @@ public class SocialAuthService {
 
     private final GoogleOauth googleOauth;
     private final JwtTokenProvider jwtTokenProvider;
-
     private final AccountRepository accountRepository;
     private final AuthorityRepository authorityRepository;
-    private final AccountAuthorityRepository accountAuthorityRepository;
 
     /**
      * 소셜 로그인을 위해 redirectUrl로 redirect
@@ -181,6 +178,7 @@ public class SocialAuthService {
 
         Account user = Account.builder()
                 .email(email)
+                .authority(authority)
                 .activated(false)
                 .build();
 
@@ -190,10 +188,8 @@ public class SocialAuthService {
                 .build();
 
         authority.getAccountAuthorities().add(accountAuthority);
-        user.getAccountAuthorities().add(accountAuthority);
 
         authorityRepository.save(authority);
         accountRepository.save(user);
-        accountAuthorityRepository.save(accountAuthority);
     }
 }
