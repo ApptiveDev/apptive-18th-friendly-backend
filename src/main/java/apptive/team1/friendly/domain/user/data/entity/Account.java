@@ -3,10 +3,13 @@ package apptive.team1.friendly.domain.user.data.entity;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
 import apptive.team1.friendly.domain.user.data.vo.Language;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
+import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -85,20 +88,23 @@ public class Account {
     }
 
     //==========정적 생성 메서드==========//
-    public static Account create(SignupRequest signupRequest, Authority authority, PasswordEncoder passwordEncoder) {
+    public static Account create(String email, String password, String firstName,
+                              String lastName, String birthday, String gender,
+                              String introduction, List<String> interests, String nation,
+                              String city, List<Language> languages, Authority authority) {
 
         return Account.builder()
-                .email(signupRequest.getEmail())
-                .password(passwordEncoder.encode(signupRequest.getPassword()))
-                .firstName(signupRequest.getFirstName())
-                .lastName(signupRequest.getLastName())
-                .birthday(signupRequest.getBirthday())
-                .gender(signupRequest.getGender())
-                .introduction(signupRequest.getIntroduction())
-                .interests(signupRequest.getInterests())
-                .nation(signupRequest.getNation())
-                .city(signupRequest.getCity())
-                .languages(signupRequest.getLanguages())
+                .email(email)
+                .password(password)
+                .firstName(firstName)
+                .lastName(lastName)
+                .birthday(birthday)
+                .gender(gender)
+                .introduction(introduction)
+                .interests(interests)
+                .nation(nation)
+                .city(city)
+                .languages(languages)
                 .authority(authority)
                 .activated(true)
                 .build();
@@ -127,4 +133,9 @@ public class Account {
         this.profileImg = null;
     }
 
+    public ProfileImg uploadProfileImage(MultipartFile multipartFile, AwsS3Uploader awsS3Uploader) throws IOException {
+        FileInfo fileInfo = awsS3Uploader.upload(multipartFile, this.getEmail());
+        this.profileImg = ProfileImg.of(fileInfo);
+        return this.profileImg;
+    }
 }

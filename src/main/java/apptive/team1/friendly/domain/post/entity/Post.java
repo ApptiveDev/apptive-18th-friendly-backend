@@ -242,8 +242,8 @@ public class Post extends BaseEntity {
      * 게시물 권한 확인
      */
     private void isHasAuthority(Account currentUser) {
-        Account author = this.accountPosts.get(0).getUser();
-        if(!Objects.equals(currentUser.getId(), author.getId()))
+
+        if(this.accountPosts.isEmpty() || !Objects.equals(currentUser.getId(), this.accountPosts.get(0).getUser().getId()))
             throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 

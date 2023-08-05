@@ -46,7 +46,11 @@ public class UserService {
 
         Authority authority = authorityRepository.getReferenceById("ROLE_USER");
 
-        Account account = Account.create(signupRequest, authority, passwordEncoder);
+        Account account = Account.create(signupRequest.getEmail(), passwordEncoder.encode(signupRequest.getPassword()),
+                signupRequest.getFirstName(), signupRequest.getLastName(),
+                signupRequest.getBirthday(), signupRequest.getGender(), signupRequest.getIntroduction(),
+                signupRequest.getInterests(), signupRequest.getNation(), signupRequest.getCity(),
+                signupRequest.getLanguages(), authority);
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -111,8 +115,7 @@ public class UserService {
         account.deleteProfileImage(awsS3Uploader);
 
         // aws 파일 업로드
-        FileInfo fileInfo = awsS3Uploader.upload(multipartFile, account.getEmail());
-        ProfileImg profileImg = ProfileImg.of(fileInfo);
+        ProfileImg profileImg = account.uploadProfileImage(multipartFile, awsS3Uploader);
 
         // db에 저장
         accountRepository.save(account);
