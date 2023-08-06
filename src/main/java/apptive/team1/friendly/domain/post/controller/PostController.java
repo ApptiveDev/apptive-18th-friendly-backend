@@ -142,7 +142,7 @@ public class PostController extends ApiBase {
     @PostMapping("/posts/join/{postId}")
     public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
-        postService.applyJoin(currentUser, postId);
+        postService.applyEnrollment(currentUser, postId);
         return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 
@@ -152,7 +152,7 @@ public class PostController extends ApiBase {
     @DeleteMapping("/posts/join/{postId}")
     public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
-        postService.cancelJoin(currentUser, postId);
+        postService.cancelEnrollment(currentUser, postId);
         return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 }

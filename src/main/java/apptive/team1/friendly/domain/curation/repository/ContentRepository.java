@@ -32,8 +32,20 @@ public class ContentRepository {
     }
 
     public Content findOne(Long contentId) {
-        return em.createQuery("select distinct c from Content c join fetch c.account left join fetch c.images where c.id = :contentId", Content.class)
+        return em.createQuery("select distinct c from Content c left join fetch c.account left join fetch c.images where c.id = :contentId", Content.class)
                 .setParameter("contentId", contentId)
                 .getSingleResult();
+    }
+
+    public void deleteAllByUser(Account account) {
+//        em.createQuery("delete Content c where c.account = :account")
+//                .setParameter("account", account)
+//                .executeUpdate();
+        List<Content> contents = em.createQuery("select c from Content c where c.account = :account", Content.class)
+                .setParameter("account", account)
+                .getResultList();
+        for (Content content : contents) {
+            content.setWithdrawalUser();
+        }
     }
 }

@@ -20,10 +20,12 @@ public class TestMethods {
     private AccountRepository accountRepository;
 
     public Account createAccount(String email, String firstName, String lastName) {
-        Account account = new Account();
-        account.setEmail(email);
-        account.setFirstName(firstName);
-        account.setLastName(lastName);
+        Account account = Account.builder()
+                .email(email)
+                .firstName(firstName)
+                .lastName(lastName)
+                .build();
+
         accountRepository.save(account);
         return account;
     }

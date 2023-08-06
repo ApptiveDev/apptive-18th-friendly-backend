@@ -1,10 +1,12 @@
 package apptive.team1.friendly.domain.user.data.dto.profile;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
+@Data
+@Builder
 public class ProfileImgDto {
 
     private String email;

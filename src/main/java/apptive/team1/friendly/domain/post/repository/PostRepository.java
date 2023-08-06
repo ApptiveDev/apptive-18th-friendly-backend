@@ -1,7 +1,9 @@
 package apptive.team1.friendly.domain.post.repository;
 
+import apptive.team1.friendly.domain.post.entity.AccountPost;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
@@ -70,6 +72,12 @@ public class PostRepository {
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();
         }
+    }
+
+    public void deleteAllByUser(Account account) {
+        em.createQuery("delete AccountPost ap where ap.user = :account")
+                .setParameter("account", account)
+                .executeUpdate();
     }
 
 //    /**

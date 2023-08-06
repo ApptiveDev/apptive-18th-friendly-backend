@@ -2,58 +2,24 @@ package apptive.team1.friendly.domain.user.data.dto.profile;
 
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.entity.Account;
-import apptive.team1.friendly.domain.user.data.entity.profile.*;
-
-import java.util.List;
+import apptive.team1.friendly.domain.user.data.entity.ProfileImg;
 import java.util.stream.Collectors;
 
 public class EntityToDtoConverter {
-    public static InterestDto interestToInterestDto(AccountInterest accountInterest) {
-        Interest interest = accountInterest.getInterest();
-        InterestDto interestDto = new InterestDto();
-        interestDto.setId(interest.getId());
-        interestDto.setName(interest.getName());
-        return interestDto;
-    }
-
-    public static LanguageDto languageToLanguageDto(AccountLanguage accountLanguage) {
-        Language language = accountLanguage.getLanguage();
-        LanguageDto languageDto = new LanguageDto();
-        languageDto.setId(language.getId());
-        languageDto.setName(language.getName());
-        languageDto.setLevel(accountLanguage.getLanguageLevel().getName());
-        return languageDto;
-    }
-
-    public static NationDto nationToNationDto(AccountNation accountNation) {
-        if (accountNation == null) {
-            return null;
-        }
-        Nation nation = accountNation.getNation();
-        NationDto nationDto = new NationDto();
-        nationDto.setId(nation.getId());
-        nationDto.setName(nation.getName());
-        nationDto.setCity(accountNation.getCity());
-        return nationDto;
-    }
-
-    public static ProfileImgDto profileImgToProfileImgDto(ProfileImg profileImg) {
-        ProfileImgDto profileImgDto = new ProfileImgDto();
+    public static ProfileImgDto profileImgToProfileImgDto(Account account, ProfileImg profileImg) {
         if(profileImg != null) {
-            profileImgDto.setEmail(profileImg.getAccount().getEmail());
-            profileImgDto.setUploadFileName(profileImg.getUploadFileName());
-            profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
-            profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
-            profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
+            return ProfileImgDto.builder()
+                    .email(account.getEmail())
+                    .originalFileName(profileImg.getOriginalFileName())
+                    .uploadFileName(profileImg.getUploadFileName())
+                    .uploadFilePath(profileImg.getUploadFilePath())
+                    .uploadFileUrl(profileImg.getUploadFileUrl())
+                    .build();
         }
-        return profileImgDto;
+        return new ProfileImgDto(null, null,null, null, null);
     }
 
-    public static AccountInfoResponse accountToInfoDto(Account account,
-                                                       List<AccountInterest> accountInterests,
-                                                       List<AccountLanguage> accountLanguages,
-                                                       ProfileImg profileImg,
-                                                       AccountNation accountNation) {
+    public static AccountInfoResponse accountToUserInfoDto(Account account) {
 
         return AccountInfoResponse.builder()
                 .id(account.getId())
@@ -63,14 +29,10 @@ public class EntityToDtoConverter {
                 .birthday(account.getBirthday())
                 .gender(account.getGender())
                 .introduction(account.getIntroduction())
-                .interests(accountInterests.stream()
-                        .map(EntityToDtoConverter::interestToInterestDto)
-                        .collect(Collectors.toList()))
-                .languages(accountLanguages.stream()
-                        .map(EntityToDtoConverter::languageToLanguageDto)
-                        .collect(Collectors.toList()))
-                .profileImgDto(EntityToDtoConverter.profileImgToProfileImgDto(profileImg))
-                .nation(EntityToDtoConverter.nationToNationDto(accountNation))
+                .interests(account.getInterests())
+                .languages(account.getLanguages())
+                .profileImgDto(EntityToDtoConverter.profileImgToProfileImgDto(account, account.getProfileImg()))
+                .nation(account.getNation())
                 .accountAuthorities(account.getAccountAuthorities().stream()
                         .map(accountAuthority -> accountAuthority.getAuthority().getAuthorityName())
                         .collect(Collectors.toSet()))

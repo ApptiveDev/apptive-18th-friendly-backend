@@ -1,9 +1,7 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
-import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
-import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
-import apptive.team1.friendly.domain.post.exception.NotParticipantException;
+import apptive.team1.friendly.domain.post.exception.*;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
@@ -75,7 +73,6 @@ public class Post extends BaseEntity {
 
     private String location;
 
-
     // 게시글에 들어가야 보이는 필드
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -87,23 +84,29 @@ public class Post extends BaseEntity {
     @NotNull
     private Set<String> rules = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
     @Embedded
     @Nullable
     private AudioGuide audioGuide;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<AccountPost> accountPosts = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "author_account")
+    private AccountPost authorAccount;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Enrollment> enrollments;
 
     //========비즈니스 로직==========//
     /**
      * 게시물의 이미지 리스트를 게시물과 서버에서 삭제
      */
     public void deleteImages(Account currentUser, AwsS3Uploader awsS3Uploader) {
-        Account postOwner = accountPosts.get(0).getUser();
-        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 삭제 불가
+        isHasAuthority(currentUser); // 본인 게시물 아니면 삭제 불가
         if(this.postImages.size() > 0) {
             for (int i=this.postImages.size()-1; i>=0; i--) {
                 awsS3Uploader.delete(this.postImages.get(i).getOriginalFileName());
@@ -126,8 +129,7 @@ public class Post extends BaseEntity {
      * 게시물 수정
      */
     public void update(Account currentUser, PostFormDto formDto) {
-        Account postOwner = accountPosts.get(0).getUser();
-        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 수정 불가
+        isHasAuthority(currentUser); // 본인 게시물 아니면 수정 불가
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
@@ -161,20 +163,93 @@ public class Post extends BaseEntity {
         this.postImages.remove(postImage);
     }
 
+    //===============참가 신청/취소 비즈니스 로직===============//
+
     /**
-     * 여행 참가자 추가
+     * 참가 신청 추가
      */
-    public void addParticipant(Account currentUser) {
+    public void addEnrollment(Enrollment enrollment) {
         checkCanParticipate();
-        AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
-        this.accountPosts.add(accountPost);
+        this.enrollments.add(enrollment);
     }
 
+    /**
+     * 참여가능한 인원수 확인
+     */
+    private void checkCanParticipate() {
+        if(accountPosts.size() >= maxPeople) {
+            throw new ExcessOfPeopleException("인원 초과");
+        }
+    }
+
+    /**
+     * 참가 신청 취소
+     */
+    public void deleteEnrollment(Enrollment enrollment) {
+        canCancelEnrollment(enrollment);
+        this.enrollments.remove(enrollment);
+    }
+
+    /**
+     * 참가 신청 취소가 가능한지 확인
+     */
+    private void canCancelEnrollment(Enrollment enrollment) {
+        if(enrollment == null)
+            throw new NoEnrollmentException("취소할 참가 신청이 없습니다.");
+
+        if(enrollment.isAccepted())
+            throw new InvalidApproachException("이미 신청이 승인되었습니다."); // 이미 신청이 승인되면 취소 불가. 직접 방을 나가야 함
+    }
+    
+    /**
+     * 참가 신청 수락
+     */
+    public void acceptEnrollment(Account currentUser, Enrollment enrollment) {
+
+        isHasAuthority(currentUser);
+
+        AccountPost accountPost = AccountPost.createAccountPost(enrollment.getAccount(), this, AccountType.PARTICIPANT);
+        this.accountPosts.add(accountPost);
+
+        enrollment.accept();
+    }
+
+    /**
+     * 참가 신청 거절
+     */
+    public void rejectEnrollment(Account currentUser, Enrollment enrollment) {
+
+        isHasAuthority(currentUser);
+
+        accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == enrollment.getAccount().getId());
+
+        enrollment.reject();
+    }
+
+
+    /**
+     * 유저가 방 나가기
+     */
     public void deleteParticipant(Account currentUser) {
+
         isParticipant(currentUser);
+
         accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == currentUser.getId());
     }
 
+
+    /**
+     * 게시물 권한 확인
+     */
+    private void isHasAuthority(Account currentUser) {
+
+        if(this.accountPosts.isEmpty() || !Objects.equals(currentUser.getId(), this.accountPosts.get(0).getUser().getId()))
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+    }
+
+    /**
+     * 게시물 참여자인지 확인
+     */
     private void isParticipant(Account currentUser) {
         boolean isParticipant = false;
         for (AccountPost accountPost : accountPosts) {
@@ -188,24 +263,7 @@ public class Post extends BaseEntity {
         }
     }
 
-    /**
-     * 참여가능한 인원수 확인
-     */
-    private void checkCanParticipate() {
-        if(accountPosts.size() >= maxPeople) {
-            throw new ExcessOfPeopleException("인원 초과");
-        }
-    }
-
-    /**
-     * 게시물 수정/삭제 권한 확인
-     */
-    private void isHasAuthority(Account currentUser, Account author) {
-        if(!Objects.equals(author.getId(), currentUser.getId()))
-            throw new AccessDeniedException("접근 권한이 없습니다.");
-    }
-
-    //========= 정적 메소드 ===========/
+    //========= 정적 생성 메소드 ===========/
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
         Post post = Post.builder()
@@ -223,7 +281,7 @@ public class Post extends BaseEntity {
                 .build();
         AccountPost accountPost = AccountPost.createAccountPost(author, post, AccountType.AUTHOR);
         post.getAccountPosts().add(accountPost);
+
         return post;
     }
-
 }

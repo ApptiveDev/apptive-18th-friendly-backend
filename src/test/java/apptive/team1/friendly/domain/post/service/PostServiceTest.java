@@ -138,9 +138,11 @@ public class PostServiceTest {
 
         //when
         List<PostListDto> postListDtos = postService.findAll("life", "updated");
+        List<PostListDto> postListDtos2 = postService.findAll("famous", "title");
 
         //then
         Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 2, postListDtos.size());
+        Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 0, postListDtos2.size());
     }
 
     @Test
@@ -291,7 +293,7 @@ public class PostServiceTest {
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
 
         //when
-        postService.applyJoin(participant, postId);
+        postService.applyEnrollment(participant, postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -316,8 +318,8 @@ public class PostServiceTest {
 
         //when
         // 참여 신청
-        postService.applyJoin(participant, postId);
-        postService.applyJoin(participant2, postId);
+        postService.applyEnrollment(participant, postId);
+        postService.applyEnrollment(participant2, postId);
 
         //then
         fail("인원 초과시 예외가 발생해야 한다.");
@@ -334,11 +336,11 @@ public class PostServiceTest {
 
         // 참여 신청
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
-        postService.applyJoin(participant, postId);
+        postService.applyEnrollment(participant, postId);
 
         //when
         // 참여 취소
-        postService.cancelJoin(participant, postId);
+        postService.cancelEnrollment(participant, postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -347,7 +349,7 @@ public class PostServiceTest {
     }
 
     @Test(expected = NotParticipantException.class)
-    public void 취소_예외() throws Exception {
+    public void 참가_취소_예외() throws Exception {
         //given
         // 게시물 생성
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
@@ -360,10 +362,10 @@ public class PostServiceTest {
         Account participant2 = tm.createAccount("participant2@gmail.com","C" , "D");
 
         // 참여 신청
-        postService.applyJoin(participant, postId);
+        postService.applyEnrollment(participant, postId);
 
         //when
-        postService.cancelJoin(participant2, postId);
+        postService.cancelEnrollment(participant2, postId);
 
         //then
         fail("참여자가 아닌 이용자는 참가 취소를 할 수 없다.");
