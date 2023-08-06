@@ -1,11 +1,11 @@
 package apptive.team1.friendly.domain.user.service;
 
 import apptive.team1.friendly.domain.curation.repository.ContentRepository;
+import apptive.team1.friendly.domain.post.exception.DuplicatedEmailException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.dto.*;
 import apptive.team1.friendly.domain.user.data.entity.ProfileImg;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
-import apptive.team1.friendly.global.common.s3.FileInfo;
 import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
 import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
 import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
@@ -44,6 +44,8 @@ public class UserService {
     @Transactional
     public SignupResponse signUp(SignupRequest signupRequest) {
 
+        checkDuplicatedEmail(signupRequest.getEmail());
+
         Authority authority = authorityRepository.getReferenceById("ROLE_USER");
 
         Account account = Account.create(signupRequest.getEmail(), passwordEncoder.encode(signupRequest.getPassword()),
@@ -53,6 +55,10 @@ public class UserService {
                 signupRequest.getLanguages(), authority);
 
         return SignupResponse.of(accountRepository.save(account));
+    }
+
+    private void checkDuplicatedEmail(String email) {
+        accountRepository.findOneByEmail(email).ifPresent(e -> {throw new DuplicatedEmailException("중복된 이메일입니다.");});
     }
 
     /**
