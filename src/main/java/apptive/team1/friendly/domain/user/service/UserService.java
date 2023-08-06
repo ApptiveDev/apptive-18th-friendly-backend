@@ -58,7 +58,7 @@ public class UserService {
     }
 
     private void checkDuplicatedEmail(String email) {
-        accountRepository.findOneByEmail(email).ifPresent(e -> {throw new DuplicatedEmailException("중복된 이메일입니다.");});
+        accountRepository.findOneByEmail(email).ifPresent(account -> {throw new DuplicatedEmailException(account.getEmail() + " 중복된 이메일입니다.");});
     }
 
     /**
