@@ -1,9 +1,7 @@
 package apptive.team1.friendly.domain.post.service;
 import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
-import apptive.team1.friendly.domain.post.repository.EnrollmentRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final EnrollmentRepository enrollmentRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
@@ -93,11 +90,11 @@ public class PostService {
     /**
      * DTO 설정 메소드
      */
-    public PostDto postDetail(Long postId, UserInfo userInfo) {
+    public PostDto postDetail(Long postId, Account currentUser, Account author) {
 
         Post findPost = postRepository.findOneByPostId(postId);
 
-        return PostDto.createPostDto(findPost, userInfo);
+        return PostDto.createPostDto(findPost, currentUser, author);
     }
 
     /**
@@ -116,63 +113,15 @@ public class PostService {
      * 같이가요 참가 신청
      */
     @Transactional
-    public Long applyEnrollment(Account currentUser, Long postId) {
+    public void applyJoin(Account currentUser, Long postId) {
 
         Post findPost = postRepository.findOneByPostId(postId);
 
-        Enrollment enrollment = Enrollment.create(currentUser, findPost);
-
-        findPost.addEnrollment(enrollment);
-
-        enrollmentRepository.save(enrollment);
-
-        return enrollment.getId();
+        findPost.addParticipant(currentUser);
     }
 
-    /**
-     * 같이가요 참가 신청 취소
-     */
     @Transactional
-    public void cancelEnrollment(Account currentUser, Long postId) {
-
-        Post findPost = postRepository.findOneByPostId(postId);
-        Enrollment enrollment = enrollmentRepository.findOneByAccountAndPost(currentUser.getId(), postId);
-
-        findPost.deleteEnrollment(enrollment);
-    }
-
-
-    /**
-     * 같이가요 신청 승인 (게시물 작성자 전용)
-     */
-    @Transactional
-    public void acceptEnrollment(Account currentUser, Long postId, Long enrollmentId) {
-
-        Post findPost = postRepository.findOneByPostId(postId);
-
-        Enrollment enrollment = enrollmentRepository.findOneById(enrollmentId);
-
-        findPost.acceptEnrollment(currentUser, enrollment);
-    }
-
-    /**
-     * 같이가요 신청 거절 (게시물 작성자 전용)
-     */
-    @Transactional
-    public void rejectEnrollment(Account currentUser, Long postId, Long enrollmentId) {
-
-        Post findPost = postRepository.findOneByPostId(postId);
-
-        Enrollment enrollment = enrollmentRepository.findOneById(enrollmentId);
-
-        findPost.rejectEnrollment(currentUser, enrollment);
-    }
-
-    /**
-     * 같이가요 참여한 방에서 나가기
-     */
-    @Transactional
-    public void userLeaveRoom(Account currentUser, Long postId) {
+    public void cancelJoin(Account currentUser, Long postId) {
 
         Post findPost = postRepository.findOneByPostId(postId);
 

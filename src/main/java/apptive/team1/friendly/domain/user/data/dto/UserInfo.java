@@ -1,8 +1,9 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
-import apptive.team1.friendly.domain.user.data.entity.ProfileImg;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.vo.Language;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,20 +14,15 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    @Builder
-    public UserInfo(String firstName, String lastName, String gender, String nation, String city, List<Language> languages, ProfileImg profileImg, String email) {
+    @Builder(access = AccessLevel.PROTECTED)
+    public UserInfo(String firstName, String lastName, String gender, String nation, String city, List<Language> languages, ProfileImgDto profileImgDto) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
         this.nation = nation;
         this.city = city;
         this.languages = languages;
-        ProfileImgDto.builder()
-                .email(email)
-                .uploadFileUrl(profileImg.getUploadFileUrl())
-                .uploadFilePath(profileImg.getUploadFilePath())
-                .uploadFileName(profileImg.getUploadFileName())
-                .originalFileName(profileImg.getOriginalFileName());
+        this.profileImgDto = profileImgDto;
     }
 
     private String firstName;
@@ -43,18 +39,32 @@ public class UserInfo {
 
     private ProfileImgDto profileImgDto;
 
-    public static UserInfo create(String email, String firstName, String lastName, String gender,
-                                  String nation, String city, List<Language> languages,
-                                  ProfileImg profileImg) {
+    public static UserInfo create(Account account) {
+
+        ProfileImgDto profileImgDto = ProfileImgDto.builder()
+                .email(null)
+                .uploadFileUrl(null)
+                .uploadFilePath(null)
+                .uploadFileName(null)
+                .originalFileName(null)
+                .build();
+
+        if(account.getProfileImg() != null) {
+            profileImgDto.setEmail(account.getEmail());
+            profileImgDto.setUploadFileUrl(account.getProfileImg().getUploadFileUrl());
+            profileImgDto.setUploadFilePath(account.getProfileImg().getUploadFilePath());
+            profileImgDto.setUploadFileName(account.getProfileImg().getUploadFileName());
+            profileImgDto.setOriginalFileName(account.getProfileImg().getOriginalFileName());
+        }
+
         return UserInfo.builder()
-                .firstName(firstName)
-                .lastName(lastName)
-                .gender(gender)
-                .nation(nation)
-                .city(city)
-                .languages(languages)
-                .profileImg(profileImg)
-                .email(email)
+                .firstName(account.getFirstName())
+                .lastName(account.getLastName())
+                .gender(account.getGender())
+                .nation(account.getNation())
+                .city(account.getCity())
+                .languages(account.getLanguages())
+                .profileImgDto(profileImgDto)
                 .build();
     }
 }

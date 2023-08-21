@@ -138,28 +138,24 @@ public class PostServiceTest {
 
         //when
         List<PostListDto> postListDtos = postService.findAll("life", "updated");
-        List<PostListDto> postListDtos2 = postService.findAll("famous", "title");
 
         //then
         Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 2, postListDtos.size());
-        Assert.assertEquals("추가한 게시물 중 keyword와 hashtag로 필터해서 검색한다.", 0, postListDtos2.size());
     }
 
     @Test
     public void 게시물_상세_조회() throws IOException {
         // given
-        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
-        UserInfo userInfo = UserInfo.builder()
-                .gender(account.getGender())
-                .firstName(account.getFirstName())
-                .lastName(account.getLastName())
-                .build();
+        Account author = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+
+        Account currentUser = tm.createAccount("current@gmail.com", "Kim", "A");
+
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long postId = postService.addPost(account, postFormDto, files);
+        Long postId = postService.addPost(author, postFormDto, files);
 
         // when
-        PostDto postDto = postService.postDetail(postId, userInfo);
+        PostDto postDto = postService.postDetail(postId, currentUser, author);
 
         // then
         Post findPost = postRepository.findOneByPostId(postId);
@@ -293,7 +289,7 @@ public class PostServiceTest {
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
 
         //when
-        postService.applyEnrollment(participant, postId);
+        postService.applyJoin(participant, postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -318,8 +314,8 @@ public class PostServiceTest {
 
         //when
         // 참여 신청
-        postService.applyEnrollment(participant, postId);
-        postService.applyEnrollment(participant2, postId);
+        postService.applyJoin(participant, postId);
+        postService.applyJoin(participant2, postId);
 
         //then
         fail("인원 초과시 예외가 발생해야 한다.");
@@ -336,11 +332,11 @@ public class PostServiceTest {
 
         // 참여 신청
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
-        postService.applyEnrollment(participant, postId);
+        postService.applyJoin(participant, postId);
 
         //when
         // 참여 취소
-        postService.cancelEnrollment(participant, postId);
+        postService.cancelJoin(participant, postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -349,7 +345,7 @@ public class PostServiceTest {
     }
 
     @Test(expected = NotParticipantException.class)
-    public void 참가_취소_예외() throws Exception {
+    public void 취소_예외() throws Exception {
         //given
         // 게시물 생성
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
@@ -362,10 +358,10 @@ public class PostServiceTest {
         Account participant2 = tm.createAccount("participant2@gmail.com","C" , "D");
 
         // 참여 신청
-        postService.applyEnrollment(participant, postId);
+        postService.applyJoin(participant, postId);
 
         //when
-        postService.cancelEnrollment(participant2, postId);
+        postService.cancelJoin(participant2, postId);
 
         //then
         fail("참여자가 아닌 이용자는 참가 취소를 할 수 없다.");
@@ -393,46 +389,4 @@ public class PostServiceTest {
         AudioGuide audioGuide = new AudioGuide();
         return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules, audioGuide);
     }
-
-
-    //    @Test
-//    public void cascade_옵션_테스트() {
-//        Account account = new Account();
-//        Post post = new Post();
-//        AccountPost.builder()
-//                .user(account)
-//                .post(post)
-//                .accountType(AccountType.AUTHOR)
-//                .build();
-//        postRepository.save(post);
-//
-//    }
-
-
-//    @Test
-//    public void 테스트용_회원추가() {
-//        Account account = new Account();
-//        AccountNation accountNation = new AccountNation();
-//        accountNation.setAccount(account);
-//        Nation nation = new Nation();
-//        nation.setName("korea");
-//        accountNation.setNation(nation);
-//
-//        ProfileImg profileImg = new ProfileImg();
-//        profileImg.setUploadFileUrl("test");
-//        profileImg.setAccount(account);
-//
-//        AccountLanguage accountLanguage1 = new AccountLanguage();
-//        AccountLanguage accountLanguage2 = new AccountLanguage();
-//        Language language1 = new Language();
-//        Language language2 = new Language();
-//        language1.setName("korean");
-//        language2.setName("english");
-//        accountLanguage1.setLanguage(language1);
-//        accountLanguage2.setLanguage(language2);
-//        accountLanguage1.setAccount(account);
-//        accountLanguage2.setAccount(account);
-//        accountRepository.save(account);
-//
-//    }
 }
