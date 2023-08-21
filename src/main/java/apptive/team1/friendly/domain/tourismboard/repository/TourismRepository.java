@@ -15,12 +15,7 @@ public class TourismRepository {
     private final EntityManager em;
     private static final int resultCount = 10;
     public void save(Tourism tourism) {
-        if(tourism.getId() != null) {
-            em.persist(tourism);
-        }
-        else {
-            em.merge(tourism);
-        }
+        em.persist(tourism);
     }
 
     public List<Tourism> getAllTourism(int pageNum) {
