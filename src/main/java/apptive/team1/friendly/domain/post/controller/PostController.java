@@ -92,6 +92,16 @@ public class PostController extends ApiBase {
     }
 
     /**
+     * 유저가 작성한 게시물 리스트
+     */
+    @GetMapping("/posts/mypost")
+    public ResponseEntity<List<PostListDto>> myPostList() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
      * 게시물 상세 정보
      */
     @GetMapping("/posts/{postId}")

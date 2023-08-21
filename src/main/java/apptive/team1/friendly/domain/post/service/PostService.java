@@ -43,6 +43,16 @@ public class PostService {
     }
 
     /**
+     * userId로 user가 작성한 게시물 리스트 찾기
+     * @param userId 유저 id
+     * @return  해당 유저가 작성한 게시물 리스트
+     */
+    public List<PostListDto> findAllByUserId(Long userId) {
+        List<Post> posts = postRepository.findByUser(userId);
+        return PostListDto.createPostListDto(posts);
+    }
+
+    /**
      * 게시물 추가하기
      */
     @Transactional
