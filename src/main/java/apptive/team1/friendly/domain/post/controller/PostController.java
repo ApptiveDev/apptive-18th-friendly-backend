@@ -3,7 +3,6 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
@@ -47,7 +46,7 @@ public class PostController extends ApiBase {
         return ResponseEntity.status(HttpStatus.OK).body(userInfo);
     }
 
-    @PostMapping("/posts/create") // 게시물 추가 요청
+    @PostMapping("/posts/create") // 게시물 추가
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Account author = userService.getCurrentUser();
         Long postId = postService.addPost(author, postForm, imageFiles);
@@ -76,7 +75,7 @@ public class PostController extends ApiBase {
         return ResponseEntity.status(HttpStatus.OK).body(updateForm);
     }
 
-    @PutMapping("/posts/{postId}/edit") // 업데이트 요청
+    @PutMapping("/posts/{postId}/edit") // 게시물 업데이트
     public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Account currentUser = userService.getCurrentUser();
         Long updatedPostId = postService.updatePost(currentUser, postId, postForm, imageFiles);
@@ -97,8 +96,12 @@ public class PostController extends ApiBase {
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        UserInfo userInfo = userService.getPostOwnerInfo(postId);
-        PostDto postDto = postService.postDetail(postId, userInfo);
+
+        Account currentUser = userService.getCurrentUser();
+
+        Account author = userService.getPostOwner(postId);
+
+        PostDto postDto = postService.postDetail(postId, currentUser, author);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -142,7 +145,7 @@ public class PostController extends ApiBase {
     @PostMapping("/posts/join/{postId}")
     public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
-        postService.applyEnrollment(currentUser, postId);
+        postService.applyJoin(currentUser, postId);
         return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 
@@ -152,7 +155,7 @@ public class PostController extends ApiBase {
     @DeleteMapping("/posts/join/{postId}")
     public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
         Account currentUser = userService.getCurrentUser();
-        postService.cancelEnrollment(currentUser, postId);
+        postService.cancelJoin(currentUser, postId);
         return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 }

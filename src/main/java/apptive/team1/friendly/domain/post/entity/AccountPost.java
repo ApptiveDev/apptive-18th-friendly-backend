@@ -27,7 +27,7 @@ public class AccountPost {
     @Enumerated(EnumType.STRING)
     private AccountType accountType;
 
-    @Builder
+    @Builder(access = AccessLevel.PROTECTED)
     public AccountPost(Post post, Account user, AccountType accountType) {
         this.post = post;
         this.user = user;
