@@ -3,9 +3,10 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.PostOwnerInfo;
+import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
 import apptive.team1.friendly.global.baseEntity.ApiBase;
@@ -41,8 +42,8 @@ public class PostController extends ApiBase {
      * 게시물 추가
      */
     @GetMapping("/posts/create") // 게시물 추가 화면 구성
-    public ResponseEntity<PostOwnerInfo> addPost() {
-        PostOwnerInfo userInfo = userService.getCurrentUserInfo();
+    public ResponseEntity<UserInfo> addPost() {
+        UserInfo userInfo = userService.getCurrentUserInfo();
         return ResponseEntity.status(HttpStatus.OK).body(userInfo);
     }
 
@@ -52,7 +53,6 @@ public class PostController extends ApiBase {
         Long postId = postService.addPost(author, postForm, imageFiles);
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
-
 
     /**
      * 게시물 삭제
@@ -71,7 +71,7 @@ public class PostController extends ApiBase {
      * 게시물 수정
      */
     @GetMapping("/posts/{postId}/edit") // 업데이트 페이지 화면 구성
-    public ResponseEntity<PostFormDto> updatePost(@PathVariable("postId") Long postId) {
+    public ResponseEntity<PostFormDto> updatePostForm(@PathVariable("postId") Long postId) {
         PostFormDto updateForm = postService.getUpdateForm(postId);
         return ResponseEntity.status(HttpStatus.OK).body(updateForm);
     }
@@ -83,13 +83,12 @@ public class PostController extends ApiBase {
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
 
-
     /**
-     * 게시믈 리스트
+     * 게시믈 리스트 검색
      */
-    @GetMapping("/posts")
-    public ResponseEntity<List<PostListDto>> postList() {
-        List<PostListDto> postListDtos = postService.findAll();
+    @GetMapping("/posts" )
+    public ResponseEntity<List<PostListDto>> postList(@RequestParam(required = false) String tag, @RequestParam(required = false) String keyword) {
+        List<PostListDto> postListDtos = postService.findAll(tag, keyword);
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 
@@ -98,8 +97,8 @@ public class PostController extends ApiBase {
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        PostOwnerInfo postOwnerInfo = userService.getPostOwnerInfo(postId);
-        PostDto postDto = postService.postDetail(postId, postOwnerInfo);
+        UserInfo userInfo = userService.getPostOwnerInfo(postId);
+        PostDto postDto = postService.postDetail(postId, userInfo);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -135,6 +134,26 @@ public class PostController extends ApiBase {
                     e.printStackTrace();
                     return Mono.just(new ArrayList<>());
                 });
+    }
+
+    /**
+     * 게시물 참가 신청
+     */
+    @PostMapping("/posts/join/{postId}")
+    public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
+        Account currentUser = userService.getCurrentUser();
+        postService.applyJoin(currentUser, postId);
+        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
+    }
+
+    /**
+     * 참가 취소
+     */
+    @DeleteMapping("/posts/join/{postId}")
+    public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
+        Account currentUser = userService.getCurrentUser();
+        postService.cancelJoin(currentUser, postId);
+        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
     }
 }
 

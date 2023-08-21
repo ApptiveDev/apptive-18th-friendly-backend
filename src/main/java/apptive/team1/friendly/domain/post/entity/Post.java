@@ -1,40 +1,44 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
+import apptive.team1.friendly.domain.post.exception.NotParticipantException;
 import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
-import jdk.internal.jline.internal.Nullable;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post extends BaseEntity {
 
     @Builder
     public Post(String title, String description, int maxPeople,
-                LocalDateTime promiseTime, String location, Set<String> rules,
+                LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
                 Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
-        this.promiseTime = promiseTime;
+//        this.promiseTime = promiseTime;
+        this.startDate = startDate;
+        this.endDate = endDate;
         this.location = location;
         this.rules = rules;
         this.hashTags = hashTags;
@@ -62,6 +66,12 @@ public class Post extends BaseEntity {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime promiseTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
 
     private String location;
 
@@ -91,37 +101,40 @@ public class Post extends BaseEntity {
     /**
      * 게시물의 이미지 리스트를 게시물과 서버에서 삭제
      */
-    public void deleteImages(AwsS3Uploader awsS3Uploader) {
+    public void deleteImages(Account currentUser, AwsS3Uploader awsS3Uploader) {
+        Account postOwner = accountPosts.get(0).getUser();
+        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 삭제 불가
         if(this.postImages.size() > 0) {
             for (int i=this.postImages.size()-1; i>=0; i--) {
                 awsS3Uploader.delete(this.postImages.get(i).getOriginalFileName());
                 deleteImage(this.postImages.get(i));
             }
         }
-
     }
 
     /**
      * 이미지 리스트를 서버에 업로드 및 게시물에 추가
      */
     public void uploadImages(List<MultipartFile> multipartFiles, AwsS3Uploader awsS3Uploader) throws IOException {
-        if(multipartFiles.size() > 0) {
-            for(MultipartFile multipartFile : multipartFiles) {
-                FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ this.getId().toString());
-                addImage(uploadFile);
-            }
+        for(MultipartFile multipartFile : multipartFiles) {
+            FileInfo uploadFile = awsS3Uploader.upload(multipartFile, "post"+ this.getId().toString());
+            addImage(uploadFile);
         }
     }
 
     /**
      * 게시물 수정
      */
-    public void update(PostFormDto formDto) {
+    public void update(Account currentUser, PostFormDto formDto) {
+        Account postOwner = accountPosts.get(0).getUser();
+        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 수정 불가
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
         this.description = formDto.getDescription();
-        this.promiseTime = formDto.getPromiseTime();
+//        this.promiseTime = formDto.getPromiseTime();
+        this.startDate = formDto.getStartDate();
+        this.endDate = formDto.getEndDate();
         this.location = formDto.getLocation();
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
@@ -148,6 +161,50 @@ public class Post extends BaseEntity {
         this.postImages.remove(postImage);
     }
 
+    /**
+     * 여행 참가자 추가
+     */
+    public void addParticipant(Account currentUser) {
+        checkCanParticipate();
+        AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
+        this.accountPosts.add(accountPost);
+    }
+
+    public void deleteParticipant(Account currentUser) {
+        isParticipant(currentUser);
+        accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == currentUser.getId());
+    }
+
+    private void isParticipant(Account currentUser) {
+        boolean isParticipant = false;
+        for (AccountPost accountPost : accountPosts) {
+            if (accountPost.getUser().getId() == currentUser.getId() && accountPost.getAccountType() != AccountType.AUTHOR) {
+                isParticipant = true;
+                break;
+            }
+        }
+        if(!isParticipant) {
+            throw new NotParticipantException("참여중인 이용자가 아닙니다.");
+        }
+    }
+
+    /**
+     * 참여가능한 인원수 확인
+     */
+    private void checkCanParticipate() {
+        if(accountPosts.size() >= maxPeople) {
+            throw new ExcessOfPeopleException("인원 초과");
+        }
+    }
+
+    /**
+     * 게시물 수정/삭제 권한 확인
+     */
+    private void isHasAuthority(Account currentUser, Account author) {
+        if(!Objects.equals(author.getId(), currentUser.getId()))
+            throw new AccessDeniedException("접근 권한이 없습니다.");
+    }
+
     //========= 정적 메소드 ===========/
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
@@ -155,7 +212,9 @@ public class Post extends BaseEntity {
                 .createdDate(LocalDateTime.now())
                 .maxPeople(formDto.getMaxPeople())
                 .title(formDto.getTitle())
-                .promiseTime(formDto.getPromiseTime())
+//                .promiseTime(formDto.getPromiseTime())
+                .startDate(formDto.getStartDate())
+                .endDate(formDto.getEndDate())
                 .description(formDto.getDescription())
                 .location(formDto.getLocation())
                 .hashTags(formDto.getHashTags())
@@ -166,4 +225,5 @@ public class Post extends BaseEntity {
         post.getAccountPosts().add(accountPost);
         return post;
     }
+
 }

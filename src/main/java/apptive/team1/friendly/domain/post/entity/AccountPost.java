@@ -1,13 +1,14 @@
 package apptive.team1.friendly.domain.post.entity;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
-@NoArgsConstructor
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AccountPost {
 
     @Id
@@ -19,7 +20,7 @@ public class AccountPost {
     @JoinColumn(name = "post_id") // 연관관계의 주인
     private Post post;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 연관관계의 주인
     private Account user;
 

@@ -19,6 +19,8 @@ import apptive.team1.friendly.domain.user.data.entity.AccountAuthority;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.entity.profile.*;
 import apptive.team1.friendly.domain.user.data.repository.*;
+import apptive.team1.friendly.global.error.ErrorCode;
+import apptive.team1.friendly.global.error.exception.CustomException;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -79,7 +81,8 @@ public class UserService {
     @Transactional
     public SignupResponse extraSignUp(GoogleSignUpRequest signupRequest) {
 
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        Account account = getCurrentUser();
 
         extraSignup(account, signupRequest);
 
@@ -202,7 +205,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
-        return accountToUserInfo(SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(getCurrentUser());
     }
 
     /**
@@ -210,7 +213,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse  getUserWithAuthoritiesById(Long id) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesById(id).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     /**
@@ -218,7 +221,7 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthoritiesByEmail(String email) {
-        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다.")));
+        return accountToUserInfo(accountRepository.findOneWithAccountAuthoritiesByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND)));
     }
 
     /**
@@ -226,7 +229,7 @@ public class UserService {
      */
     public ProfileImgDto accountProfileImgUpload(MultipartFile multipartFile) throws IOException {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
 
         // 기존 이미지 제거
         Optional<ProfileImg> accountProfile = accountProfileImgRepository.findOneByAccount(account);
@@ -251,7 +254,7 @@ public class UserService {
      */
     public void deleteAccount() {
         // 회원 찾기
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+        Account account = getCurrentUser();
 
         // 회원 entity와 회원 관련 entity 삭제
         deleteAccount(account);
@@ -263,7 +266,7 @@ public class UserService {
      */
     public void deleteAccountByEmail(String email) {
         // 회원 찾기
-        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new IllegalArgumentException("회원을 찾을 수 없습니다."));
+        Account account = accountRepository.findOneByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 회원 entity와 회원 관련 entity 삭제
         deleteAccount(account);
@@ -288,8 +291,8 @@ public class UserService {
     /**
      * 게시물 주인 정보 조회
      */
-    public PostOwnerInfo getPostOwnerInfo(Long postId) {
-        PostOwnerInfo postOwnerInfo = new PostOwnerInfo();
+    public UserInfo getPostOwnerInfo(Long postId) {
+        UserInfo userInfo = new UserInfo();
 
         Account postOwner = accountRepository.findAuthorByPostId(postId);
 
@@ -308,39 +311,39 @@ public class UserService {
         }
 
         // nation 설정
+        NationDto nationDto = new NationDto();
         if(nationOptional.isPresent()) {
             AccountNation accountNation = nationOptional.get();
-            NationDto nationDto = new NationDto();
             nationDto.setCity(accountNation.getCity());
             nationDto.setName(accountNation.getNation().getName());
-            postOwnerInfo.setNationDto(nationDto);
         }
+        userInfo.setNationDto(nationDto);
 
         // profileDto 설정
+        ProfileImgDto profileImgDto = new ProfileImgDto();
         if(profileImgOptional.isPresent()) {
             ProfileImg profileImg = profileImgOptional.get();
-            ProfileImgDto profileImgDto = new ProfileImgDto();
             profileImgDto.setEmail(profileImg.getAccount().getEmail());
             profileImgDto.setUploadFileName(profileImg.getUploadFileName());
             profileImgDto.setOriginalFileName(profileImg.getOriginalFileName());
             profileImgDto.setUploadFilePath(profileImg.getUploadFilePath());
             profileImgDto.setUploadFileUrl(profileImg.getUploadFileUrl());
-            postOwnerInfo.setProfileImgDto(profileImgDto);
         }
+        userInfo.setProfileImgDto(profileImgDto);
 
-        postOwnerInfo.setFirstName(postOwner.getFirstName());
-        postOwnerInfo.setLastName(postOwner.getLastName());
-        postOwnerInfo.setGender(postOwner.getGender());
-        postOwnerInfo.setLanguageDtoList(languageDtoList);
+        userInfo.setFirstName(postOwner.getFirstName());
+        userInfo.setLastName(postOwner.getLastName());
+        userInfo.setGender(postOwner.getGender());
+        userInfo.setLanguageDtoList(languageDtoList);
 
-        return postOwnerInfo;
+        return userInfo;
     }
 
-    public PostOwnerInfo accountToPostOwnerInfo(Account account) {
+    public UserInfo accountToPostOwnerInfo(Account account) {
         List<AccountLanguage> accountLanguages = accountLanguageRepository.findAllByAccount(account);
         ProfileImg profileImg = accountProfileImgRepository.findOneByAccount(account).orElse(null);
         AccountNation nation = accountNationRepository.findOneByAccount(account).orElse(null);
-        return PostOwnerInfo.builder()
+        return UserInfo.builder()
                 .gender(account.getGender())
                 .firstName(account.getFirstName())
                 .lastName(account.getLastName())
@@ -354,14 +357,13 @@ public class UserService {
     }
 
     public Account getCurrentUser() {
-        Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
-        return account;
+        return SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     /**
-     * 현재 로그인된 유저 정보 반환 (PostOwnerInfo와 사용하는 필드 동일하여 재사용)
+     * 현재 로그인된 유저 정보 반환
      */
-    public PostOwnerInfo getCurrentUserInfo() {
+    public UserInfo getCurrentUserInfo() {
         Account account = getCurrentUser();
         return accountToPostOwnerInfo(account);
     }

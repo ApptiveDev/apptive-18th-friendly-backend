@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.repository;
 
+import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ public class PostRepository {
      * 임의의 user가 쓴 게시믈 userId로 조회
      */
     public List<Post> findByUser(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId ", Post.class)
+        List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId where ap.post.id = p.id", Post.class)
                 .setParameter("userId", userId)
                 .getResultList();
         return posts;
@@ -26,12 +27,7 @@ public class PostRepository {
      * 게시물 저장
      */
     public void save(Post post) {
-        if(post.getId() == null) {
-            em.persist(post); //신규
-        }
-        else {
-            em.merge(post); // 업데이트
-        }
+        em.persist(post); //신규
     }
 
     /**
@@ -46,7 +42,7 @@ public class PostRepository {
      * 게시물 찾기
      */
     public Post findOneByPostId(Long postId) {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags where p.id =: postId", Post.class)
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
                 .getSingleResult();
     }
@@ -54,19 +50,36 @@ public class PostRepository {
     /**
      * 전체 게시물 조회
      */
-    public List<Post> findAll() {
-        return em.createQuery("select distinct p from Post p join fetch p.hashTags", Post.class)
-                .getResultList();
+    public List<Post> findAll(String tag, String keyword) {
+        if(tag == null && keyword == null)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags", Post.class)
+                    .getResultList();
+        else if(tag == null) {
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+                    .setParameter("keyword", "%"+keyword+"%")
+                    .getResultList();
+        }
+        else if(keyword == null) {
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+                    .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
+                    .getResultList();
+        }
+        else {
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and (p.title like :keyword or p.description like :keyword or p.location like :keyword)", Post.class)
+                    .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
+                    .setParameter("keyword", "%"+keyword+"%")
+                    .getResultList();
+        }
     }
 
-    /**
-     * 게시물 전체 이미지 삭제
-     */
-    public int deleteAllImages(Post post) {
-        int deletedImageNum = em.createQuery("delete PostImage pimg where pimg.post = :post")
-                .setParameter("post", post)
-                .executeUpdate();
-        em.clear();
-        return deletedImageNum;
-    }
+//    /**
+//     * 게시물 전체 이미지 삭제
+//     */
+//    public int deleteAllImages(Post post) {
+//        int deletedImageNum = em.createQuery("delete PostImage pimg where pimg.post = :post")
+//                .setParameter("post", post)
+//                .executeUpdate();
+//        em.clear();
+//        return deletedImageNum;
+//    }
 }
