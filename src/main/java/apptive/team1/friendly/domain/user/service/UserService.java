@@ -159,15 +159,8 @@ public class UserService {
     /**
      * 게시물 주인 정보 조회
      */
-    public UserInfo getPostOwnerInfo(Long postId) {
-
-        Account postOwner = accountRepository.findAuthorByPostId(postId);
-
-        if(postOwner == null) // 삭제한 유저
-            return null;
-
-        return UserInfo.create(postOwner.getEmail(), postOwner.getFirstName(), postOwner.getLastName(),
-                postOwner.getGender(), postOwner.getNation(), postOwner.getCity(), postOwner.getLanguages(), postOwner.getProfileImg());
+    public Account getPostOwner(Long postId) {
+        return accountRepository.findAuthorByPostId(postId);
     }
 
     /**
@@ -185,14 +178,7 @@ public class UserService {
         if(account == null)
             return null;
 
-        return UserInfo.builder()
-                .gender(account.getGender())
-                .firstName(account.getFirstName())
-                .lastName(account.getLastName())
-                .nation(account.getNation())
-                .profileImg(account.getProfileImg())
-                .languages(account.getLanguages())
-                .build();
+        return UserInfo.create(account);
     }
 
     public Account getCurrentUser() {
