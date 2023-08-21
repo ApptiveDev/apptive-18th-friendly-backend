@@ -1,9 +1,7 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
-import apptive.team1.friendly.domain.user.data.dto.profile.InterestDto;
-import apptive.team1.friendly.domain.user.data.dto.profile.LanguageDto;
-import apptive.team1.friendly.domain.user.data.dto.profile.NationDto;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
+import apptive.team1.friendly.domain.user.data.vo.Language;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,11 +31,13 @@ public class AccountInfoResponse {
 
     private String introduction;    // 자기소개
 
-    private List<LanguageDto> languages;  // 언어
+    private List<Language> languages;  // 언어
 
-    private List<InterestDto> interests;  // 하고 싶은 활동
+    private List<String> interests;  // 하고 싶은 활동
 
-    private NationDto nation;    // 국가
+    private String nation;    // 국가
+    
+    private String city;    // 도시
 
     private ProfileImgDto profileImgDto;    // 프로필 이미지
 

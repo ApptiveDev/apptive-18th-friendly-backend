@@ -41,7 +41,7 @@ public class ContentController {
     public ResponseEntity<ContentDto> contentDetail(@PathVariable("contentId") Long contentId) {
         Account currentUser = userService.getCurrentUser();
         Content content = contentService.findOne(contentId);
-        UserInfo authorInfo = userService.accountToPostOwnerInfo(content.getAccount());
+        UserInfo authorInfo = userService.accountToOwnerInfo(content.getAccount());
 
         ContentDto contentDto = contentService.createContentDto(currentUser, authorInfo, contentId);
         return new ResponseEntity<>(contentDto, HttpStatus.OK);

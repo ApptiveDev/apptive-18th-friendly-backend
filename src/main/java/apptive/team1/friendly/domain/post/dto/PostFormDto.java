@@ -22,15 +22,15 @@ public class PostFormDto {
                        LocalDate startDate, LocalDate endDate, String location,
                        Set<String> rules, AudioGuide audioGuide) {
         this.title = title;
-        this.hashTags = hashTags;
         this.maxPeople = maxPeople;
         this.description = description;
 //        this.promiseTime = promiseTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
-        this.rules = rules;
         this.audioGuide = audioGuide;
+        this.hashTags.addAll(hashTags);
+        this.rules.addAll(rules);
     }
 
     private String title;
@@ -67,6 +67,7 @@ public class PostFormDto {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .location(post.getLocation())
+                .audioGuide(post.getAudioGuide())
                 .build();
     }
 }

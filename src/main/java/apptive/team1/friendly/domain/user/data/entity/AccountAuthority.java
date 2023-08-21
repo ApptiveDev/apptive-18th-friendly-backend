@@ -4,10 +4,8 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Entity
+@Entity @Getter
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class AccountAuthority {

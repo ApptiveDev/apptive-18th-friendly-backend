@@ -42,7 +42,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new RuntimeException(email + " -> 활성화되어 있지 않습니다.");
         }
         List<GrantedAuthority> grantedAuthorities = account.getAccountAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthority().getAuthorityName()))
+                .map(accountAuthority -> new SimpleGrantedAuthority(accountAuthority.getAuthority().getAuthorityName()))
                 .collect(Collectors.toList());
 
         return new User(account.getEmail(), account.getPassword(), grantedAuthorities);

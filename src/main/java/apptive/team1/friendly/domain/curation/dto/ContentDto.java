@@ -5,10 +5,7 @@ import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import lombok.Builder;
 import lombok.Data;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Lob;
-import javax.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +38,6 @@ public class ContentDto {
 
     private String title;
 
-    @OneToMany(mappedBy = "content", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageDto> images = new ArrayList<>();
 
     private String location;

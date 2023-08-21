@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
+import apptive.team1.friendly.domain.user.data.vo.Language;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,15 +18,13 @@ public class GoogleSignUpRequest {
 
     private String nation;    // 국가
 
-    private String city;    // 도시
-
+    private String  city;   // 도시
+    
     private String gender; // 성별
 
     private String introduction;    // 자기소개
 
-    private List<String> languages;  // 언어
-
-    private List<String> languageLevels; // 언어 수준
+    private List<Language> languages;  // 언어
 
     private List<String> interests;  // 하고 싶은 활동
 
@@ -40,7 +39,6 @@ public class GoogleSignUpRequest {
                 ", gender='" + gender + '\'' +
                 ", introduction='" + introduction + '\'' +
                 ", languages=" + languages +
-                ", languageLevels=" + languageLevels +
                 ", interests=" + interests +
                 '}';
     }
