@@ -1,5 +1,7 @@
 package apptive.team1.friendly.domain.tourismboard.controller;
 
+import apptive.team1.friendly.domain.tourismboard.dto.TourismDto;
+import apptive.team1.friendly.domain.tourismboard.dto.TourismListDto;
 import apptive.team1.friendly.domain.tourismboard.entity.FamousRestaurant;
 import apptive.team1.friendly.domain.tourismboard.entity.ThemeTourism;
 import apptive.team1.friendly.domain.tourismboard.entity.Tourism;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -32,26 +35,15 @@ public class TourismBoardController extends ApiBase {
     private final TourismService tourismService;
 
     @GetMapping("/tourism")
-    public ResponseEntity<List<Tourism>> getAllTourism(@RequestParam int pageNum) {
-        List<Tourism> tourisms = tourismService.getAllTourism(pageNum);
-        return new ResponseEntity<>(tourisms, HttpStatus.OK);
+    public ResponseEntity<List<TourismListDto>> getTourismList(@RequestParam int pageNum, @RequestParam(required = false) String tag) {
+        List<TourismListDto> tourismList = tourismService.getTourismList(pageNum, tag);
+        return new ResponseEntity<>(tourismList, HttpStatus.OK);
     }
 
-    @GetMapping("/tourism/walking")
-    public ResponseEntity<List<WalkingTourism>> getWalkingTravel(@RequestParam int pageNum) {
-        List<WalkingTourism> walkingTourism = tourismService.getWalkingTourism(pageNum);
-        return new ResponseEntity<>(walkingTourism, HttpStatus.OK);
-    }
-    @GetMapping("/tourism/theme")
-    public ResponseEntity<List<ThemeTourism>> getThemeTourism(@RequestParam int pageNum) {
-        List<ThemeTourism> walkingTourism = tourismService.getThemeTourism(pageNum);
-        return new ResponseEntity<>(walkingTourism, HttpStatus.OK);
-    }
-
-    @GetMapping("/tourism/restaurant")
-    public ResponseEntity<List<FamousRestaurant>> getFamousRestaurant(@RequestParam int pageNum) {
-        List<FamousRestaurant> famousRestaurant = tourismService.getFamousRestaurant(pageNum);
-        return new ResponseEntity<>(famousRestaurant, HttpStatus.OK);
+    @GetMapping("/tourism/{tourismId}")
+    public ResponseEntity<TourismDto> getTourismDetail(@PathVariable Long tourismId) {
+        TourismDto tourismDetail = tourismService.getTourismDetail(tourismId);
+        return new ResponseEntity<>(tourismDetail, HttpStatus.OK);
     }
 
     private void saveWalkingTravel(int pageNo) throws URISyntaxException, JsonProcessingException {
@@ -129,6 +121,6 @@ public class TourismBoardController extends ApiBase {
 //        System.out.println("deleted:" + deletedCount);
 //        saveWalkingTravel(1);
 //        saveThemeTravel(1);
-        saveFamousRestaurant(1);
+//        saveFamousRestaurant(1);
     }
 }

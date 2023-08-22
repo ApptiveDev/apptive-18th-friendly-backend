@@ -7,6 +7,8 @@ import apptive.team1.friendly.domain.tourismboard.entity.WalkingTourism;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import java.util.Collections;
 import java.util.List;
 
 @Repository
@@ -18,36 +20,31 @@ public class TourismRepository {
         em.persist(tourism);
     }
 
-    public List<Tourism> getAllTourism(int pageNum) {
-        return em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class)
-                .setFirstResult(pageNum*resultCount)
-                .setMaxResults(resultCount)
-                .getResultList();
-    }
-
-    public List<WalkingTourism> getWalkingTourism(int pageNum) {
-        return em.createQuery("select wt from WalkingTourism wt", WalkingTourism.class)
-                .setFirstResult(pageNum*resultCount)
-                .setMaxResults(resultCount)
-                .getResultList();
-    }
-
-    public List<ThemeTourism> getThemeTourism(int pageNum) {
-        return em.createQuery("select tt from ThemeTourism tt", ThemeTourism.class)
-                .setFirstResult(pageNum*resultCount)
-                .setMaxResults(resultCount)
-                .getResultList();
-    }
-
-    public List<FamousRestaurant> getFamousRestaurant(int pageNum) {
-        return em.createQuery("select fr from FamousRestaurant fr", FamousRestaurant.class)
-                .setFirstResult(pageNum*resultCount)
-                .setMaxResults(resultCount)
-                .getResultList();
+    public Tourism findOneById(Long tourismId) {
+        return em.find(Tourism.class, tourismId);
     }
 
     public int deleteAll() {
         return em.createQuery("delete from Tourism")
                 .executeUpdate();
+    }
+
+    public List<Tourism> getTourismList(int pageNum, String tag) { // 동적 쿼리로 수정
+        TypedQuery<Tourism> query;
+        if(tag == null)
+            query = em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class);
+        else if(tag.equals("walking"))
+            query = em.createQuery("select wt from WalkingTourism wt", Tourism.class);
+        else if(tag.equals("theme"))
+            query = em.createQuery("select tt from ThemeTourism tt", Tourism.class);
+        else if(tag.equals("restaurant"))
+            query = em.createQuery("select fr from FamousRestaurant fr", Tourism.class);
+        else
+            return Collections.emptyList();
+
+        return query
+                .setFirstResult(pageNum * resultCount)
+                .setMaxResults(resultCount)
+                .getResultList();
     }
 }
