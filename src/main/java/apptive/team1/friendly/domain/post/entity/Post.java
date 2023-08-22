@@ -2,7 +2,6 @@ package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.exception.*;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
@@ -29,7 +28,7 @@ public class Post extends BaseEntity {
     @Builder
     public Post(String title, String description, int maxPeople,
                 LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
+                Set<HashTag> hashTags, LocalDateTime createdDate) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -39,7 +38,6 @@ public class Post extends BaseEntity {
         this.location = location;
         this.rules = rules;
         this.hashTags = hashTags;
-        this.audioGuide = audioGuide;
         this.setCreatedDate(createdDate);
         this.setLastModifiedDate(createdDate);
     }
@@ -85,10 +83,6 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
-
-    @Embedded
-    @Nullable
-    private AudioGuide audioGuide;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<AccountPost> accountPosts = new ArrayList<>();
@@ -214,7 +208,6 @@ public class Post extends BaseEntity {
                 .location(formDto.getLocation())
                 .hashTags(formDto.getHashTags())
                 .rules(formDto.getRules())
-                .audioGuide(formDto.getAudioGuide())
                 .build();
         AccountPost accountPost = AccountPost.createAccountPost(author, post, AccountType.AUTHOR);
         post.getAccountPosts().add(accountPost);

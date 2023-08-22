@@ -1,6 +1,6 @@
 package apptive.team1.friendly.domain.post.dto;
 import apptive.team1.friendly.domain.post.entity.*;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.post.entity.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
@@ -19,7 +19,7 @@ public class PostDto {
     public PostDto(Long postId, List<ImageDto> postImages, UserInfo currentUserInfo, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                   List<CommentDto> comments, AudioGuide audioGuide) {
+                   List<CommentDto> comments) {
         this.postId = postId;
         this.currentUserInfo = currentUserInfo;
         this.authorInfo = authorInfo;
@@ -30,7 +30,6 @@ public class PostDto {
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
-        this.audioGuide = audioGuide;
         this.postImages.addAll(postImages);
         this.comments.addAll(comments);
         this.hashTags.addAll(hashTags);
@@ -66,8 +65,6 @@ public class PostDto {
 
     private List<CommentDto> comments = new ArrayList<>();
 
-    private AudioGuide audioGuide;
-
     public static PostDto createPostDto(Post findPost, Account currentUser, Account author) {
 
         UserInfo currentUserInfo = UserInfo.create(currentUser);
@@ -99,7 +96,6 @@ public class PostDto {
 //                .promiseTime(findPost.getPromiseTime())
                 .startDate(findPost.getStartDate())
                 .endDate(findPost.getEndDate())
-                .audioGuide(findPost.getAudioGuide())
                 .comments(commentDtos)
                 .rules(findPost.getRules())
                 .postImages(postImageDtos)
