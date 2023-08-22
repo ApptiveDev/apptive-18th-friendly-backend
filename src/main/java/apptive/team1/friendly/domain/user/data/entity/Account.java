@@ -1,11 +1,9 @@
 package apptive.team1.friendly.domain.user.data.entity;
 
-import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
-import apptive.team1.friendly.domain.user.data.vo.Language;
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
 import lombok.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -22,7 +20,7 @@ public class Account {
     public Account(String email, String password, String firstName,
                    String lastName, String birthday, String gender,
                    String introduction, List<String> interests, String nation, String city,
-                   List<Language> languages, Authority authority, boolean activated) {
+                   List<String> languages, List<LanguageLevel> languageLevels, Authority authority, boolean activated) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -34,6 +32,7 @@ public class Account {
         this.nation = nation;
         this.city = city;
         this.languages = languages;
+        this.languageLevels = languageLevels;
         this.activated = activated;
         AccountAuthority accountAuthority = AccountAuthority.builder()
                 .account(this)
@@ -70,8 +69,14 @@ public class Account {
 
     private String city;
 
+//    @ElementCollection
+//    private List<Language> languages = new ArrayList<>();
+
     @ElementCollection
-    private List<Language> languages = new ArrayList<>();
+    private List<String> languages = new ArrayList<>();
+
+    @ElementCollection
+    private List<LanguageLevel> languageLevels = new ArrayList<>();
 
     @ElementCollection
     private List<String> interests = new ArrayList<>();
@@ -91,7 +96,13 @@ public class Account {
     public static Account create(String email, String password, String firstName,
                               String lastName, String birthday, String gender,
                               String introduction, List<String> interests, String nation,
-                              String city, List<Language> languages, Authority authority) {
+                              String city, List<String> languages, List<String> languageLevels, Authority authority) {
+
+        List<LanguageLevel> languageLevelList = new ArrayList<>();
+        for (String languageLevelName : languageLevels) {
+            LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
+            languageLevelList.add(languageLevel);
+        }
 
         return Account.builder()
                 .email(email)
@@ -105,6 +116,7 @@ public class Account {
                 .nation(nation)
                 .city(city)
                 .languages(languages)
+                .languageLevels(languageLevelList)
                 .authority(authority)
                 .activated(true)
                 .build();
@@ -113,7 +125,7 @@ public class Account {
     //===========비즈니스 로직===========//
     public void extraSignup(String birthday, String firstName, String lastName,
                             String introduction, String gender, List<String> interests,
-                            List<Language> languages, String nation, String city, boolean activated) {
+                            List<String> languages, List<String> languageLevels, String nation, String city, boolean activated) {
         this.birthday = birthday;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -124,6 +136,11 @@ public class Account {
         this.languages = languages;
         this.nation = nation;
         this.city = city;
+
+        for (String languageLevelName : languageLevels) {
+            LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
+            this.languageLevels.add(languageLevel);
+        }
     }
 
     public void deleteProfileImage(AwsS3Uploader awsS3Uploader) {
