@@ -2,11 +2,10 @@ package apptive.team1.friendly.domain.post.dto;
 
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.post.entity.AudioGuide;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +19,7 @@ public class PostFormDto {
     @Builder
     public PostFormDto(String title, Set<HashTag> hashTags, int maxPeople, String description,
                        LocalDate startDate, LocalDate endDate, String location,
-                       Set<String> rules, AudioGuide audioGuide) {
+                       Set<String> rules) {
         this.title = title;
         this.maxPeople = maxPeople;
         this.description = description;
@@ -28,7 +27,6 @@ public class PostFormDto {
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
-        this.audioGuide = audioGuide;
         this.hashTags.addAll(hashTags);
         this.rules.addAll(rules);
     }
@@ -54,8 +52,6 @@ public class PostFormDto {
 
     private Set<String> rules = new HashSet<>();
 
-    private AudioGuide audioGuide;
-
     public static PostFormDto createPostFormDto(Post post) {
         return PostFormDto.builder()
                 .rules(post.getRules())
@@ -67,7 +63,6 @@ public class PostFormDto {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .location(post.getLocation())
-                .audioGuide(post.getAudioGuide())
                 .build();
     }
 }
