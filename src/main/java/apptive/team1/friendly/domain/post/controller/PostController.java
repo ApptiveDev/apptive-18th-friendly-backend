@@ -90,14 +90,34 @@ public class PostController extends ApiBase {
         List<PostListDto> postListDtos = postService.findAll(tag, keyword);
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
+    
+    /**
+     * 유저가 작성 또는 참가한 게시물 리스트
+     */
+    @GetMapping("/posts/myPost")
+    public ResponseEntity<List<PostListDto>> myPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllPostsByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
 
     /**
      * 유저가 작성한 게시물 리스트
      */
-    @GetMapping("/posts/mypost")
-    public ResponseEntity<List<PostListDto>> myPostList() {
+    @GetMapping("/posts/authoredPost")
+    public ResponseEntity<List<PostListDto>> authoredPosts() {
         Account currentUser = userService.getCurrentUser();
-        List<PostListDto> postListDtos = postService.findAllByUserId(currentUser.getId());
+        List<PostListDto> postListDtos = postService.findAllAuthoredPostByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
+     * 유저가 참여한 모임(게시물) 리스트
+     */
+    @GetMapping("/posts/participatedPost")
+    public ResponseEntity<List<PostListDto>> participatedPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllParticipatedPostByUserId(currentUser.getId());
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 
