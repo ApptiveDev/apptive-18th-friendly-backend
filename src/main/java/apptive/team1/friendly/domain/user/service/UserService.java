@@ -52,7 +52,7 @@ public class UserService {
                 signupRequest.getFirstName(), signupRequest.getLastName(),
                 signupRequest.getBirthday(), signupRequest.getGender(), signupRequest.getIntroduction(),
                 signupRequest.getInterests(), signupRequest.getNation(), signupRequest.getCity(),
-                signupRequest.getLanguages(), authority);
+                signupRequest.getLanguages(), signupRequest.getLanguageLevels(), authority);
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -74,7 +74,7 @@ public class UserService {
         account.extraSignup(signupRequest.getBirthday(), signupRequest.getFirstName(),
                 signupRequest.getLastName(), signupRequest.getIntroduction(),
                 signupRequest.getGender(), signupRequest.getInterests(), signupRequest.getLanguages(),
-                signupRequest.getNation(), signupRequest.getCity(), true);
+                signupRequest.getLanguageLevels(), signupRequest.getNation(), signupRequest.getCity(), true);
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -185,6 +185,7 @@ public class UserService {
 
         Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         Hibernate.initialize(account.getLanguages());
+        Hibernate.initialize(account.getLanguageLevels());
         Hibernate.initialize(account.getInterests());
 
         return account;

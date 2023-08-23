@@ -1,12 +1,10 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
-import apptive.team1.friendly.domain.user.data.vo.Language;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -40,7 +38,11 @@ public class SignupRequest {
 
     private String introduction;    // 자기소개
 
-    private List<Language> languages;  // 언어
+//    private List<Language> languages;  // 언어
+
+    private List<String> languages;
+
+    private List<String> languageLevels;
 
     private List<String> interests;  // 하고 싶은 활동
 }

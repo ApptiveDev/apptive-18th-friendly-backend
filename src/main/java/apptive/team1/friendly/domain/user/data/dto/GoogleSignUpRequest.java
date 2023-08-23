@@ -1,9 +1,7 @@
 package apptive.team1.friendly.domain.user.data.dto;
 
-import apptive.team1.friendly.domain.user.data.vo.Language;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.util.List;
 
 @Getter
@@ -24,7 +22,11 @@ public class GoogleSignUpRequest {
 
     private String introduction;    // 자기소개
 
-    private List<Language> languages;  // 언어
+//    private List<Language> languages;  // 언어
+
+    private List<String> languages;
+
+    private List<String> languageLevels;
 
     private List<String> interests;  // 하고 싶은 활동
 

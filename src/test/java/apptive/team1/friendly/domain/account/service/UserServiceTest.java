@@ -1,13 +1,9 @@
 package apptive.team1.friendly.domain.account.service;
 
-import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
-import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
-import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.Authority;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.domain.user.data.repository.AuthorityRepository;
-import apptive.team1.friendly.domain.user.data.vo.Language;
 import apptive.team1.friendly.domain.user.service.UserService;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,13 +47,16 @@ public class UserServiceTest {
 
 
     private static Account getAccount(Authority authority) {
-        List<Language> languages = new ArrayList<>();
+        List<String> languages = new ArrayList<>();
+        List<String> languageLevels = new ArrayList<>();
         List<String> interests = new ArrayList<>();
-        languages.add(new Language("korean", LanguageLevel.ADVANCED));
+//        languages.add(new Language("korean", LanguageLevel.ADVANCED));
+        languages.add("korean");
+        languageLevels.add("모국어");
         interests.add("축구");
 
         return Account.create("test@gmail.com", "abc", "kim", "mw",
                         "23-08-05", "남자", "intro", interests, "korea", "busan",
-                        languages, authority);
+                        languages, languageLevels, authority);
     }
 }

@@ -373,8 +373,7 @@ public class PostServiceTest {
         Set<HashTag> hashTag = new HashSet<>();
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.of(2023,8,30), location, rules, audioGuide);
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.of(2023,8,30), location, rules);
     }
 
     private PostFormDto createUpdatePostForm() {
@@ -384,7 +383,6 @@ public class PostServiceTest {
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
         hashTag.add(FAMOUS);
-        AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules, audioGuide);
+        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules);
     }
 }
