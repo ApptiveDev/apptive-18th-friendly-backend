@@ -24,8 +24,8 @@ public class UserInfo {
         this.gender = gender;
         this.nation = nation;
         this.city = city;
-        this.languages = languages;
-        this.languageLevels = languageLevels;
+        this.languages.addAll(languages);
+        this.languageLevels.addAll(languageLevels);
         this.profileImgDto = profileImgDto;
     }
 
@@ -41,9 +41,9 @@ public class UserInfo {
 
 //    private List<Language> languages;
 
-    private List<String> languages;
+    private List<String> languages = new ArrayList<>();
 
-    private List<LanguageLevel> languageLevels;
+    private List<LanguageLevel> languageLevels = new ArrayList<>();
 
     private ProfileImgDto profileImgDto;
 

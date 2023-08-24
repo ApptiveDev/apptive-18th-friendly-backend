@@ -76,6 +76,7 @@ public class Account {
     private List<String> languages = new ArrayList<>();
 
     @ElementCollection
+    @Enumerated(EnumType.STRING)
     private List<LanguageLevel> languageLevels = new ArrayList<>();
 
     @ElementCollection
