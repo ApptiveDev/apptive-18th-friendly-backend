@@ -17,6 +17,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findOneByEmail(String email);
 
-    @Query("select distinct a from Account a join AccountPost ap on ap.accountType = apptive.team1.friendly.domain.post.entity.AccountType.AUTHOR and ap.post.id = :postId where a.id = ap.user.id")
+    @Query("select distinct a from Account a left join fetch a.languages join AccountPost ap on ap.accountType = apptive.team1.friendly.domain.post.entity.AccountType.AUTHOR and ap.post.id = :postId where a.id = ap.user.id")
     Account findAuthorByPostId(@Param("postId") Long postId);
 }
