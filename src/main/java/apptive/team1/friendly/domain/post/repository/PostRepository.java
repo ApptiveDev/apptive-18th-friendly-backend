@@ -1,6 +1,6 @@
 package apptive.team1.friendly.domain.post.repository;
 
-import apptive.team1.friendly.domain.post.entity.AccountPost;
+import apptive.team1.friendly.domain.post.entity.AccountType;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -19,11 +19,33 @@ public class PostRepository {
      * 임의의 user가 쓴 게시믈 userId로 조회
      */
     public List<Post> findByUser(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p join AccountPost ap on ap.user.id = :userId where ap.post.id = p.id", Post.class)
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
                 .setParameter("userId", userId)
                 .getResultList();
+    }
+
+    /**
+     * user가 작성한 게시물 조회
+     */
+    public List<Post> findByAuthor(Long userId) {
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
+                .setParameter("userId", userId)
+                .setParameter("accountType", AccountType.AUTHOR)
+                .getResultList();
+    }
+
+    /**
+     * user가 참가한 게시물 조회
+     */
+    public List<Post> findByParticipant(Long userId) {
+        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
+                .setParameter("userId", userId)
+                .setParameter("accountType", AccountType.PARTICIPANT)
+                .getResultList();
+
         return posts;
     }
+
 
     /**
      * 게시물 저장
