@@ -19,29 +19,26 @@ public class PostRepository {
      * 임의의 user가 쓴 게시믈 userId로 조회
      */
     public List<Post> findByUser(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId where ap.post.id = p.id", Post.class)
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
                 .setParameter("userId", userId)
                 .getResultList();
-        return posts;
     }
 
     /**
      * user가 작성한 게시물 조회
      */
     public List<Post> findByAuthor(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id", Post.class)
+        return em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
                 .setParameter("userId", userId)
                 .setParameter("accountType", AccountType.AUTHOR)
                 .getResultList();
-
-        return posts;
     }
 
     /**
      * user가 참가한 게시물 조회
      */
     public List<Post> findByParticipant(Long userId) {
-        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id", Post.class)
+        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags join AccountPost ap on ap.user.id = :userId and ap.accountType = :accountType where ap.post.id = p.id order by p.lastModifiedDate desc", Post.class)
                 .setParameter("userId", userId)
                 .setParameter("accountType", AccountType.PARTICIPANT)
                 .getResultList();
