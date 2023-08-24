@@ -11,8 +11,7 @@ import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
 import apptive.team1.friendly.domain.post.exception.NotParticipantException;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
-import apptive.team1.friendly.domain.user.data.dto.UserInfo;
+import apptive.team1.friendly.domain.post.entity.AudioGuide;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.TestMethods;
@@ -33,7 +32,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -146,18 +144,16 @@ public class PostServiceTest {
     @Test
     public void 게시물_상세_조회() throws IOException {
         // given
-        Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
-        UserInfo userInfo = UserInfo.builder()
-                .gender(account.getGender())
-                .firstName(account.getFirstName())
-                .lastName(account.getLastName())
-                .build();
+        Account author = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
+
+        Account currentUser = tm.createAccount("current@gmail.com", "Kim", "A");
+
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long postId = postService.addPost(account, postFormDto, files);
+        Long postId = postService.addPost(author, postFormDto, files);
 
         // when
-        PostDto postDto = postService.postDetail(postId, userInfo);
+        PostDto postDto = postService.postDetail(postId, currentUser, author);
 
         // then
         Post findPost = postRepository.findOneByPostId(postId);
@@ -377,8 +373,7 @@ public class PostServiceTest {
         Set<HashTag> hashTag = new HashSet<>();
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
-        AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.of(2023,8,30), location, rules, audioGuide);
+        return new PostFormDto(title, hashTag, maxPeople, description, LocalDate.now(), LocalDate.of(2023,8,30), location, rules);
     }
 
     private PostFormDto createUpdatePostForm() {
@@ -388,49 +383,6 @@ public class PostServiceTest {
         hashTag.add(LIFE);
         hashTag.add(NATIVE);
         hashTag.add(FAMOUS);
-        AudioGuide audioGuide = new AudioGuide();
-        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules, audioGuide);
+        return new PostFormDto("updated!!", hashTag, 5, "update test", LocalDate.now(), LocalDate.now(), "updated location", rules);
     }
-
-
-    //    @Test
-//    public void cascade_옵션_테스트() {
-//        Account account = new Account();
-//        Post post = new Post();
-//        AccountPost.builder()
-//                .user(account)
-//                .post(post)
-//                .accountType(AccountType.AUTHOR)
-//                .build();
-//        postRepository.save(post);
-//
-//    }
-
-
-//    @Test
-//    public void 테스트용_회원추가() {
-//        Account account = new Account();
-//        AccountNation accountNation = new AccountNation();
-//        accountNation.setAccount(account);
-//        Nation nation = new Nation();
-//        nation.setName("korea");
-//        accountNation.setNation(nation);
-//
-//        ProfileImg profileImg = new ProfileImg();
-//        profileImg.setUploadFileUrl("test");
-//        profileImg.setAccount(account);
-//
-//        AccountLanguage accountLanguage1 = new AccountLanguage();
-//        AccountLanguage accountLanguage2 = new AccountLanguage();
-//        Language language1 = new Language();
-//        Language language2 = new Language();
-//        language1.setName("korean");
-//        language2.setName("english");
-//        accountLanguage1.setLanguage(language1);
-//        accountLanguage2.setLanguage(language2);
-//        accountLanguage1.setAccount(account);
-//        accountLanguage2.setAccount(account);
-//        accountRepository.save(account);
-//
-//    }
 }

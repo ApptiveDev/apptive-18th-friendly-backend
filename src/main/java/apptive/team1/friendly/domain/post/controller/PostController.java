@@ -3,36 +3,21 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.service.PostService;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.global.baseEntity.ApiBase;
-import apptive.team1.friendly.global.utils.ObjectMapperUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-public class PostController extends ApiBase {
+public class PostController {
 
     private final PostService postService;
 
@@ -47,7 +32,7 @@ public class PostController extends ApiBase {
         return ResponseEntity.status(HttpStatus.OK).body(userInfo);
     }
 
-    @PostMapping("/posts/create") // 게시물 추가 요청
+    @PostMapping("/posts/create") // 게시물 추가
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Account author = userService.getCurrentUser();
         Long postId = postService.addPost(author, postForm, imageFiles);
@@ -76,7 +61,7 @@ public class PostController extends ApiBase {
         return ResponseEntity.status(HttpStatus.OK).body(updateForm);
     }
 
-    @PutMapping("/posts/{postId}/edit") // 업데이트 요청
+    @PutMapping("/posts/{postId}/edit") // 게시물 업데이트
     public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Account currentUser = userService.getCurrentUser();
         Long updatedPostId = postService.updatePost(currentUser, postId, postForm, imageFiles);
@@ -91,49 +76,50 @@ public class PostController extends ApiBase {
         List<PostListDto> postListDtos = postService.findAll(tag, keyword);
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
+    
+    /**
+     * 유저가 작성 또는 참가한 게시물 리스트
+     */
+    @GetMapping("/posts/myPost")
+    public ResponseEntity<List<PostListDto>> myPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllPostsByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
+     * 유저가 작성한 게시물 리스트
+     */
+    @GetMapping("/posts/authoredPost")
+    public ResponseEntity<List<PostListDto>> authoredPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllAuthoredPostByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
+     * 유저가 참여한 모임(게시물) 리스트
+     */
+    @GetMapping("/posts/participatedPost")
+    public ResponseEntity<List<PostListDto>> participatedPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = postService.findAllParticipatedPostByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
 
     /**
      * 게시물 상세 정보
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
-        UserInfo userInfo = userService.getPostOwnerInfo(postId);
-        PostDto postDto = postService.postDetail(postId, userInfo);
+
+        Account currentUser = userService.getCurrentUser();
+
+        Account author = userService.getPostOwner(postId);
+
+        PostDto postDto = postService.postDetail(postId, currentUser, author);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
-    }
-
-    /**
-     * 오디오 가이드 API 호출
-     */
-    @GetMapping("/posts/audioGuide")
-    public Mono<List<AudioGuide>> getAudioGuides(@RequestParam("locationName") String locationName, @RequestParam("languageCode") String languageCode) throws URISyntaxException {
-        WebClient webClient = WebClient.create();
-        URI uri = new URI("https://apis.data.go.kr/B551011/Odii/storySearchList" +
-                "?MobileOS=" + getMobileOS() + "&keyword=" + locationName + "&MobileApp=Photour" +
-                "&serviceKey=" + getApikey() +
-                "&_type=json&langCode=" + languageCode);
-
-        return webClient.get()
-                .uri(uri)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(String.class)
-                .flatMap(jsonResponse -> {
-                    JsonNode jsonNode;
-                    ObjectMapper objectMapper = ObjectMapperUtils.getObjectMapper();
-                    try {
-                        jsonNode = objectMapper.readTree(jsonResponse).get("response").get("body").get("items").get("item");
-                        List<AudioGuide> audioGuides = objectMapper.readValue(jsonNode.toString(), new TypeReference<List<AudioGuide>>() {});
-                        return Mono.just(audioGuides);
-                    } catch (JsonProcessingException e) {
-                        return Mono.error(e);
-                    }
-                })
-                .onErrorResume(e -> {
-                    e.printStackTrace();
-                    return Mono.just(new ArrayList<>());
-                });
     }
 
     /**

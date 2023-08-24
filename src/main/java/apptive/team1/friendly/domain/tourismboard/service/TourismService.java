@@ -1,5 +1,7 @@
 package apptive.team1.friendly.domain.tourismboard.service;
 
+import apptive.team1.friendly.domain.tourismboard.dto.TourismDto;
+import apptive.team1.friendly.domain.tourismboard.dto.TourismListDto;
 import apptive.team1.friendly.domain.tourismboard.entity.FamousRestaurant;
 import apptive.team1.friendly.domain.tourismboard.entity.ThemeTourism;
 import apptive.team1.friendly.domain.tourismboard.entity.Tourism;
@@ -15,23 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class TourismService {
+
     private final TourismRepository tourismRepository;
-
-    public List<WalkingTourism> getWalkingTourism(int pageNum) {
-        return tourismRepository.getWalkingTourism(pageNum);
-    }
-
-    public List<ThemeTourism> getThemeTourism(int pageNum) {
-        return tourismRepository.getThemeTourism(pageNum);
-    }
-
-    public List<Tourism> getAllTourism(int pageNum) {
-        return tourismRepository.getAllTourism(pageNum);
-    }
-
-    public List<FamousRestaurant> getFamousRestaurant(int pageNum) {
-        return tourismRepository.getFamousRestaurant(pageNum);
-    }
 
     @Transactional
     public void saveTourism(Tourism tourism) {
@@ -41,5 +28,15 @@ public class TourismService {
     @Transactional
     public int deleteAll() {
         return tourismRepository.deleteAll();
+    }
+
+    public List<TourismListDto> getTourismList(int pageNum, String tag) {
+        List<Tourism> tourismList = tourismRepository.getTourismList(pageNum, tag);
+        return TourismListDto.create(tourismList);
+    }
+
+    public TourismDto getTourismDetail(Long tourismId) {
+        Tourism tourism = tourismRepository.findOneById(tourismId);
+        return TourismDto.create(tourism);
     }
 }

@@ -1,5 +1,8 @@
 package apptive.team1.friendly.domain.user.data.constant;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,10 +25,12 @@ public enum LanguageLevel {
         this.name = name;
     }
 
+    @JsonValue
     public String getName() {
         return name;
     }
 
+    @JsonCreator
     public static LanguageLevel getLevelByName(String name) {
         return levelByNameMap.get(name);
     }

@@ -40,7 +40,7 @@ public class HeartService {
     }
 
     private void isAuthor(Account currentUser, Content content) {
-        if(currentUser.getId() == content.getAccount().getId()) {
+        if(content.getAccount() != null && currentUser.getId() == content.getAccount().getId()) {
             throw new CanNotPushHeartException("자신의 글에는 좋아요를 누를 수 없습니다.");
         }
     }

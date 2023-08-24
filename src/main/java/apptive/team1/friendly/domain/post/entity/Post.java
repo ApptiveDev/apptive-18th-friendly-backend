@@ -1,10 +1,7 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
-import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
-import apptive.team1.friendly.domain.post.exception.ExcessOfPeopleException;
-import apptive.team1.friendly.domain.post.exception.NotParticipantException;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.post.exception.*;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
@@ -15,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -32,7 +28,7 @@ public class Post extends BaseEntity {
     @Builder
     public Post(String title, String description, int maxPeople,
                 LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                Set<HashTag> hashTags, LocalDateTime createdDate, AudioGuide audioGuide) {
+                Set<HashTag> hashTags, LocalDateTime createdDate) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
@@ -42,7 +38,6 @@ public class Post extends BaseEntity {
         this.location = location;
         this.rules = rules;
         this.hashTags = hashTags;
-        this.audioGuide = audioGuide;
         this.setCreatedDate(createdDate);
         this.setLastModifiedDate(createdDate);
     }
@@ -75,7 +70,6 @@ public class Post extends BaseEntity {
 
     private String location;
 
-
     // 게시글에 들어가야 보이는 필드
 
     @ElementCollection(fetch = FetchType.LAZY)
@@ -87,14 +81,10 @@ public class Post extends BaseEntity {
     @NotNull
     private Set<String> rules = new HashSet<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @Embedded
-    @Nullable
-    private AudioGuide audioGuide;
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<AccountPost> accountPosts = new ArrayList<>();
 
     //========비즈니스 로직==========//
@@ -102,8 +92,7 @@ public class Post extends BaseEntity {
      * 게시물의 이미지 리스트를 게시물과 서버에서 삭제
      */
     public void deleteImages(Account currentUser, AwsS3Uploader awsS3Uploader) {
-        Account postOwner = accountPosts.get(0).getUser();
-        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 삭제 불가
+        isHasAuthority(currentUser); // 본인 게시물 아니면 삭제 불가
         if(this.postImages.size() > 0) {
             for (int i=this.postImages.size()-1; i>=0; i--) {
                 awsS3Uploader.delete(this.postImages.get(i).getOriginalFileName());
@@ -126,8 +115,7 @@ public class Post extends BaseEntity {
      * 게시물 수정
      */
     public void update(Account currentUser, PostFormDto formDto) {
-        Account postOwner = accountPosts.get(0).getUser();
-        isHasAuthority(currentUser, postOwner); // 본인 게시물 아니면 수정 불가
+        isHasAuthority(currentUser); // 본인 게시물 아니면 수정 불가
         this.title = formDto.getTitle();
         this.hashTags= formDto.getHashTags();
         this.maxPeople = formDto.getMaxPeople();
@@ -161,6 +149,7 @@ public class Post extends BaseEntity {
         this.postImages.remove(postImage);
     }
 
+    //===============참가 신청/취소 비즈니스 로직===============//
     /**
      * 여행 참가자 추가
      */
@@ -200,12 +189,12 @@ public class Post extends BaseEntity {
     /**
      * 게시물 수정/삭제 권한 확인
      */
-    private void isHasAuthority(Account currentUser, Account author) {
-        if(!Objects.equals(author.getId(), currentUser.getId()))
+    private void isHasAuthority(Account currentUser) {
+        if(this.accountPosts.isEmpty() || !Objects.equals(currentUser.getId(), this.accountPosts.get(0).getUser().getId()))
             throw new AccessDeniedException("접근 권한이 없습니다.");
     }
 
-    //========= 정적 메소드 ===========/
+    //========= 정적 생성 메소드 ===========/
     // post 생성
     public static Post createPost(Account author, PostFormDto formDto) {
         Post post = Post.builder()
@@ -219,11 +208,10 @@ public class Post extends BaseEntity {
                 .location(formDto.getLocation())
                 .hashTags(formDto.getHashTags())
                 .rules(formDto.getRules())
-                .audioGuide(formDto.getAudioGuide())
                 .build();
         AccountPost accountPost = AccountPost.createAccountPost(author, post, AccountType.AUTHOR);
         post.getAccountPosts().add(accountPost);
+
         return post;
     }
-
 }

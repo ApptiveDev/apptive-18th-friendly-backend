@@ -1,14 +1,11 @@
 package apptive.team1.friendly.domain.post.dto;
-import apptive.team1.friendly.domain.post.entity.Comment;
-import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.post.entity.PostImage;
-import apptive.team1.friendly.domain.post.vo.AudioGuide;
+import apptive.team1.friendly.domain.post.entity.*;
+import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
-import apptive.team1.friendly.domain.post.entity.HashTag;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,32 +14,24 @@ import java.util.Set;
 
 @Data
 public class PostDto {
-    @Builder
-    public PostDto(Long postId, List<PostImage> postImages, UserInfo authorInfo,
+    @Builder(access = AccessLevel.PROTECTED)
+    public PostDto(Long postId, List<ImageDto> postImages, UserInfo currentUserInfo, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                   List<Comment> comments, AudioGuide audioGuide) {
+                   List<CommentDto> comments) {
         this.postId = postId;
+        this.currentUserInfo = currentUserInfo;
         this.authorInfo = authorInfo;
         this.title = title;
-        this.hashTags = hashTags;
         this.maxPeople = maxPeople;
         this.description = description;
 //        this.promiseTime = promiseTime;
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
-        this.audioGuide = audioGuide;
-        for (PostImage postImage : postImages) {
-            ImageDto postImageDto = new ImageDto(postImage.getOriginalFileName(), postImage.getUploadFileName(),
-                    postImage.getUploadFilePath(), postImage.getUploadFileUrl());
-            this.postImages.add(postImageDto);
-        }
-        for (Comment comment : comments) {
-            CommentDto commentDto = new CommentDto(comment.getAccount().getFirstName() + comment.getAccount().getLastName(),
-                    comment.getText(), comment.getCreatedDate());
-            this.comments.add(commentDto);
-        }
+        this.postImages.addAll(postImages);
+        this.comments.addAll(comments);
+        this.hashTags.addAll(hashTags);
         this.rules.addAll(rules);
     }
 
@@ -50,11 +39,13 @@ public class PostDto {
 
     private List<ImageDto> postImages = new ArrayList<>();
 
+    private UserInfo currentUserInfo;
+
     private UserInfo authorInfo;
 
     private String title;
 
-    private Set<HashTag> hashTags;
+    private Set<HashTag> hashTags = new HashSet<>();
 
     private int maxPeople;
 
@@ -73,11 +64,28 @@ public class PostDto {
 
     private List<CommentDto> comments = new ArrayList<>();
 
-    private AudioGuide audioGuide;
+    public static PostDto createPostDto(Post findPost, Account currentUser, Account author) {
 
-    public static PostDto createPostDto(Post findPost, UserInfo authorInfo) {
+        UserInfo currentUserInfo = UserInfo.create(currentUser);
+
+        UserInfo authorInfo = UserInfo.create(author);
+
+        List<ImageDto> postImageDtos = new ArrayList<>(); // 게시물 이미지 DTO 리스트
+        for (PostImage postImage : findPost.getPostImages()) {
+            ImageDto postImageDto = new ImageDto(postImage.getOriginalFileName(), postImage.getUploadFileName(),
+                    postImage.getUploadFilePath(), postImage.getUploadFileUrl());
+            postImageDtos.add(postImageDto);
+        }
+
+        List<CommentDto> commentDtos = new ArrayList<>(); // 게시물 댓글 DTO 리스트
+        for (Comment comment : findPost.getComments()) {
+            CommentDto commentDto = new CommentDto(comment.getAccount().getFirstName() + comment.getAccount().getLastName(),
+                    comment.getText(), comment.getCreatedDate());
+            commentDtos.add(commentDto);
+        }
 
         return PostDto.builder()
+                .currentUserInfo(currentUserInfo)
                 .authorInfo(authorInfo)
                 .postId(findPost.getId())
                 .title(findPost.getTitle())
@@ -87,10 +95,9 @@ public class PostDto {
 //                .promiseTime(findPost.getPromiseTime())
                 .startDate(findPost.getStartDate())
                 .endDate(findPost.getEndDate())
-                .audioGuide(findPost.getAudioGuide())
-                .comments(findPost.getComments())
+                .comments(commentDtos)
                 .rules(findPost.getRules())
-                .postImages(findPost.getPostImages())
+                .postImages(postImageDtos)
                 .location(findPost.getLocation())
                 .build();
     }

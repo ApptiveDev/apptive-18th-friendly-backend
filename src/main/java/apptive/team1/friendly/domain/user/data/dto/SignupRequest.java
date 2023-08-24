@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -32,16 +31,18 @@ public class SignupRequest {
     private String birthday;    // 생일
 
     private String nation;    // 국가
-
+    
     private String city;    // 도시
 
     private String gender; // 성별
 
     private String introduction;    // 자기소개
 
-    private List<String> languages;  // 언어
+//    private List<Language> languages;  // 언어
 
-    private List<String> languageLevels; // 언어 수준
+    private List<String> languages;
+
+    private List<String> languageLevels;
 
     private List<String> interests;  // 하고 싶은 활동
 }
