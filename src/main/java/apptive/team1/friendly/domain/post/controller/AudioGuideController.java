@@ -41,7 +41,7 @@ public class AudioGuideController extends ApiBase {
     /**
      * 오디오 가이드 API
      */
-    @GetMapping("/audioGuide/admin")
+    @GetMapping("/audioGuide/admin/9093")
     public ResponseEntity<Void> saveAudioGuides(@RequestParam("languageCode") String languageCode) throws URISyntaxException, JsonProcessingException {
         getAudioGuides(languageCode, 0);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -67,7 +67,7 @@ public class AudioGuideController extends ApiBase {
 
         ObjectMapper objectMapper = ObjectMapperUtils.getObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(data).get("response").get("body").get("items").get("item");
-        if(jsonNode.size() == 0)
+        if(jsonNode == null || jsonNode.size() == 0)
             return;
         List<AudioGuide> audioGuides = objectMapper.readValue(jsonNode.toString(), new TypeReference<List<AudioGuide>>() {});
         for (AudioGuide audioGuide : audioGuides) {

@@ -1,5 +1,6 @@
 package apptive.team1.friendly.global;
 
+import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +21,16 @@ public class TestMethods {
     private AccountRepository accountRepository;
 
     public Account createAccount(String email, String firstName, String lastName) {
+        List<String> languages = new ArrayList<>();
+        List<LanguageLevel> languageLevels = new ArrayList<>();
+        languages.add("korean");
+        languageLevels.add(LanguageLevel.NATIVE);
         Account account = Account.builder()
                 .email(email)
                 .firstName(firstName)
                 .lastName(lastName)
+                .languages(languages)
+                .languageLevels(languageLevels)
                 .build();
 
         accountRepository.save(account);
