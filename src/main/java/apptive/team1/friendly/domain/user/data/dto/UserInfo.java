@@ -24,9 +24,11 @@ public class UserInfo {
         this.gender = gender;
         this.nation = nation;
         this.city = city;
-        this.languages.addAll(languages);
-        this.languageLevels.addAll(languageLevels);
         this.profileImgDto = profileImgDto;
+        if(languages != null)
+            this.languages.addAll(languages);
+        if(languageLevels != null)
+            this.languageLevels.addAll(languageLevels);
     }
 
     private String firstName;
