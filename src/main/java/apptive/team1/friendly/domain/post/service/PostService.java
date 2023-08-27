@@ -3,6 +3,7 @@ import apptive.team1.friendly.domain.post.dto.*;
 import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.repository.AccountRepository;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.*;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final AccountRepository accountRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     // 조회(READ)
@@ -76,7 +78,9 @@ public class PostService {
      * 게시물 추가하기
      */
     @Transactional
-    public Long addPost(Account author, PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
+    public Long addPost(Long currentUserId, PostFormDto postFormDto, List<MultipartFile> multipartFiles) throws IOException {
+
+        Account author = findExistingMember(currentUserId);
 
         Post post = Post.createPost(author, postFormDto);
 
@@ -91,7 +95,9 @@ public class PostService {
      * 게시물 삭제
      */
     @Transactional
-    public Long deletePost(Account currentUser, Long postId) {
+    public Long deletePost(Long currentUserId, Long postId) {
+
+        Account currentUser = findExistingMember(currentUserId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
@@ -104,7 +110,9 @@ public class PostService {
      * 게시물 수정(업데이트)
      */
     @Transactional
-    public Long updatePost(Account currentUser, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
+    public Long updatePost(Long currentUserId, Long postId, PostFormDto updateForm, List<MultipartFile> multipartFiles) throws IOException {
+
+        Account currentUser = findExistingMember(currentUserId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
@@ -120,7 +128,11 @@ public class PostService {
     /**
      * DTO 설정 메소드
      */
-    public PostDto postDetail(Long postId, Account currentUser, Account author) {
+    public PostDto postDetail(Long postId, Long currentUserId, Long authorId) {
+
+        Account currentUser = findExistingMember(currentUserId);
+
+        Account author = findExistingMember(authorId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
@@ -137,13 +149,16 @@ public class PostService {
         return PostFormDto.createPostFormDto(post);
     }
 
+
     //================= 참가 신청관련 서비스 =================//
 
     /**
      * 같이가요 참가 신청
      */
     @Transactional
-    public void applyJoin(Account currentUser, Long postId) {
+    public void applyJoin(Long currentUserId, Long postId) {
+
+        Account currentUser = findExistingMember(currentUserId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
@@ -151,10 +166,21 @@ public class PostService {
     }
 
     @Transactional
-    public void cancelJoin(Account currentUser, Long postId) {
+    public void cancelJoin(Long currentUserId, Long postId) {
+
+        Account currentUser = findExistingMember(currentUserId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
         findPost.deleteParticipant(currentUser);
+    }
+
+    private Account findExistingMember(Long accountId) {
+
+        Optional<Account> authorOptional = accountRepository.findOneWithAccountAuthoritiesById(accountId);
+
+        if(!authorOptional.isPresent()) throw new RuntimeException("존재하지 않는 user");
+
+        return authorOptional.get();
     }
 }

@@ -63,7 +63,7 @@ public class PostServiceTest {
         PostFormDto newPostForm = createPostForm("title", 5, "add test", "location");
 
         // when
-        Long postId = postService.addPost(account, newPostForm, files);
+        Long postId = postService.addPost(account.getId(), newPostForm, files);
 
         // then
         Assert.assertEquals("게시물 추가가 성공적으로 되어야 한다.", postId, postRepository.findOneByPostId(postId).getId());
@@ -76,8 +76,8 @@ public class PostServiceTest {
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createPostForm("title", 5, "add", "location");
-        postService.addPost(account, postFormDto1, files);
-        postService.addPost(account, postFormDto2, files);
+        postService.addPost(account.getId(), postFormDto1, files);
+        postService.addPost(account.getId(), postFormDto2, files);
 
         // when
         List<PostListDto> postListDtos = postService.findAll(null, null);
@@ -93,8 +93,8 @@ public class PostServiceTest {
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createUpdatePostForm();
-        postService.addPost(account, postFormDto1, files);
-        postService.addPost(account, postFormDto2, files);
+        postService.addPost(account.getId(), postFormDto1, files);
+        postService.addPost(account.getId(), postFormDto2, files);
 
         //when
         List<PostListDto> postListDtos = postService.findAll("famous", null);
@@ -111,9 +111,9 @@ public class PostServiceTest {
         PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createUpdatePostForm();
         PostFormDto postFormDto3 = createUpdatePostForm();
-        postService.addPost(account, postFormDto1, files);
-        postService.addPost(account, postFormDto2, files);
-        postService.addPost(account, postFormDto3, files);
+        postService.addPost(account.getId(), postFormDto1, files);
+        postService.addPost(account.getId(), postFormDto2, files);
+        postService.addPost(account.getId(), postFormDto3, files);
 
         //when
         List<PostListDto> postListDtos = postService.findAll(null, "updated");
@@ -130,9 +130,9 @@ public class PostServiceTest {
         PostFormDto postFormDto1 = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createUpdatePostForm();
         PostFormDto postFormDto3 = createUpdatePostForm();
-        postService.addPost(account, postFormDto1, files);
-        postService.addPost(account, postFormDto2, files);
-        postService.addPost(account, postFormDto3, files);
+        postService.addPost(account.getId(), postFormDto1, files);
+        postService.addPost(account.getId(), postFormDto2, files);
+        postService.addPost(account.getId(), postFormDto3, files);
 
         //when
         List<PostListDto> postListDtos = postService.findAll("life", "updated");
@@ -150,10 +150,10 @@ public class PostServiceTest {
 
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long postId = postService.addPost(author, postFormDto, files);
+        Long postId = postService.addPost(author.getId(), postFormDto, files);
 
         // when
-        PostDto postDto = postService.postDetail(postId, currentUser, author);
+        PostDto postDto = postService.postDetail(postId, currentUser.getId(), author.getId());
 
         // then
         Post findPost = postRepository.findOneByPostId(postId);
@@ -167,10 +167,10 @@ public class PostServiceTest {
         Account account = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long addPostId = postService.addPost(account, postFormDto, files);
+        Long addPostId = postService.addPost(account.getId(), postFormDto, files);
 
         // when
-        Long deletePostId = postService.deletePost(account, addPostId);
+        Long deletePostId = postService.deletePost(account.getId(), addPostId);
 
         // then
         Assert.assertEquals("추가한 게시물과 삭제한 게시물의 아이디가 같아야 한다.", addPostId, deletePostId);
@@ -191,13 +191,13 @@ public class PostServiceTest {
                 MediaType.IMAGE_JPEG_VALUE,
                 new FileInputStream(new File("src/test/resources/zidane.jpg"))
         );
-        Long postId = postService.addPost(account, postFormDto, files);
+        Long postId = postService.addPost(account.getId(), postFormDto, files);
 
         // when
         files.add(file);
         Post post = postRepository.findOneByPostId(postId);
         String title = post.getTitle();
-        Long updatedPostId = postService.updatePost(account, postId, updateFormDto, files);
+        Long updatedPostId = postService.updatePost(account.getId(), postId, updateFormDto, files);
         Post updatedPost = postRepository.findOneByPostId(updatedPostId);
 
         // then
@@ -213,10 +213,10 @@ public class PostServiceTest {
         Account account = tm.createAccount("CD@gamil.com", "C", "D");
         PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
         List<MultipartFile> imageFiles = tm.createImageFiles();
-        Long postId = postService.addPost(author, postForm, imageFiles);
+        Long postId = postService.addPost(author.getId(), postForm, imageFiles);
 
         //when
-        postService.deletePost(account, postId);
+        postService.deletePost(account.getId(), postId);
 
         //then
         fail("게시물 작성자가 아닌 계정이 삭제시 예외가 발생해야 한다.");
@@ -229,10 +229,10 @@ public class PostServiceTest {
         Account account = tm.createAccount("CD@gamil.com", "C", "D");
         PostFormDto postForm = createPostForm("text", 3, "설명", "장소");
         List<MultipartFile> imageFiles = tm.createImageFiles();
-        Long postId = postService.addPost(author, postForm, imageFiles);
+        Long postId = postService.addPost(author.getId(), postForm, imageFiles);
 
         //when
-        postService.updatePost(account, postId, postForm, imageFiles);
+        postService.updatePost(account.getId(), postId, postForm, imageFiles);
 
         //then
         fail("게시물 작성자가 아닌 계정이 삭제시 예외가 발생해야 한다.");
@@ -245,13 +245,13 @@ public class PostServiceTest {
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add test", "location");
         PostFormDto updateFormDto = createUpdatePostForm();
-        Long postId = postService.addPost(account, postFormDto, files);
+        Long postId = postService.addPost(account.getId(), postFormDto, files);
 
         // when
         Post post = postService.findByPostId(postId);
         int imgCount = post.getPostImages().size();
         files.remove(0);
-        postService.updatePost(account, postId, updateFormDto, files);
+        postService.updatePost(account.getId(), postId, updateFormDto, files);
 
         // then
         Assert.assertNotEquals("삭제 전 이미지 개수와 삭제 후 개수는 달라야 한다.", imgCount, post.getPostImages().size());
@@ -266,8 +266,8 @@ public class PostServiceTest {
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
         PostFormDto postFormDto2 = createPostForm("title2", 3, "add2", "location2");
 
-        postService.addPost(account, postFormDto, files);
-        postService.addPost(account, postFormDto2, files);
+        postService.addPost(account.getId(), postFormDto, files);
+        postService.addPost(account.getId(), postFormDto2, files);
 
         // when
         List<Post> postsByUserId = postService.findPostsByUserId(account.getId());
@@ -282,12 +282,12 @@ public class PostServiceTest {
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long postId = postService.addPost(postOwner, postFormDto, files);
+        Long postId = postService.addPost(postOwner.getId(), postFormDto, files);
 
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
 
         //when
-        postService.applyJoin(participant, postId);
+        postService.applyJoin(participant.getId(), postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -304,7 +304,7 @@ public class PostServiceTest {
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
         List<MultipartFile> files = tm.createImageFiles();
-        Long postId = postService.addPost(postOwner, postFormDto, files);
+        Long postId = postService.addPost(postOwner.getId(), postFormDto, files);
 
         // 참여자 목록
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
@@ -312,8 +312,8 @@ public class PostServiceTest {
 
         //when
         // 참여 신청
-        postService.applyJoin(participant, postId);
-        postService.applyJoin(participant2, postId);
+        postService.applyJoin(participant.getId(), postId);
+        postService.applyJoin(participant2.getId(), postId);
 
         //then
         fail("인원 초과시 예외가 발생해야 한다.");
@@ -326,15 +326,15 @@ public class PostServiceTest {
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         List<MultipartFile> files = tm.createImageFiles();
         PostFormDto postFormDto = createPostForm("title", 5, "add", "location");
-        Long postId = postService.addPost(postOwner, postFormDto, files);
+        Long postId = postService.addPost(postOwner.getId(), postFormDto, files);
 
         // 참여 신청
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
-        postService.applyJoin(participant, postId);
+        postService.applyJoin(participant.getId(), postId);
 
         //when
         // 참여 취소
-        postService.cancelJoin(participant, postId);
+        postService.cancelJoin(participant.getId(), postId);
 
         //then
         Post post = postRepository.findOneByPostId(postId);
@@ -349,17 +349,17 @@ public class PostServiceTest {
         Account postOwner = tm.createAccount("TestAccount@gmail.com", "KIM", "MW");
         PostFormDto postFormDto = createPostForm("title", 2, "add", "location");
         List<MultipartFile> files = tm.createImageFiles();
-        Long postId = postService.addPost(postOwner, postFormDto, files);
+        Long postId = postService.addPost(postOwner.getId(), postFormDto, files);
 
         // 참여자 목록
         Account participant = tm.createAccount("participant@gmail.com","A" , "B");
         Account participant2 = tm.createAccount("participant2@gmail.com","C" , "D");
 
         // 참여 신청
-        postService.applyJoin(participant, postId);
+        postService.applyJoin(participant.getId(), postId);
 
         //when
-        postService.cancelJoin(participant2, postId);
+        postService.cancelJoin(participant2.getId(), postId);
 
         //then
         fail("참여자가 아닌 이용자는 참가 취소를 할 수 없다.");

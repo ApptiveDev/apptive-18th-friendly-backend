@@ -19,7 +19,6 @@ import apptive.team1.friendly.global.error.ErrorCode;
 import apptive.team1.friendly.global.error.exception.CustomException;
 import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.Hibernate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -162,7 +161,6 @@ public class UserService {
     public Account getPostOwner(Long postId) {
 
         Account author = accountRepository.findAuthorByPostId(postId);
-        Hibernate.initialize(author.getLanguageLevels());
 
         return author;
     }
@@ -188,9 +186,6 @@ public class UserService {
     public Account getCurrentUser() {
 
         Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        Hibernate.initialize(account.getLanguages());
-        Hibernate.initialize(account.getLanguageLevels());
-        Hibernate.initialize(account.getInterests());
 
         return account;
     }

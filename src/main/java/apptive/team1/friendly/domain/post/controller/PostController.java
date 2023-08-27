@@ -7,6 +7,7 @@ import apptive.team1.friendly.domain.post.service.PostService;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
+import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +35,8 @@ public class PostController {
 
     @PostMapping("/posts/create") // 게시물 추가
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
-        Account author = userService.getCurrentUser();
-        Long postId = postService.addPost(author, postForm, imageFiles);
+        Long authorId = userService.getCurrentUser().getId();
+        Long postId = postService.addPost(authorId, postForm, imageFiles);
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
 
@@ -44,9 +45,9 @@ public class PostController {
      */
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<Long> deletePost(@PathVariable("postId") Long postId) {
-        Account currentUser = userService.getCurrentUser();
+        Long currentUserId = userService.getCurrentUser().getId();
         // 게시물 삭제
-        Long deletedPostId = postService.deletePost(currentUser, postId);
+        Long deletedPostId = postService.deletePost(currentUserId, postId);
 
         // 삭제된 게시물 개수 반환
         return ResponseEntity.status(HttpStatus.OK).body(deletedPostId);
@@ -63,8 +64,8 @@ public class PostController {
 
     @PutMapping("/posts/{postId}/edit") // 게시물 업데이트
     public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
-        Account currentUser = userService.getCurrentUser();
-        Long updatedPostId = postService.updatePost(currentUser, postId, postForm, imageFiles);
+        Long currentUserId = userService.getCurrentUser().getId();
+        Long updatedPostId = postService.updatePost(currentUserId, postId, postForm, imageFiles);
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
 
@@ -113,11 +114,11 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
 
-        Account currentUser = userService.getCurrentUser();
+        Long currentUserId = userService.getCurrentUser().getId();
 
-        Account author = userService.getPostOwner(postId);
+        Long authorId = userService.getPostOwner(postId).getId();
 
-        PostDto postDto = postService.postDetail(postId, currentUser, author);
+        PostDto postDto = postService.postDetail(postId, currentUserId, authorId);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -127,9 +128,9 @@ public class PostController {
      */
     @PostMapping("/posts/join/{postId}")
     public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
-        Account currentUser = userService.getCurrentUser();
-        postService.applyJoin(currentUser, postId);
-        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
+        Long currentUserId = userService.getCurrentUser().getId();
+        postService.applyJoin(currentUserId, postId);
+        return new ResponseEntity<>(currentUserId, HttpStatus.OK);
     }
 
     /**
@@ -137,9 +138,9 @@ public class PostController {
      */
     @DeleteMapping("/posts/join/{postId}")
     public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
-        Account currentUser = userService.getCurrentUser();
-        postService.cancelJoin(currentUser, postId);
-        return new ResponseEntity<>(currentUser.getId(), HttpStatus.OK);
+        Long currentUserId = userService.getCurrentUser().getId();
+        postService.cancelJoin(currentUserId, postId);
+        return new ResponseEntity<>(currentUserId, HttpStatus.OK);
     }
 }
 
