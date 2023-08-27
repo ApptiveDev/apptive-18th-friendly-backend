@@ -3,11 +3,12 @@ package apptive.team1.friendly.domain.post.controller;
 import apptive.team1.friendly.domain.post.dto.PostDto;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.dto.PostListDto;
-import apptive.team1.friendly.domain.post.service.PostService;
+import apptive.team1.friendly.domain.post.service.MyPageService;
+import apptive.team1.friendly.domain.post.service.PostCRUDService;
+import apptive.team1.friendly.domain.post.service.PostJoinService;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.service.UserService;
-import apptive.team1.friendly.global.utils.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,9 +21,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
 
-    private final PostService postService;
-
     private final UserService userService;
+
+    private final PostCRUDService postCRUDService;
+
+    private final MyPageService myPageService;
+
+    private final PostJoinService postJoinService;
 
     /**
      * 게시물 추가
@@ -36,7 +41,7 @@ public class PostController {
     @PostMapping("/posts/create") // 게시물 추가
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Long authorId = userService.getCurrentUser().getId();
-        Long postId = postService.addPost(authorId, postForm, imageFiles);
+        Long postId = postCRUDService.addPost(authorId, postForm, imageFiles);
         return ResponseEntity.status(HttpStatus.OK).body(postId);
     }
 
@@ -47,7 +52,7 @@ public class PostController {
     public ResponseEntity<Long> deletePost(@PathVariable("postId") Long postId) {
         Long currentUserId = userService.getCurrentUser().getId();
         // 게시물 삭제
-        Long deletedPostId = postService.deletePost(currentUserId, postId);
+        Long deletedPostId = postCRUDService.deletePost(currentUserId, postId);
 
         // 삭제된 게시물 개수 반환
         return ResponseEntity.status(HttpStatus.OK).body(deletedPostId);
@@ -58,14 +63,14 @@ public class PostController {
      */
     @GetMapping("/posts/{postId}/edit") // 업데이트 페이지 화면 구성
     public ResponseEntity<PostFormDto> updatePostForm(@PathVariable("postId") Long postId) {
-        PostFormDto updateForm = postService.getUpdateForm(postId);
+        PostFormDto updateForm = postCRUDService.getUpdateForm(postId);
         return ResponseEntity.status(HttpStatus.OK).body(updateForm);
     }
 
     @PutMapping("/posts/{postId}/edit") // 게시물 업데이트
     public ResponseEntity<Long> updatePost(@PathVariable("postId") Long postId, @RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Long currentUserId = userService.getCurrentUser().getId();
-        Long updatedPostId = postService.updatePost(currentUserId, postId, postForm, imageFiles);
+        Long updatedPostId = postCRUDService.updatePost(currentUserId, postId, postForm, imageFiles);
         return new ResponseEntity<>(updatedPostId, HttpStatus.OK);
     }
 
@@ -74,37 +79,7 @@ public class PostController {
      */
     @GetMapping("/posts" )
     public ResponseEntity<List<PostListDto>> postList(@RequestParam(required = false) String tag, @RequestParam(required = false) String keyword) {
-        List<PostListDto> postListDtos = postService.findAll(tag, keyword);
-        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
-    }
-    
-    /**
-     * 유저가 작성 또는 참가한 게시물 리스트
-     */
-    @GetMapping("/posts/myPost")
-    public ResponseEntity<List<PostListDto>> myPosts() {
-        Account currentUser = userService.getCurrentUser();
-        List<PostListDto> postListDtos = postService.findAllPostsByUserId(currentUser.getId());
-        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
-    }
-
-    /**
-     * 유저가 작성한 게시물 리스트
-     */
-    @GetMapping("/posts/authoredPost")
-    public ResponseEntity<List<PostListDto>> authoredPosts() {
-        Account currentUser = userService.getCurrentUser();
-        List<PostListDto> postListDtos = postService.findAllAuthoredPostByUserId(currentUser.getId());
-        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
-    }
-
-    /**
-     * 유저가 참여한 모임(게시물) 리스트
-     */
-    @GetMapping("/posts/participatedPost")
-    public ResponseEntity<List<PostListDto>> participatedPosts() {
-        Account currentUser = userService.getCurrentUser();
-        List<PostListDto> postListDtos = postService.findAllParticipatedPostByUserId(currentUser.getId());
+        List<PostListDto> postListDtos = postCRUDService.findAll(tag, keyword);
         return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 
@@ -118,9 +93,39 @@ public class PostController {
 
         Long authorId = userService.getPostOwner(postId).getId();
 
-        PostDto postDto = postService.postDetail(postId, currentUserId, authorId);
+        PostDto postDto = postCRUDService.postDetail(postId, currentUserId, authorId);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
+    }
+    
+    /**
+     * 유저가 작성 또는 참가한 게시물 리스트
+     */
+    @GetMapping("/posts/myPost")
+    public ResponseEntity<List<PostListDto>> myPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = myPageService.findAllPostsByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
+     * 유저가 작성한 게시물 리스트
+     */
+    @GetMapping("/posts/authoredPost")
+    public ResponseEntity<List<PostListDto>> authoredPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = myPageService.findAllAuthoredPostByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
+    }
+
+    /**
+     * 유저가 참여한 모임(게시물) 리스트
+     */
+    @GetMapping("/posts/participatedPost")
+    public ResponseEntity<List<PostListDto>> participatedPosts() {
+        Account currentUser = userService.getCurrentUser();
+        List<PostListDto> postListDtos = myPageService.findAllParticipatedPostByUserId(currentUser.getId());
+        return new ResponseEntity<>(postListDtos, HttpStatus.OK);
     }
 
     /**
@@ -129,7 +134,7 @@ public class PostController {
     @PostMapping("/posts/join/{postId}")
     public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
         Long currentUserId = userService.getCurrentUser().getId();
-        postService.applyJoin(currentUserId, postId);
+        postJoinService.applyJoin(currentUserId, postId);
         return new ResponseEntity<>(currentUserId, HttpStatus.OK);
     }
 
@@ -139,7 +144,7 @@ public class PostController {
     @DeleteMapping("/posts/join/{postId}")
     public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
         Long currentUserId = userService.getCurrentUser().getId();
-        postService.cancelJoin(currentUserId, postId);
+        postJoinService.cancelJoin(currentUserId, postId);
         return new ResponseEntity<>(currentUserId, HttpStatus.OK);
     }
 }
