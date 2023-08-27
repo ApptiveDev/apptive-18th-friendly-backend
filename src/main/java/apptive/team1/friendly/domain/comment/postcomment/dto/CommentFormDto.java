@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.post.dto;
+package apptive.team1.friendly.domain.comment.postcomment.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

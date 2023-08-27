@@ -1,5 +1,7 @@
 package apptive.team1.friendly.domain.post.dto;
+import apptive.team1.friendly.domain.comment.postcomment.dto.CommentDto;
 import apptive.team1.friendly.domain.post.entity.*;
+import apptive.team1.friendly.domain.comment.postcomment.entity.Comment;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;

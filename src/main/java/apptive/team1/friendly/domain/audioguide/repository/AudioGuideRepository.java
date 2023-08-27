@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.post.repository;
+package apptive.team1.friendly.domain.audioguide.repository;
 
 import apptive.team1.friendly.domain.post.entity.AudioGuide;
 import lombok.RequiredArgsConstructor;

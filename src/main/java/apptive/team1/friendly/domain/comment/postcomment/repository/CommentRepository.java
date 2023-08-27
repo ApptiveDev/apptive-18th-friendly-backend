@@ -1,6 +1,6 @@
-package apptive.team1.friendly.domain.post.repository;
+package apptive.team1.friendly.domain.comment.postcomment.repository;
 
-import apptive.team1.friendly.domain.post.entity.Comment;
+import apptive.team1.friendly.domain.comment.postcomment.entity.Comment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
