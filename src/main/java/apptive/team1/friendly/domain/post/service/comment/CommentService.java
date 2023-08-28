@@ -1,9 +1,9 @@
-package apptive.team1.friendly.domain.comment.postcomment.service;
+package apptive.team1.friendly.domain.post.service.comment;
 
-import apptive.team1.friendly.domain.comment.postcomment.dto.CommentFormDto;
-import apptive.team1.friendly.domain.comment.postcomment.entity.Comment;
+import apptive.team1.friendly.domain.post.dto.comment.CommentFormDto;
+import apptive.team1.friendly.domain.post.entity.comment.Comment;
+import apptive.team1.friendly.domain.post.repository.comment.CommentRepository;
 import apptive.team1.friendly.domain.post.entity.Post;
-import apptive.team1.friendly.domain.comment.postcomment.repository.CommentRepository;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.repository.AccountRepository;

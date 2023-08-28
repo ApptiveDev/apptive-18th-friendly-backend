@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.comment.postcomment.entity;
+package apptive.team1.friendly.domain.post.entity.comment;
 
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.user.data.entity.Account;

@@ -1,7 +1,7 @@
-package apptive.team1.friendly.domain.comment.postcomment.controller;
+package apptive.team1.friendly.domain.post.controller.comment;
 
-import apptive.team1.friendly.domain.comment.postcomment.dto.CommentFormDto;
-import apptive.team1.friendly.domain.comment.postcomment.service.CommentService;
+import apptive.team1.friendly.domain.post.dto.comment.CommentFormDto;
+import apptive.team1.friendly.domain.post.service.comment.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

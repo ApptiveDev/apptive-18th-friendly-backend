@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.comment.postcomment.dto;
+package apptive.team1.friendly.domain.post.dto.comment;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;

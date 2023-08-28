@@ -1,7 +1,7 @@
 package apptive.team1.friendly.domain.post.entity;
 
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
-import apptive.team1.friendly.domain.comment.postcomment.entity.Comment;
+import apptive.team1.friendly.domain.post.entity.comment.Comment;
 import apptive.team1.friendly.domain.post.exception.*;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
