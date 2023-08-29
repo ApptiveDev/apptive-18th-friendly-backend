@@ -1,7 +1,7 @@
-package apptive.team1.friendly.domain.post.controller;
+package apptive.team1.friendly.domain.audioguide.controller;
 
 import apptive.team1.friendly.domain.post.entity.AudioGuide;
-import apptive.team1.friendly.domain.post.repository.AudioGuideRepository;
+import apptive.team1.friendly.domain.audioguide.repository.AudioGuideRepository;
 import apptive.team1.friendly.global.baseEntity.ApiBase;
 import apptive.team1.friendly.global.utils.ObjectMapperUtils;
 import apptive.team1.friendly.global.utils.WebClientUtils;
