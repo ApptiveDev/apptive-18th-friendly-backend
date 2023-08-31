@@ -37,6 +37,15 @@ public class AudioGuideController extends ApiBase {
         return new ResponseEntity<>(audioGuides, HttpStatus.OK);
     }
 
+    @GetMapping("/audioGuideNoPaging")
+    public ResponseEntity<List<AudioGuide>> audioGuideListNoPage(@RequestParam(required = false) String keyword) {
+        if(keyword != null && keyword.length() < 2) {
+            throw new RuntimeException("검색어를 두 글자 이상 입력해주세요.");
+        }
+        List<AudioGuide> audioGuides = audioGuideRepository.findAudioGuidesNoPaging(keyword);
+        return new ResponseEntity<>(audioGuides, HttpStatus.OK);
+    }
+
 
     /**
      * 오디오 가이드 API
@@ -71,7 +80,8 @@ public class AudioGuideController extends ApiBase {
             return;
         List<AudioGuide> audioGuides = objectMapper.readValue(jsonNode.toString(), new TypeReference<List<AudioGuide>>() {});
         for (AudioGuide audioGuide : audioGuides) {
-            audioGuideRepository.save(audioGuide);
+            if(!audioGuide.getAudioUrl().equals(""))
+                audioGuideRepository.save(audioGuide);
         }
         getAudioGuides(languageCode, pageNum+1);
     }

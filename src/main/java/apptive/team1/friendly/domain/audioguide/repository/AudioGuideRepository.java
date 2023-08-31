@@ -30,6 +30,12 @@ public class AudioGuideRepository {
                 .getResultList();
     }
 
+    public List<AudioGuide> findAudioGuidesNoPaging(String keyword) {
+        return em.createQuery("select ag from AudioGuide ag where ag.title like :keyword or ag.audioTitle like :keyword or ag.script like :keyword", AudioGuide.class)
+                .setParameter("keyword", "%"+keyword+"%")
+                .getResultList();
+    }
+
     @Transactional
     public void save(AudioGuide audioGuide) {
         em.persist(audioGuide);
