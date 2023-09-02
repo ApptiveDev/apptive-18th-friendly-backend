@@ -1,4 +1,4 @@
-package apptive.team1.friendly.domain.post.repository;
+package apptive.team1.friendly.domain.audioguide.repository;
 
 import apptive.team1.friendly.domain.post.entity.AudioGuide;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +27,12 @@ public class AudioGuideRepository {
                 .setParameter("keyword", "%"+keyword+"%")
                 .setFirstResult(pageNum * resultCount)
                 .setMaxResults(resultCount)
+                .getResultList();
+    }
+
+    public List<AudioGuide> findAudioGuidesNoPaging(String keyword) {
+        return em.createQuery("select ag from AudioGuide ag where ag.title like :keyword or ag.audioTitle like :keyword or ag.script like :keyword", AudioGuide.class)
+                .setParameter("keyword", "%"+keyword+"%")
                 .getResultList();
     }
 
