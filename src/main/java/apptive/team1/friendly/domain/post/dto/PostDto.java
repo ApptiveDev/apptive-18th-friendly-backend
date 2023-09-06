@@ -17,12 +17,11 @@ import java.util.Set;
 @Data
 public class PostDto {
     @Builder(access = AccessLevel.PROTECTED)
-    public PostDto(Long postId, List<ImageDto> postImages, UserInfo currentUserInfo, UserInfo authorInfo,
+    public PostDto(Long postId, List<ImageDto> postImages, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
                    List<CommentDto> comments) {
         this.postId = postId;
-        this.currentUserInfo = currentUserInfo;
         this.authorInfo = authorInfo;
         this.title = title;
         this.maxPeople = maxPeople;
@@ -40,8 +39,6 @@ public class PostDto {
     private Long postId;
 
     private List<ImageDto> postImages = new ArrayList<>();
-
-    private UserInfo currentUserInfo;
 
     private UserInfo authorInfo;
 
@@ -87,7 +84,6 @@ public class PostDto {
         }
 
         return PostDto.builder()
-                .currentUserInfo(currentUserInfo)
                 .authorInfo(authorInfo)
                 .postId(findPost.getId())
                 .title(findPost.getTitle())
