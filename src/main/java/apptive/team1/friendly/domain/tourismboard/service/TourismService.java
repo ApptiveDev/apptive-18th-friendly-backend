@@ -35,6 +35,11 @@ public class TourismService {
         return TourismListDto.create(tourismList);
     }
 
+    public List<TourismListDto> getTourismListNoPagingVersion(String tag) {
+        List<Tourism> tourismList = tourismRepository.getTourismListNoPagingVersion(tag);
+        return TourismListDto.create(tourismList);
+    }
+
     public TourismDto getTourismDetail(Long tourismId) {
         Tourism tourism = tourismRepository.findOneById(tourismId);
         return TourismDto.create(tourism);
