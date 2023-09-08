@@ -159,10 +159,7 @@ public class UserService {
      * 게시물 주인 정보 조회
      */
     public Account getPostOwner(Long postId) {
-
-        Account author = accountRepository.findAuthorByPostId(postId);
-
-        return author;
+        return accountRepository.findAuthorByPostId(postId);
     }
 
     /**

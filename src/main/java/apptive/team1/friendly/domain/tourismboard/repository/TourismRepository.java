@@ -47,4 +47,21 @@ public class TourismRepository {
                 .setMaxResults(resultCount)
                 .getResultList();
     }
+
+    public List<Tourism> getTourismListNoPagingVersion(String tag) { // 동적 쿼리로 수정
+        TypedQuery<Tourism> query;
+        if(tag == null)
+            query = em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class);
+        else if(tag.equals("walking"))
+            query = em.createQuery("select wt from WalkingTourism wt", Tourism.class);
+        else if(tag.equals("theme"))
+            query = em.createQuery("select tt from ThemeTourism tt", Tourism.class);
+        else if(tag.equals("restaurant"))
+            query = em.createQuery("select fr from FamousRestaurant fr", Tourism.class);
+        else
+            return Collections.emptyList();
+
+        return query
+                .getResultList();
+    }
 }

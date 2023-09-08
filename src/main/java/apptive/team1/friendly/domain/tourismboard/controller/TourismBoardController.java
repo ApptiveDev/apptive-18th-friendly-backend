@@ -24,6 +24,12 @@ public class TourismBoardController {
         return new ResponseEntity<>(tourismList, HttpStatus.OK);
     }
 
+    @GetMapping("/tourism/noPaging")
+    public ResponseEntity<List<TourismListDto>> getTourismListNoPagingVersion(@RequestParam(required = false) String tag) {
+        List<TourismListDto> tourismList = tourismService.getTourismListNoPagingVersion(tag);
+        return new ResponseEntity<>(tourismList, HttpStatus.OK);
+    }
+
     @GetMapping("/tourism/{tourismId}")
     public ResponseEntity<TourismDto> getTourismDetail(@PathVariable Long tourismId) {
         TourismDto tourismDetail = tourismService.getTourismDetail(tourismId);
