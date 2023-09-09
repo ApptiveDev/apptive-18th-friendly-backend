@@ -45,4 +45,6 @@ public class SignupRequest {
     private List<String> languageLevels;
 
     private List<String> interests;  // 하고 싶은 활동
+
+    private String affiliation; // 소속
 }

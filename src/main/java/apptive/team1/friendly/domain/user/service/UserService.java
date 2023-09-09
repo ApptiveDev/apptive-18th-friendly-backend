@@ -51,7 +51,7 @@ public class UserService {
                 signupRequest.getFirstName(), signupRequest.getLastName(),
                 signupRequest.getBirthday(), signupRequest.getGender(), signupRequest.getIntroduction(),
                 signupRequest.getInterests(), signupRequest.getNation(), signupRequest.getCity(),
-                signupRequest.getLanguages(), signupRequest.getLanguageLevels(), authority);
+                signupRequest.getLanguages(), signupRequest.getLanguageLevels(), authority, signupRequest.getAffiliation());
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -73,7 +73,8 @@ public class UserService {
         account.extraSignup(signupRequest.getBirthday(), signupRequest.getFirstName(),
                 signupRequest.getLastName(), signupRequest.getIntroduction(),
                 signupRequest.getGender(), signupRequest.getInterests(), signupRequest.getLanguages(),
-                signupRequest.getLanguageLevels(), signupRequest.getNation(), signupRequest.getCity(), true);
+                signupRequest.getLanguageLevels(), signupRequest.getNation(), signupRequest.getCity(), true,
+                signupRequest.getAffiliation());
 
         return SignupResponse.of(accountRepository.save(account));
     }
@@ -91,6 +92,11 @@ public class UserService {
     @Transactional(readOnly = true)
     public AccountInfoResponse getUserWithAuthorities() {
         return accountToUserInfo(getCurrentUser());
+    }
+
+    @Transactional(readOnly = true)
+    public UserInfo getNyInfo() {
+        return UserInfo.create(getCurrentUser());
     }
 
     /**
@@ -184,7 +190,6 @@ public class UserService {
     }
 
     public Account getCurrentUser() {
-
         Account account = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         return account;
