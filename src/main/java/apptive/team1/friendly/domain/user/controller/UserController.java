@@ -49,7 +49,7 @@ public class UserController {
     @GetMapping("/myinfo")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<UserInfo> getMyAccountInfo() {
-        return new ResponseEntity<>(userService.getNyInfo(), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getMyInfo(), HttpStatus.OK);
     }
 
     /**

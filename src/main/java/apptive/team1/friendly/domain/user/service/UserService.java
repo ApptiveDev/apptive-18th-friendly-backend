@@ -95,7 +95,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfo getNyInfo() {
+    public UserInfo getMyInfo() {
         return UserInfo.create(getCurrentUser());
     }
 
