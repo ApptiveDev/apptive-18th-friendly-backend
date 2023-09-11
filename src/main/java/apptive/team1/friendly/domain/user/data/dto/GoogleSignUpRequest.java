@@ -30,6 +30,9 @@ public class GoogleSignUpRequest {
 
     private List<String> interests;  // 하고 싶은 활동
 
+    private String affiliation; // 소속
+
+
     @Override
     public String toString() {
         return "GoogleSignUpRequest{" +
@@ -41,7 +44,9 @@ public class GoogleSignUpRequest {
                 ", gender='" + gender + '\'' +
                 ", introduction='" + introduction + '\'' +
                 ", languages=" + languages +
+                ", languageLevels=" + languageLevels +
                 ", interests=" + interests +
+                ", affiliation='" + affiliation + '\'' +
                 '}';
     }
 }

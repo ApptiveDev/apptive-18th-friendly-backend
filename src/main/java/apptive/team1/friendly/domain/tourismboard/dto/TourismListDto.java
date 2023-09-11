@@ -19,7 +19,7 @@ public class TourismListDto {
 
     private String title;
 
-    private TourismType tourismType;
+    private String tourismType;
 
     public static List<TourismListDto> create(List<Tourism> tourismList) {
 
@@ -30,7 +30,7 @@ public class TourismListDto {
                     .id(tourism.getId())
                     .image(tourism.getMain_img_thumb())
                     .title(tourism.getTitle())
-                    .tourismType(tourism.getTourismType())
+                    .tourismType(TourismType.toKoreanName(tourism.getTourismType()))
                     .build();
             tourismListDtos.add(tourismListDto);
         }

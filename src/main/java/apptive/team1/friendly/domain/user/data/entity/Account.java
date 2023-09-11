@@ -1,8 +1,10 @@
 package apptive.team1.friendly.domain.user.data.entity;
 
 import apptive.team1.friendly.domain.user.data.constant.LanguageLevel;
+import apptive.team1.friendly.domain.user.data.vo.Language;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
 import apptive.team1.friendly.global.common.s3.FileInfo;
+import apptive.team1.friendly.global.error.exception.Exception400;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +22,8 @@ public class Account {
     public Account(String email, String password, String firstName,
                    String lastName, String birthday, String gender,
                    String introduction, List<String> interests, String nation, String city,
-                   List<String> languages, List<LanguageLevel> languageLevels, Authority authority, boolean activated) {
+                   List<Language> languageObjects, List<String> languages, List<LanguageLevel> languageLevels, Authority authority, boolean activated,
+                   String affiliation) {
         this.email = email;
         this.password = password;
         this.firstName = firstName;
@@ -31,6 +34,7 @@ public class Account {
         this.interests = interests;
         this.nation = nation;
         this.city = city;
+        this.languageObjects = languageObjects;
         this.languages = languages;
         this.languageLevels = languageLevels;
         this.activated = activated;
@@ -39,6 +43,7 @@ public class Account {
                 .authority(authority)
                 .build();
         this.accountAuthorities.add(accountAuthority);
+        this.affiliation = affiliation;
     }
 
     @Id
@@ -69,8 +74,8 @@ public class Account {
 
     private String city;
 
-//    @ElementCollection
-//    private List<Language> languages = new ArrayList<>();
+    @ElementCollection
+    private List<Language> languageObjects = new ArrayList<>();
 
     @ElementCollection
     private List<String> languages = new ArrayList<>();
@@ -88,6 +93,8 @@ public class Account {
 
     private boolean activated;  // 활성화 여부
 
+    private String affiliation; // 소속
+
     public Account() {
         email = "";
         accountAuthorities = new HashSet<>();
@@ -97,7 +104,20 @@ public class Account {
     public static Account create(String email, String password, String firstName,
                               String lastName, String birthday, String gender,
                               String introduction, List<String> interests, String nation,
-                              String city, List<String> languages, List<String> languageLevels, Authority authority) {
+                              String city, List<String> languages, List<String> languageLevels, Authority authority,
+                                 String affiliation) {
+
+        if (languages.size() != languageLevels.size()) {
+            throw new Exception400("언어 개수와 언어레벨 개수가 다릅니다.");
+        }
+
+        List<Language> languageList = new ArrayList<>();
+        for (int i = 0; i < languages.size(); i++) {
+            languageList.add(Language.builder()
+                    .languageName(languages.get(i))
+                    .languageLevel(LanguageLevel.getLevelByName(languageLevels.get(i)))
+                    .build());
+        }
 
         List<LanguageLevel> languageLevelList = new ArrayList<>();
         for (String languageLevelName : languageLevels) {
@@ -116,17 +136,20 @@ public class Account {
                 .interests(interests)
                 .nation(nation)
                 .city(city)
+                .languageObjects(languageList)
                 .languages(languages)
                 .languageLevels(languageLevelList)
                 .authority(authority)
                 .activated(true)
+                .affiliation(affiliation)
                 .build();
     }
 
     //===========비즈니스 로직===========//
     public void extraSignup(String birthday, String firstName, String lastName,
                             String introduction, String gender, List<String> interests,
-                            List<String> languages, List<String> languageLevels, String nation, String city, boolean activated) {
+                            List<String> languages, List<String> languageLevels, String nation, String city, boolean activated,
+                            String affiliation) {
         this.birthday = birthday;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -137,7 +160,9 @@ public class Account {
         this.languages = languages;
         this.nation = nation;
         this.city = city;
+        this.affiliation = affiliation;
 
+        this.languageLevels = new ArrayList<>();
         for (String languageLevelName : languageLevels) {
             LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
             this.languageLevels.add(languageLevel);
