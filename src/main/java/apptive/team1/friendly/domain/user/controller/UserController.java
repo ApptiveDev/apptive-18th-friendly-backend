@@ -1,9 +1,6 @@
 package apptive.team1.friendly.domain.user.controller;
 
-import apptive.team1.friendly.domain.user.data.dto.AccountInfoResponse;
-import apptive.team1.friendly.domain.user.data.dto.GoogleSignUpRequest;
-import apptive.team1.friendly.domain.user.data.dto.SignupRequest;
-import apptive.team1.friendly.domain.user.data.dto.SignupResponse;
+import apptive.team1.friendly.domain.user.data.dto.*;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -37,12 +34,10 @@ public class UserController {
     }
 
     /**
-     * 소셜 로그인 추가 회원가입 api
+     * 회원 수정
      */
     @PostMapping("/extraSignup")
     public ResponseEntity<SignupResponse> extraSignup(@RequestBody GoogleSignUpRequest googleSignUpRequest, HttpServletRequest httpServletRequest) {
-        System.out.println("Header: " + httpServletRequest.getHeader("Authorization"));
-        System.out.println(googleSignUpRequest.toString());
         SignupResponse signupResponse = userService.extraSignUp(googleSignUpRequest);
 
         return new ResponseEntity<>(signupResponse, HttpStatus.OK);
@@ -53,8 +48,8 @@ public class UserController {
      */
     @GetMapping("/myinfo")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<AccountInfoResponse> getMyAccountInfo() {
-        return new ResponseEntity<>(userService.getUserWithAuthorities(), HttpStatus.OK);
+    public ResponseEntity<UserInfo> getMyAccountInfo() {
+        return new ResponseEntity<>(userService.getMyInfo(), HttpStatus.OK);
     }
 
     /**
