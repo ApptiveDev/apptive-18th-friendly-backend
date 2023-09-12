@@ -85,7 +85,7 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AccountPost> accountPosts = new ArrayList<>();
 
     //========비즈니스 로직==========//
@@ -155,20 +155,29 @@ public class Post extends BaseEntity {
      * 여행 참가자 추가
      */
     public void addParticipant(Account currentUser) {
-        checkCanParticipate();
+        checkExcessOfPeople();
+        checkDuplicatedParticipate(currentUser);
         AccountPost accountPost = AccountPost.createAccountPost(currentUser, this, AccountType.PARTICIPANT);
         this.accountPosts.add(accountPost);
     }
 
+    private void checkDuplicatedParticipate(Account currentUser) {
+        for(AccountPost accountPost : accountPosts) {
+            if(accountPost.getUser().getId().equals(currentUser.getId())) {
+                throw new DuplicatedParticipateException("중복된 참가 신청입니다.");
+            }
+        }
+    }
+
     public void deleteParticipant(Account currentUser) {
         isParticipant(currentUser);
-        accountPosts.removeIf(accountPost -> accountPost.getUser().getId() == currentUser.getId());
+        accountPosts.removeIf(accountPost -> Objects.equals(accountPost.getUser().getId(), currentUser.getId()) && accountPost.getAccountType() == AccountType.PARTICIPANT);
     }
 
     private void isParticipant(Account currentUser) {
         boolean isParticipant = false;
         for (AccountPost accountPost : accountPosts) {
-            if (accountPost.getUser().getId() == currentUser.getId() && accountPost.getAccountType() != AccountType.AUTHOR) {
+            if (Objects.equals(accountPost.getUser().getId(), currentUser.getId()) && accountPost.getAccountType() != AccountType.AUTHOR) {
                 isParticipant = true;
                 break;
             }
@@ -181,7 +190,7 @@ public class Post extends BaseEntity {
     /**
      * 참여가능한 인원수 확인
      */
-    private void checkCanParticipate() {
+    private void checkExcessOfPeople() {
         if(accountPosts.size() >= maxPeople) {
             throw new ExcessOfPeopleException("인원 초과");
         }
