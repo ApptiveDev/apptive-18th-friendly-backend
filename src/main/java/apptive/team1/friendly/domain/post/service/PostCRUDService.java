@@ -55,15 +55,15 @@ public class PostCRUDService {
     /**
      * 상세페이지 조회
      */
-    public PostDto postDetail(Long postId, Long currentUserId, Long authorId) {
-
-        Account currentUser = findExistingMember(accountRepository, currentUserId);
+    public PostDto postDetail(Long postId, Long authorId) {
 
         Account author = findExistingMember(accountRepository, authorId);
 
         Post findPost = postRepository.findOneByPostId(postId);
 
-        return PostDto.createPostDto(findPost, currentUser, author);
+        List<Account> participants = accountRepository.getAccountsByPostId(postId);
+
+        return PostDto.createPostDto(findPost, author, participants);
     }
 
     /**
