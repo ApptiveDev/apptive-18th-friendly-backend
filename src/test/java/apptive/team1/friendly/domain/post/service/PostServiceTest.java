@@ -153,7 +153,7 @@ public class PostServiceTest {
         Long postId = postCRUDService.addPost(author.getId(), postFormDto, files);
 
         // when
-        PostDto postDto = postCRUDService.postDetail(postId, currentUser.getId(), author.getId());
+        PostDto postDto = postCRUDService.postDetail(postId, author.getId());
 
         // then
         Post findPost = postRepository.findOneByPostId(postId);

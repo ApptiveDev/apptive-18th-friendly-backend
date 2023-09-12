@@ -89,11 +89,9 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
 
-        Long currentUserId = userService.getCurrentUser().getId();
-
         Long authorId = userService.getPostOwner(postId).getId();
 
-        PostDto postDto = postCRUDService.postDetail(postId, currentUserId, authorId);
+        PostDto postDto = postCRUDService.postDetail(postId, authorId);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
