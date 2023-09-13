@@ -57,6 +57,6 @@ public class UserServiceTest {
 
         return Account.create("test@gmail.com", "abc", "kim", "mw",
                         "23-08-05", "남자", "intro", interests, "korea", "busan",
-                        languages, languageLevels, authority);
+                        languages, languageLevels, authority, "부산대");
     }
 }

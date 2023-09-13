@@ -16,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
+import static apptive.team1.friendly.domain.post.service.PostServiceHelper.findExistingPost;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +33,7 @@ public class CommentService {
         Account author = SecurityUtil.getCurrentUserName().flatMap(accountRepository::findOneWithAccountAuthoritiesByEmail).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 댓글을 작성하는 게시물 확인
-        Post post = postRepository.findOneByPostId(postId);
+        Post post = findExistingPost(postRepository, postId);
 
         // Comment 객체 생성하고 데이터 이동
         Comment newComment = Comment.builder()

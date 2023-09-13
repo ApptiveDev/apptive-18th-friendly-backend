@@ -42,7 +42,7 @@ public class PostCRUDService {
      * postId로 해당 게시물 찾기
      */
     public Post findByPostId(Long id) {
-        return postRepository.findOneByPostId(id);
+        return findExistingPost(postRepository, id);
     }
 
     /**
@@ -59,9 +59,9 @@ public class PostCRUDService {
 
         Account author = findExistingMember(accountRepository, authorId);
 
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
 
-        List<Account> participants = accountRepository.getAccountsByPostId(postId);
+        List<Account> participants = accountRepository.findAccountsByPostId(postId);
 
         return PostDto.createPostDto(findPost, author, participants);
     }
@@ -91,7 +91,7 @@ public class PostCRUDService {
 
         Account currentUser = findExistingMember(accountRepository, currentUserId);
 
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
 
         findPost.deleteImages(currentUser, awsS3Uploader);
 
@@ -106,7 +106,7 @@ public class PostCRUDService {
 
         Account currentUser = findExistingMember(accountRepository, currentUserId);
 
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
 
         findPost.update(currentUser, updateForm);
 
@@ -123,7 +123,7 @@ public class PostCRUDService {
      */
     public PostFormDto getUpdateForm(Long postId) {
 
-        Post post = postRepository.findOneByPostId(postId);
+        Post post = findExistingPost(postRepository, postId);
 
         return PostFormDto.createPostFormDto(post);
     }
