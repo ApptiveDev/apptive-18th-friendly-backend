@@ -175,15 +175,10 @@ public class Post extends BaseEntity {
     }
 
     private void isParticipant(Account currentUser) {
-        boolean isParticipant = false;
         for (AccountPost accountPost : accountPosts) {
             if (Objects.equals(accountPost.getUser().getId(), currentUser.getId()) && accountPost.getAccountType() != AccountType.AUTHOR) {
-                isParticipant = true;
-                break;
+                throw new NotParticipantException("참여중인 이용자가 아닙니다.");
             }
-        }
-        if(!isParticipant) {
-            throw new NotParticipantException("참여중인 이용자가 아닙니다.");
         }
     }
 
