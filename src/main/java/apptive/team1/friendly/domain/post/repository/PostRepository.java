@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -65,10 +66,14 @@ public class PostRepository {
     /**
      * 게시물 찾기
      */
-    public Post findOneByPostId(Long postId) {
-        return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.id =: postId", Post.class)
+    public Optional<Post> findOneByPostId(Long postId) {
+        List<Post> posts = em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.id =: postId", Post.class)
                 .setParameter("postId", postId)
-                .getSingleResult();
+                .getResultList();
+        if(posts.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(posts.get(0));
     }
 
     /**

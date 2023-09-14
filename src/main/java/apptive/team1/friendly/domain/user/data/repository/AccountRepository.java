@@ -23,5 +23,5 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Account findAuthorByPostId(@Param("postId") Long postId);
 
     @Query("select distinct a from Account a left join fetch a.languages join AccountPost ap on ap.post.id = :postId where ap.user.id = a.id")
-    List<Account> getAccountsByPostId(@Param("postId") Long postId);
+    List<Account> findAccountsByPostId(@Param("postId") Long postId);
 }
