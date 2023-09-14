@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static apptive.team1.friendly.domain.post.service.PostServiceHelper.*;
+import static apptive.team1.friendly.domain.post.service.PostServiceHelper.findExistingPost;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class PostJoinService {
 
         Account currentUser = findExistingMember(accountRepository, currentUserId);
 
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
 
         findPost.addParticipant(currentUser);
     }
@@ -37,7 +38,7 @@ public class PostJoinService {
 
         Account currentUser = findExistingMember(accountRepository, currentUserId);
 
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
 
         findPost.deleteParticipant(currentUser);
     }

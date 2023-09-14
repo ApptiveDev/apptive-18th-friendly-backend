@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import static apptive.team1.friendly.domain.post.entity.HashTag.*;
+import static apptive.team1.friendly.domain.post.service.PostServiceHelper.findExistingPost;
 import static org.springframework.test.util.AssertionErrors.fail;
 
 @RunWith(SpringRunner.class)
@@ -66,7 +67,7 @@ public class PostServiceTest {
         Long postId = postCRUDService.addPost(account.getId(), newPostForm, files);
 
         // then
-        Assert.assertEquals("게시물 추가가 성공적으로 되어야 한다.", postId, postRepository.findOneByPostId(postId).getId());
+        Assert.assertEquals("게시물 추가가 성공적으로 되어야 한다.", postId, findExistingPost(postRepository, postId).getId());
     }
 
     @Test
@@ -153,10 +154,10 @@ public class PostServiceTest {
         Long postId = postCRUDService.addPost(author.getId(), postFormDto, files);
 
         // when
-        PostDto postDto = postCRUDService.postDetail(postId, currentUser.getId(), author.getId());
+        PostDto postDto = postCRUDService.postDetail(postId, author.getId());
 
         // then
-        Post findPost = postRepository.findOneByPostId(postId);
+        Post findPost = findExistingPost(postRepository, postId);
         Assert.assertEquals("게시물 id와 조회한 id가 일치해야 한다.", postId, postDto.getPostId());
         Assert.assertEquals("게시물 title과 조회한 title이 일치해야 한다.", findPost.getTitle(), postDto.getTitle() );
     }
@@ -195,10 +196,10 @@ public class PostServiceTest {
 
         // when
         files.add(file);
-        Post post = postRepository.findOneByPostId(postId);
+        Post post = findExistingPost(postRepository, postId);
         String title = post.getTitle();
         Long updatedPostId = postCRUDService.updatePost(account.getId(), postId, updateFormDto, files);
-        Post updatedPost = postRepository.findOneByPostId(updatedPostId);
+        Post updatedPost = findExistingPost(postRepository, updatedPostId);
 
         // then
         Assert.assertEquals("업데이트 전과 후의 게시물 아이디는 동일하다",postId, updatedPostId);
@@ -290,7 +291,7 @@ public class PostServiceTest {
         postJoinService.applyJoin(participant.getId(), postId);
 
         //then
-        Post post = postRepository.findOneByPostId(postId);
+        Post post = findExistingPost(postRepository, postId);
         List<AccountPost> accountPosts = post.getAccountPosts();
         Assert.assertEquals("한 명이 참가신청을 하면 참가 인원은 2명이 되어야 한다.", 2, accountPosts.size());
         Assert.assertEquals("신청한 사람은 참여자가 되어야 한다.", AccountType.PARTICIPANT, accountPosts.get(accountPosts.size()-1).getAccountType());
@@ -337,7 +338,7 @@ public class PostServiceTest {
         postJoinService.cancelJoin(participant.getId(), postId);
 
         //then
-        Post post = postRepository.findOneByPostId(postId);
+        Post post = findExistingPost(postRepository, postId);;
         List<AccountPost> accountPosts = post.getAccountPosts();
         Assertions.assertEquals(1,accountPosts.size(), "참여 취소 시 참여 인원이 감소해야 한다.");
     }

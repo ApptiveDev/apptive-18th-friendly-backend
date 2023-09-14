@@ -89,11 +89,9 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDto> postDetail(@PathVariable("postId") Long postId) {
 
-        Long currentUserId = userService.getCurrentUser().getId();
-
         Long authorId = userService.getPostOwner(postId).getId();
 
-        PostDto postDto = postCRUDService.postDetail(postId, currentUserId, authorId);
+        PostDto postDto = postCRUDService.postDetail(postId, authorId);
 
         return new ResponseEntity<>(postDto, HttpStatus.OK);
     }
@@ -131,7 +129,7 @@ public class PostController {
     /**
      * 게시물 참가 신청
      */
-    @PostMapping("/posts/join/{postId}")
+    @PostMapping("/posts/{postId}/join")
     public ResponseEntity<Long> applyJoin(@PathVariable("postId") Long postId) {
         Long currentUserId = userService.getCurrentUser().getId();
         postJoinService.applyJoin(currentUserId, postId);
@@ -141,7 +139,7 @@ public class PostController {
     /**
      * 참가 취소
      */
-    @DeleteMapping("/posts/join/{postId}")
+    @DeleteMapping("/posts/{postId}/join")
     public ResponseEntity<Long> cancelJoin(@PathVariable("postId") Long postId) {
         Long currentUserId = userService.getCurrentUser().getId();
         postJoinService.cancelJoin(currentUserId, postId);

@@ -17,7 +17,7 @@ import java.util.Set;
 @Data
 public class PostDto {
     @Builder(access = AccessLevel.PROTECTED)
-    public PostDto(Long postId, List<ImageDto> postImages, UserInfo authorInfo,
+    public PostDto(Long postId, List<ImageDto> postImages, List<Long> participantIds, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
                    List<CommentDto> comments) {
@@ -30,6 +30,7 @@ public class PostDto {
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
+        this.participantIds = participantIds;
         this.postImages.addAll(postImages);
         this.comments.addAll(comments);
         this.hashTags.addAll(hashTags);
@@ -39,6 +40,8 @@ public class PostDto {
     private Long postId;
 
     private List<ImageDto> postImages = new ArrayList<>();
+
+    private List<Long> participantIds;
 
     private UserInfo authorInfo;
 
@@ -63,11 +66,14 @@ public class PostDto {
 
     private List<CommentDto> comments = new ArrayList<>();
 
-    public static PostDto createPostDto(Post findPost, Account currentUser, Account author) {
-
-        UserInfo currentUserInfo = UserInfo.create(currentUser);
+    public static PostDto createPostDto(Post findPost, Account author, List<Account> participants) {
 
         UserInfo authorInfo = UserInfo.create(author);
+
+        List<Long> participantIds = new ArrayList<>();
+        for (Account participant : participants) {
+            participantIds.add(participant.getId());
+        }
 
         List<ImageDto> postImageDtos = new ArrayList<>(); // 게시물 이미지 DTO 리스트
         for (PostImage postImage : findPost.getPostImages()) {
@@ -85,6 +91,7 @@ public class PostDto {
 
         return PostDto.builder()
                 .authorInfo(authorInfo)
+                .participantIds(participantIds)
                 .postId(findPost.getId())
                 .title(findPost.getTitle())
                 .maxPeople(findPost.getMaxPeople())
