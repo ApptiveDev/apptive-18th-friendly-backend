@@ -70,11 +70,11 @@ public class UserService {
 
         Account account = getCurrentUser();
 
-        account.extraSignup(signupRequest.getBirthday(), signupRequest.getFirstName(),
-                signupRequest.getLastName(), signupRequest.getIntroduction(),
-                signupRequest.getGender(), signupRequest.getInterests(), signupRequest.getLanguages(),
-                signupRequest.getLanguageLevels(), signupRequest.getNation(), signupRequest.getCity(), true,
-                signupRequest.getAffiliation());
+        account.modify(account.getEmail(), account.getPassword(), signupRequest.getFirstName(),
+                signupRequest.getLastName(), signupRequest.getBirthday(), signupRequest.getGender(),
+                signupRequest.getIntroduction(), signupRequest.getInterests(), signupRequest.getNation(),
+                signupRequest.getCity(), signupRequest.getLanguages(), signupRequest.getLanguageLevels(),
+                true, signupRequest.getAffiliation());
 
         return SignupResponse.of(accountRepository.save(account));
     }
