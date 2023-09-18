@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class TourismRepository {
         em.persist(tourism);
     }
 
-    public Tourism findOneById(Long tourismId) {
-        return em.find(Tourism.class, tourismId);
+    public Optional<Tourism> findOneById(Long tourismId) {
+        return Optional.ofNullable(em.find(Tourism.class, tourismId));
     }
 
     public int deleteAll() {
@@ -29,7 +30,7 @@ public class TourismRepository {
                 .executeUpdate();
     }
 
-    public List<Tourism> getTourismList(int pageNum, String tag) { // 동적 쿼리로 수정
+    public List<Tourism> findTourismList(int pageNum, String tag) { // 동적 쿼리로 수정
         TypedQuery<Tourism> query;
         if(tag == null)
             query = em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class);
@@ -48,7 +49,7 @@ public class TourismRepository {
                 .getResultList();
     }
 
-    public List<Tourism> getTourismListNoPagingVersion(String tag) { // 동적 쿼리로 수정
+    public List<Tourism> findTourismListNoPagingVersion(String tag) { // 동적 쿼리로 수정
         TypedQuery<Tourism> query;
         if(tag == null)
             query = em.createQuery("select t from Tourism t ORDER BY RAND()", Tourism.class);
