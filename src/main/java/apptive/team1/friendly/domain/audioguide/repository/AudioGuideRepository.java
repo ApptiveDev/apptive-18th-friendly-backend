@@ -31,6 +31,10 @@ public class AudioGuideRepository {
     }
 
     public List<AudioGuide> findAudioGuidesNoPaging(String keyword) {
+        if(keyword == null) {
+            return em.createQuery("select ag from AudioGuide ag", AudioGuide.class)
+                    .getResultList();
+        }
         return em.createQuery("select ag from AudioGuide ag where ag.title like :keyword or ag.audioTitle like :keyword or ag.script like :keyword", AudioGuide.class)
                 .setParameter("keyword", "%"+keyword+"%")
                 .getResultList();
