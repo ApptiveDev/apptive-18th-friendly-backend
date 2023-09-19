@@ -15,5 +15,4 @@ public class Participant {
     private Long id;
 
     private ImageDto profileImgDto;
-
 }
