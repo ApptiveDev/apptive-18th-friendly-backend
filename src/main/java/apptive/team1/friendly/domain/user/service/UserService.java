@@ -165,6 +165,7 @@ public class UserService {
      * 게시물 주인 정보 조회
      */
     public Account getPostOwner(Long postId) {
+        System.out.println("postId = " + postId);
         return accountRepository.findAuthorByPostId(postId);
     }
 
