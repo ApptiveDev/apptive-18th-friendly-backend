@@ -77,14 +77,14 @@ public class Account {
     @ElementCollection
     private List<Language> languageObjects = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<String> languages = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @Enumerated(EnumType.STRING)
     private List<LanguageLevel> languageLevels = new ArrayList<>();
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     private List<String> interests = new ArrayList<>();
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
@@ -146,27 +146,44 @@ public class Account {
     }
 
     //===========비즈니스 로직===========//
-    public void extraSignup(String birthday, String firstName, String lastName,
-                            String introduction, String gender, List<String> interests,
-                            List<String> languages, List<String> languageLevels, String nation, String city, boolean activated,
-                            String affiliation) {
-        this.birthday = birthday;
+    public void modify(String email, String password, String firstName,
+                       String lastName, String birthday, String gender,
+                       String introduction, List<String> interests, String nation,
+                       String city, List<String> languages, List<String> languageLevels, boolean activated,
+                       String affiliation) {
+        this.email = email;
+        this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.introduction = introduction;
+        this.birthday = birthday;
         this.gender = gender;
-        this.activated = activated;
+        this.introduction = introduction;
         this.interests = interests;
-        this.languages = languages;
         this.nation = nation;
         this.city = city;
+        this.languages = languages;
+        this.activated = activated;
         this.affiliation = affiliation;
 
-        this.languageLevels = new ArrayList<>();
+        if (languages.size() != languageLevels.size()) {
+            throw new Exception400("언어 개수와 언어레벨 개수가 다릅니다.");
+        }
+
+        List<Language> languageList = new ArrayList<>();
+        for (int i = 0; i < languages.size(); i++) {
+            languageList.add(Language.builder()
+                    .languageName(languages.get(i))
+                    .languageLevel(LanguageLevel.getLevelByName(languageLevels.get(i)))
+                    .build());
+        }
+
+        List<LanguageLevel> languageLevelList = new ArrayList<>();
         for (String languageLevelName : languageLevels) {
             LanguageLevel languageLevel = LanguageLevel.getLevelByName(languageLevelName);
-            this.languageLevels.add(languageLevel);
+            languageLevelList.add(languageLevel);
         }
+
+        this.languageLevels = languageLevelList;
     }
 
     public void deleteProfileImage(AwsS3Uploader awsS3Uploader) {

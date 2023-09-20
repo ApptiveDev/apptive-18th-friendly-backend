@@ -19,20 +19,20 @@ public class TourismBoardController {
     private final TourismService tourismService;
 
     @GetMapping("/tourism")
-    public ResponseEntity<List<TourismListDto>> getTourismList(@RequestParam int pageNum, @RequestParam(required = false) String tag) {
-        List<TourismListDto> tourismList = tourismService.getTourismList(pageNum, tag);
+    public ResponseEntity<List<TourismListDto>> TourismList(@RequestParam int pageNum, @RequestParam(required = false) String tag) {
+        List<TourismListDto> tourismList = tourismService.TourismList(pageNum, tag);
         return new ResponseEntity<>(tourismList, HttpStatus.OK);
     }
 
     @GetMapping("/tourism/noPaging")
-    public ResponseEntity<List<TourismListDto>> getTourismListNoPagingVersion(@RequestParam(required = false) String tag) {
-        List<TourismListDto> tourismList = tourismService.getTourismListNoPagingVersion(tag);
+    public ResponseEntity<List<TourismListDto>> TourismListNoPagingVersion(@RequestParam(required = false) String tag) {
+        List<TourismListDto> tourismList = tourismService.TourismListNoPagingVersion(tag);
         return new ResponseEntity<>(tourismList, HttpStatus.OK);
     }
 
     @GetMapping("/tourism/{tourismId}")
-    public ResponseEntity<TourismDto> getTourismDetail(@PathVariable Long tourismId) {
-        TourismDto tourismDetail = tourismService.getTourismDetail(tourismId);
+    public ResponseEntity<TourismDto> TourismDetail(@PathVariable Long tourismId) {
+        TourismDto tourismDetail = tourismService.TourismDetail(tourismId);
         return new ResponseEntity<>(tourismDetail, HttpStatus.OK);
     }
 }

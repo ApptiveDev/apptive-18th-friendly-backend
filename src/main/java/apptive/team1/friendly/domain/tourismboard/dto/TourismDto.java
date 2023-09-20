@@ -23,7 +23,7 @@ public class TourismDto {
 
     private String itemcntnts; // 상세 내용
 
-    private TourismType tourismType;
+    private String tourismType;
 
     private String addr1;
 
@@ -45,7 +45,7 @@ public class TourismDto {
                 .subtitle(tourism.getSubtitle())
                 .main_img_normal(tourism.getMain_img_normal())
                 .itemcntnts(tourism.getItemcntnts())
-                .tourismType(tourism.getTourismType());
+                .tourismType(TourismType.toKoreanName(tourism.getTourismType()));
 
         if (tourism instanceof FamousRestaurant) {
             FamousRestaurant restaurant = (FamousRestaurant) tourism;

@@ -2,7 +2,9 @@ package apptive.team1.friendly.domain.post.dto;
 import apptive.team1.friendly.domain.post.dto.comment.CommentDto;
 import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.entity.comment.Comment;
+import apptive.team1.friendly.domain.post.vo.Participant;
 import apptive.team1.friendly.domain.user.data.entity.Account;
+import apptive.team1.friendly.domain.user.data.entity.ProfileImg;
 import apptive.team1.friendly.global.common.s3.ImageDto;
 import apptive.team1.friendly.domain.user.data.dto.UserInfo;
 import lombok.AccessLevel;
@@ -17,7 +19,7 @@ import java.util.Set;
 @Data
 public class PostDto {
     @Builder(access = AccessLevel.PROTECTED)
-    public PostDto(Long postId, List<ImageDto> postImages, List<Long> participantIds, UserInfo authorInfo,
+    public PostDto(Long postId, List<ImageDto> postImages, List<Participant> participants, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
                    List<CommentDto> comments) {
@@ -30,7 +32,7 @@ public class PostDto {
         this.startDate = startDate;
         this.endDate = endDate;
         this.location = location;
-        this.participantIds = participantIds;
+        this.participants = participants;
         this.postImages.addAll(postImages);
         this.comments.addAll(comments);
         this.hashTags.addAll(hashTags);
@@ -41,7 +43,7 @@ public class PostDto {
 
     private List<ImageDto> postImages = new ArrayList<>();
 
-    private List<Long> participantIds;
+    private List<Participant> participants;
 
     private UserInfo authorInfo;
 
@@ -70,9 +72,15 @@ public class PostDto {
 
         UserInfo authorInfo = UserInfo.create(author);
 
-        List<Long> participantIds = new ArrayList<>();
-        for (Account participant : participants) {
-            participantIds.add(participant.getId());
+        List<Participant> participantList = new ArrayList<>();
+        for (Account participantAccount : participants) { // 참여자 객체 생성 후 저장
+            ProfileImg profileImg = participantAccount.getProfileImg();
+            ImageDto imageDto = null;
+            if(profileImg != null) {
+                imageDto = new ImageDto(profileImg.getOriginalFileName(), profileImg.getUploadFileName(), profileImg.getUploadFilePath(), profileImg.getUploadFileUrl());
+            }
+            Participant participant = new Participant(participantAccount.getId(), imageDto);
+            participantList.add(participant);
         }
 
         List<ImageDto> postImageDtos = new ArrayList<>(); // 게시물 이미지 DTO 리스트
@@ -91,7 +99,7 @@ public class PostDto {
 
         return PostDto.builder()
                 .authorInfo(authorInfo)
-                .participantIds(participantIds)
+                .participants(participantList)
                 .postId(findPost.getId())
                 .title(findPost.getTitle())
                 .maxPeople(findPost.getMaxPeople())

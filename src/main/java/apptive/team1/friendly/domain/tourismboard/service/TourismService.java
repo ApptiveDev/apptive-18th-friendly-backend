@@ -6,12 +6,14 @@ import apptive.team1.friendly.domain.tourismboard.entity.FamousRestaurant;
 import apptive.team1.friendly.domain.tourismboard.entity.ThemeTourism;
 import apptive.team1.friendly.domain.tourismboard.entity.Tourism;
 import apptive.team1.friendly.domain.tourismboard.entity.WalkingTourism;
+import apptive.team1.friendly.domain.tourismboard.exception.NoTourismException;
 import apptive.team1.friendly.domain.tourismboard.repository.TourismRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +32,19 @@ public class TourismService {
         return tourismRepository.deleteAll();
     }
 
-    public List<TourismListDto> getTourismList(int pageNum, String tag) {
-        List<Tourism> tourismList = tourismRepository.getTourismList(pageNum, tag);
+    public List<TourismListDto> TourismList(int pageNum, String tag) {
+        List<Tourism> tourismList = tourismRepository.findTourismList(pageNum, tag);
         return TourismListDto.create(tourismList);
     }
 
-    public List<TourismListDto> getTourismListNoPagingVersion(String tag) {
-        List<Tourism> tourismList = tourismRepository.getTourismListNoPagingVersion(tag);
+    public List<TourismListDto> TourismListNoPagingVersion(String tag) {
+        List<Tourism> tourismList = tourismRepository.findTourismListNoPagingVersion(tag);
         return TourismListDto.create(tourismList);
     }
 
-    public TourismDto getTourismDetail(Long tourismId) {
-        Tourism tourism = tourismRepository.findOneById(tourismId);
-        return TourismDto.create(tourism);
+    public TourismDto TourismDetail(Long tourismId) {
+        Optional<Tourism> tourismOptional = tourismRepository.findOneById(tourismId);
+        tourismOptional.orElseThrow(() -> new NoTourismException("존재하는 관광지가 없습니다."));
+        return TourismDto.create(tourismOptional.get());
     }
 }
