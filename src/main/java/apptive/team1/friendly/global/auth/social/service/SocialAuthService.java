@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -138,17 +139,20 @@ public class SocialAuthService {
 
         // 처음 사용자일때
         if (account == null) {
-            tempSignup(email);
+            Account tempAccount = tempSignup(email);
+            response.setId(tempAccount.getId());
             response.setRegistered(false);
             return response;
         }
         // 회원 가입을 완료하지 않은 사용자일때
         else if (!account.isActivated()){
+            response.setId(account.getId());
             response.setRegistered(false);
             return response;
         }
         // 기존 사용자일때
         else {
+            response.setId(account.getId());
             response.setRegistered(true);
             return response;
         }
@@ -173,7 +177,7 @@ public class SocialAuthService {
     /**
      * 소셜 임시 회원가입
      */
-    public void tempSignup(String email) {
+    public Account tempSignup(String email) {
         Authority authority = authorityRepository.getReferenceById("ROLE_USER");
 
         Account user = Account.builder()
@@ -191,5 +195,7 @@ public class SocialAuthService {
 
         authorityRepository.save(authority);
         accountRepository.save(user);
+
+        return user;
     }
 }
