@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SocialAuthResponse {
 
+    private Long id;
     private String accessToken;
     private boolean isRegistered;
 }
