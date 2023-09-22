@@ -55,9 +55,9 @@ public class UserController {
     /**
      * id 기반 회원 조회 api
      */
-    @GetMapping("/info/id/{id}")
-    public ResponseEntity<AccountInfoResponse> getAccountInfoById(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.getUserWithAuthoritiesById(id), HttpStatus.OK);
+    @GetMapping("/info/{id}")
+    public ResponseEntity<UserInfo> getAccountInfo(@PathVariable Long id) {
+        return new ResponseEntity<>(userService.getMyInfo(), HttpStatus.OK);
     }
 
     /**
