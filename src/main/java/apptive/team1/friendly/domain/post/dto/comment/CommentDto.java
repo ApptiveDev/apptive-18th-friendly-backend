@@ -1,5 +1,6 @@
 package apptive.team1.friendly.domain.post.dto.comment;
 
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -13,6 +14,18 @@ public class CommentDto {
         this.text = text;
         this.createTime = createTime;
     }
+
+    public CommentDto(Long id, ProfileImgDto profileImgDto, String username, String text, LocalDateTime createTime) {
+        this.id = id;
+        this.profileImgDto = profileImgDto;
+        this.username = username;
+        this.text = text;
+        this.createTime = createTime;
+    }
+
+    private Long id;
+
+    private ProfileImgDto profileImgDto;
 
     private String username;
 
