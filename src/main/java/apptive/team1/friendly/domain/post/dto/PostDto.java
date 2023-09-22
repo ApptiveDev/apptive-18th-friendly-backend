@@ -3,6 +3,7 @@ import apptive.team1.friendly.domain.post.dto.comment.CommentDto;
 import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.entity.comment.Comment;
 import apptive.team1.friendly.domain.post.vo.Participant;
+import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.domain.user.data.entity.ProfileImg;
 import apptive.team1.friendly.global.common.s3.ImageDto;
@@ -90,9 +91,28 @@ public class PostDto {
             postImageDtos.add(postImageDto);
         }
 
+
         List<CommentDto> commentDtos = new ArrayList<>(); // 게시물 댓글 DTO 리스트
         for (Comment comment : findPost.getComments()) {
-            CommentDto commentDto = new CommentDto(comment.getAccount().getFirstName() + comment.getAccount().getLastName(),
+            Account commentAuthor = comment.getAccount();
+
+            ProfileImgDto profileImgDto = ProfileImgDto.builder()
+                    .email(null)
+                    .uploadFileUrl(null)
+                    .uploadFilePath(null)
+                    .uploadFileName(null)
+                    .originalFileName(null)
+                    .build();
+
+            if(commentAuthor.getProfileImg() != null) {
+                profileImgDto.setEmail(commentAuthor.getEmail());
+                profileImgDto.setUploadFileUrl(commentAuthor.getProfileImg().getUploadFileUrl());
+                profileImgDto.setUploadFilePath(commentAuthor.getProfileImg().getUploadFilePath());
+                profileImgDto.setUploadFileName(commentAuthor.getProfileImg().getUploadFileName());
+                profileImgDto.setOriginalFileName(commentAuthor.getProfileImg().getOriginalFileName());
+            }
+
+            CommentDto commentDto = new CommentDto(commentAuthor.getId(), profileImgDto, commentAuthor.getFirstName() + commentAuthor.getLastName(),
                     comment.getText(), comment.getCreatedDate());
             commentDtos.add(commentDto);
         }
