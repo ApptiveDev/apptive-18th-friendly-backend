@@ -57,7 +57,7 @@ public class UserController {
      */
     @GetMapping("/info/{id}")
     public ResponseEntity<UserInfo> getAccountInfo(@PathVariable Long id) {
-        return new ResponseEntity<>(userService.getMyInfo(), HttpStatus.OK);
+        return new ResponseEntity<>(userService.getUserInfo(id), HttpStatus.OK);
     }
 
     /**
