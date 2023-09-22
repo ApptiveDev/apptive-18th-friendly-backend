@@ -99,6 +99,12 @@ public class UserService {
         return UserInfo.create(getCurrentUser());
     }
 
+    @Transactional(readOnly = true)
+    public UserInfo getUserInfo(Long userId) {
+        Account account = accountRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        return UserInfo.create(account);
+    }
+
     /**
      * id로 AccountInfoResponse 반환
      */
