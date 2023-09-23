@@ -45,7 +45,7 @@ public class TourismDto {
                 .title(tourism.getTitle())
                 .subtitle(tourism.getSubtitle())
                 .main_img_normal(tourism.getMain_img_normal())
-                .itemcntnts(HtmlTextExtractor.htmlToText(tourism.getItemcntnts()))
+                .itemcntnts(HtmlTextExtractor.removeHtmlTagsAndReplaceWithNewline(tourism.getItemcntnts()))
                 .tourismType(TourismType.toKoreanName(tourism.getTourismType()));
 
         if (tourism instanceof FamousRestaurant) {
