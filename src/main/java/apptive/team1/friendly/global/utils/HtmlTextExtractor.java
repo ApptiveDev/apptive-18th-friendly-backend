@@ -15,7 +15,7 @@ public class HtmlTextExtractor {
         StringBuilder result = new StringBuilder();
         for (Element element : elements) {
             if (element.ownText() != null && !element.ownText().isEmpty()) {
-                result.append(element.ownText() + " ");
+                result.append(element.ownText() + "\n");
             }
         }
 
