@@ -6,6 +6,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.util.regex.Pattern;
+
 public class HtmlTextExtractor {
 
     public static String htmlToText(String html) {
@@ -20,5 +22,10 @@ public class HtmlTextExtractor {
         }
 
         return result.toString();
+    }
+
+    public static String removeHtmlTagsAndReplaceWithNewline(String html) {
+        String noTags = Pattern.compile("<[^>]*>").matcher(html).replaceAll("\n");
+        return noTags.replaceAll("\n{3,}", "\n\n");
     }
 }
