@@ -1,6 +1,7 @@
 package apptive.team1.friendly.domain.tourismboard.dto;
 
 import apptive.team1.friendly.domain.tourismboard.entity.*;
+import apptive.team1.friendly.global.utils.HtmlTextExtractor;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -44,7 +45,7 @@ public class TourismDto {
                 .title(tourism.getTitle())
                 .subtitle(tourism.getSubtitle())
                 .main_img_normal(tourism.getMain_img_normal())
-                .itemcntnts(tourism.getItemcntnts())
+                .itemcntnts(HtmlTextExtractor.htmlToText(tourism.getItemcntnts()))
                 .tourismType(TourismType.toKoreanName(tourism.getTourismType()));
 
         if (tourism instanceof FamousRestaurant) {
