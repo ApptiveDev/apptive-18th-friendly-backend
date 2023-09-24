@@ -29,15 +29,6 @@ public class PostController {
 
     private final PostJoinService postJoinService;
 
-    /**
-     * 게시물 추가
-     */
-    @GetMapping("/posts/create") // 게시물 추가 화면 구성
-    public ResponseEntity<UserInfo> addPost() {
-        UserInfo userInfo = userService.getCurrentUserInfo();
-        return ResponseEntity.status(HttpStatus.OK).body(userInfo);
-    }
-
     @PostMapping("/posts/create") // 게시물 추가
     public ResponseEntity<Long> addPost(@RequestPart PostFormDto postForm, @RequestPart List<MultipartFile> imageFiles) throws IOException {
         Long authorId = userService.getCurrentUser().getId();

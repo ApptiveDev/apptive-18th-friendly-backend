@@ -3,6 +3,7 @@ package apptive.team1.friendly.domain.post.entity;
 import apptive.team1.friendly.domain.post.dto.PostFormDto;
 import apptive.team1.friendly.domain.post.entity.comment.Comment;
 import apptive.team1.friendly.domain.post.exception.*;
+import apptive.team1.friendly.domain.post.vo.Coordinate;
 import apptive.team1.friendly.domain.user.data.entity.Account;
 import apptive.team1.friendly.global.baseEntity.BaseEntity;
 import apptive.team1.friendly.global.common.s3.AwsS3Uploader;
@@ -29,13 +30,14 @@ public class Post extends BaseEntity {
     @Builder
     public Post(String title, String description, int maxPeople,
                 LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                Set<HashTag> hashTags, LocalDateTime createdDate) {
+                Set<Coordinate> coordinates, Set<HashTag> hashTags, LocalDateTime createdDate) {
         this.title = title;
         this.description = description;
         this.maxPeople = maxPeople;
 //        this.promiseTime = promiseTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.coordinates = coordinates;
         this.location = location;
         this.rules = rules;
         this.hashTags = hashTags;
@@ -68,6 +70,9 @@ public class Post extends BaseEntity {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    private Set<Coordinate> coordinates = new HashSet<>();
 
     private String location;
 
@@ -124,6 +129,7 @@ public class Post extends BaseEntity {
 //        this.promiseTime = formDto.getPromiseTime();
         this.startDate = formDto.getStartDate();
         this.endDate = formDto.getEndDate();
+        this.coordinates = formDto.getCoordinates();
         this.location = formDto.getLocation();
         this.rules = formDto.getRules();
         this.setLastModifiedDate(LocalDateTime.now());
@@ -215,6 +221,7 @@ public class Post extends BaseEntity {
                 .startDate(formDto.getStartDate())
                 .endDate(formDto.getEndDate())
                 .description(formDto.getDescription())
+                .coordinates(formDto.getCoordinates())
                 .location(formDto.getLocation())
                 .hashTags(formDto.getHashTags())
                 .rules(formDto.getRules())

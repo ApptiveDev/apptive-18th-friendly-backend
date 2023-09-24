@@ -3,10 +3,13 @@ package apptive.team1.friendly.domain.post.dto;
 import apptive.team1.friendly.domain.post.entity.HashTag;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.entity.AudioGuide;
+import apptive.team1.friendly.domain.post.vo.Coordinate;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,13 +22,14 @@ public class PostFormDto {
     @Builder
     public PostFormDto(String title, Set<HashTag> hashTags, int maxPeople, String description,
                        LocalDate startDate, LocalDate endDate, String location,
-                       Set<String> rules) {
+                       Set<Coordinate> coordinates, Set<String> rules) {
         this.title = title;
         this.maxPeople = maxPeople;
         this.description = description;
 //        this.promiseTime = promiseTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.coordinates = coordinates;
         this.location = location;
         this.hashTags.addAll(hashTags);
         this.rules.addAll(rules);
@@ -48,6 +52,8 @@ public class PostFormDto {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
+    private Set<Coordinate> coordinates = new HashSet<>();
+
     private String location;
 
     private Set<String> rules = new HashSet<>();
@@ -63,6 +69,7 @@ public class PostFormDto {
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
                 .location(post.getLocation())
+                .coordinates(post.getCoordinates())
                 .build();
     }
 }

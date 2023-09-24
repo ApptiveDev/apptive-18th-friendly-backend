@@ -2,6 +2,7 @@ package apptive.team1.friendly.domain.post.dto;
 import apptive.team1.friendly.domain.post.dto.comment.CommentDto;
 import apptive.team1.friendly.domain.post.entity.*;
 import apptive.team1.friendly.domain.post.entity.comment.Comment;
+import apptive.team1.friendly.domain.post.vo.Coordinate;
 import apptive.team1.friendly.domain.post.vo.Participant;
 import apptive.team1.friendly.domain.user.data.dto.profile.ProfileImgDto;
 import apptive.team1.friendly.domain.user.data.entity.Account;
@@ -23,7 +24,7 @@ public class PostDto {
     public PostDto(Long postId, List<ImageDto> postImages, List<Participant> participants, UserInfo authorInfo,
                    String title, Set<HashTag> hashTags, int maxPeople, String description,
                    LocalDate startDate, LocalDate endDate, String location, Set<String> rules,
-                   List<CommentDto> comments) {
+                   Set<Coordinate> coordinates, List<CommentDto> comments) {
         this.postId = postId;
         this.authorInfo = authorInfo;
         this.title = title;
@@ -32,6 +33,7 @@ public class PostDto {
 //        this.promiseTime = promiseTime;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.coordinates = coordinates;
         this.location = location;
         this.participants = participants;
         this.postImages.addAll(postImages);
@@ -62,6 +64,8 @@ public class PostDto {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    Set<Coordinate> coordinates = new HashSet<>();
 
     private String location;
 
@@ -132,6 +136,7 @@ public class PostDto {
                 .rules(findPost.getRules())
                 .postImages(postImageDtos)
                 .location(findPost.getLocation())
+                .coordinates(findPost.getCoordinates())
                 .build();
     }
 }
