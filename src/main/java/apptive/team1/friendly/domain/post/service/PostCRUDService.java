@@ -60,6 +60,7 @@ public class PostCRUDService {
         Account author = findExistingMember(accountRepository, authorId);
 
         Post findPost = findExistingPost(postRepository, postId);
+        findPost.getCoordinates().size();
 
         List<Account> participants = accountRepository.findAccountsByPostId(postId);
 
