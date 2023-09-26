@@ -2,6 +2,7 @@ package apptive.team1.friendly.global.error;
 
 import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
 import apptive.team1.friendly.domain.post.exception.DuplicatedEmailException;
+import apptive.team1.friendly.domain.post.exception.NotFoundCommentException;
 import apptive.team1.friendly.global.error.exception.CustomException;
 import apptive.team1.friendly.global.error.exception.Exception400;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +59,20 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
                         .status(HttpStatus.BAD_REQUEST.value())
                         .error(HttpStatus.BAD_REQUEST.name())
                         .code("DUPLICATED_EMAIL")
+                        .message(e.getMessage())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(value = {NotFoundCommentException.class})
+    protected ResponseEntity<ErrorResponse> handleNotFoundCommentException(NotFoundCommentException e) {
+        log.error("ExceptionHandler catch NotFoundCommentException: {}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.NOT_FOUND.value())
+                        .error(HttpStatus.NOT_FOUND.name())
+                        .code("COMMENT_NOT_FOUND")
                         .message(e.getMessage())
                         .build()
                 );

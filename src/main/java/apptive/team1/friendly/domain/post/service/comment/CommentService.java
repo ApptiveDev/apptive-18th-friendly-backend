@@ -2,6 +2,8 @@ package apptive.team1.friendly.domain.post.service.comment;
 
 import apptive.team1.friendly.domain.post.dto.comment.CommentFormDto;
 import apptive.team1.friendly.domain.post.entity.comment.Comment;
+import apptive.team1.friendly.domain.post.exception.AccessDeniedException;
+import apptive.team1.friendly.domain.post.exception.NotFoundCommentException;
 import apptive.team1.friendly.domain.post.repository.comment.CommentRepository;
 import apptive.team1.friendly.domain.post.entity.Post;
 import apptive.team1.friendly.domain.post.repository.PostRepository;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static apptive.team1.friendly.domain.post.service.PostServiceHelper.findExistingPost;
 
@@ -48,5 +51,18 @@ public class CommentService {
 
         // id 리턴
         return newComment.getId();
+    }
+
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundCommentException("댓글을 찾을 수 없습니다."));
+        checkCommentAuthor(comment, userId);
+        commentRepository.delete(comment);
+    }
+
+    private void checkCommentAuthor(Comment comment, Long userId) {
+        if (!Objects.equals(comment.getAccount().getId(), userId)) {
+            throw new AccessDeniedException("댓글 삭제 권한이 없습니다.");
+        }
     }
 }
