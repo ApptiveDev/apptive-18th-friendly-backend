@@ -15,9 +15,10 @@ public class CommentDto {
         this.createTime = createTime;
     }
 
-    public CommentDto(Long id, ProfileImgDto profileImgDto, String username, String text, LocalDateTime createTime) {
+    public CommentDto(Long id, ProfileImgDto profileImgDto, Long userId, String username, String text, LocalDateTime createTime) {
         this.id = id;
         this.profileImgDto = profileImgDto;
+        this.userId = userId;
         this.username = username;
         this.text = text;
         this.createTime = createTime;
@@ -26,6 +27,8 @@ public class CommentDto {
     private Long id;
 
     private ProfileImgDto profileImgDto;
+
+    private Long userId;
 
     private String username;
 
