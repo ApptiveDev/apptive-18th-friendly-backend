@@ -116,7 +116,7 @@ public class PostDto {
                 profileImgDto.setOriginalFileName(commentAuthor.getProfileImg().getOriginalFileName());
             }
 
-            CommentDto commentDto = new CommentDto(commentAuthor.getId(), profileImgDto, commentAuthor.getFirstName() + commentAuthor.getLastName(),
+            CommentDto commentDto = new CommentDto(comment.getId(), profileImgDto, commentAuthor.getId(), commentAuthor.getFirstName() + commentAuthor.getLastName(),
                     comment.getText(), comment.getCreatedDate());
             commentDtos.add(commentDto);
         }

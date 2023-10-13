@@ -30,18 +30,18 @@ public class AudioGuideController extends ApiBase {
 
     @GetMapping("/audioGuide")
     public ResponseEntity<List<AudioGuide>> audioGuideList(@RequestParam int pageNum, @RequestParam(required = false) String keyword) {
-        if(keyword != null && keyword.length() < 2) {
-            throw new RuntimeException("검색어를 두 글자 이상 입력해주세요.");
-        }
+//        if(keyword != null && keyword.length() < 2) {
+//            throw new RuntimeException("검색어를 두 글자 이상 입력해주세요.");
+//        }
         List<AudioGuide> audioGuides = audioGuideRepository.findAudioGuides(pageNum, keyword);
         return new ResponseEntity<>(audioGuides, HttpStatus.OK);
     }
 
     @GetMapping("/audioGuideNoPaging")
     public ResponseEntity<List<AudioGuide>> audioGuideListNoPage(@RequestParam(required = false) String keyword) {
-        if(keyword != null && keyword.length() < 2) {
-            throw new RuntimeException("검색어를 두 글자 이상 입력해주세요.");
-        }
+//        if(keyword != null && keyword.length() < 2) {
+//            throw new RuntimeException("검색어를 두 글자 이상 입력해주세요.");
+//        }
         List<AudioGuide> audioGuides = audioGuideRepository.findAudioGuidesNoPaging(keyword);
         return new ResponseEntity<>(audioGuides, HttpStatus.OK);
     }

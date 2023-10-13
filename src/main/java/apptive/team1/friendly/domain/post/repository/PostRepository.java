@@ -81,20 +81,20 @@ public class PostRepository {
      */
     public List<Post> findAll(String tag, String keyword) {
         if(tag == null && keyword == null)
-            return em.createQuery("select distinct p from Post p left join fetch p.hashTags", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags order by p.lastModifiedDate desc", Post.class)
                     .getResultList();
         else if(tag == null) {
-            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where p.title like :keyword or p.description like :keyword or p.location like :keyword order by p.lastModifiedDate desc", Post.class)
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();
         }
         else if(keyword == null) {
-            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags order by p.lastModifiedDate desc", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .getResultList();
         }
         else {
-            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and (p.title like :keyword or p.description like :keyword or p.location like :keyword)", Post.class)
+            return em.createQuery("select distinct p from Post p left join fetch p.hashTags where :tag MEMBER OF p.hashTags and (p.title like :keyword or p.description like :keyword or p.location like :keyword) order by p.lastModifiedDate desc", Post.class)
                     .setParameter("tag", HashTag.valueOf(tag.toUpperCase()))
                     .setParameter("keyword", "%"+keyword+"%")
                     .getResultList();
